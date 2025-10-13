@@ -1,5 +1,7 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import { getImageUrl } from '@/lib/imageUrl';
+import Image from 'next/image';
 
 export default function MasinyusaneHome() {
   const [activeSlide, setActiveSlide] = useState(0);
@@ -20,10 +22,10 @@ export default function MasinyusaneHome() {
    
 
       {/* Hero Video Section */}
-      <section className="relative h-screen mt-16">
+      <section className="relative h-screen">
         <div className="relative h-full">
           <video autoPlay muted loop playsInline className="w-full h-full object-cover">
-            <source src="/videos/Home_Page_Hero_Video_3.mp4" type="video/mp4" />
+            <source src={getImageUrl("/images/Home_Page_Hero_Video_3.mp4")} type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-black/40 flex items-center">
             <div className="container mx-auto px-4">
@@ -53,7 +55,14 @@ export default function MasinyusaneHome() {
 
       {/* Child Strip */}
       <section className="relative">
-        <img src="/images/Website Strip - Child Red.png" alt="Smiling Girl" className="w-full h-auto" />
+      <Image 
+     src={getImageUrl('/images/Website Strip - Child Red.png')}
+     alt="Smiling Girl"
+     width={800}
+     height={600}
+     className="w-full h-auto"
+     />
+        {/* <img src="/images/Website Strip - Child Red.png" alt="Smiling Girl" className="w-full h-auto" /> */}
         <div className="absolute top-1/2 left-[10%] -translate-y-1/2 text-white hidden md:block">
           <h1 className="text-8xl font-extrabold mb-2">2x</h1>
           <p className="text-2xl font-light">Children on the program</p>
@@ -103,7 +112,14 @@ export default function MasinyusaneHome() {
 
       {/* Youth Strip */}
       <section className="relative">
-        <img src="/images/Website Strip Community jobs 2 (sml).png" alt="Community Jobs" className="w-full h-auto" />
+        <Image 
+        src={getImageUrl("/images/Website Strip Community jobs 2 (sml).png")}
+        className="w-full h-auto"
+        alt="Community Jobs"
+        width={800}
+        height={600}
+        />
+        {/* <img src="/images/Website Strip Community jobs 2 (sml).png" alt="Community Jobs" className="w-full h-auto" /> */}
         <div className="absolute top-1/2 left-[10%] -translate-y-1/2 text-white hidden md:block">
           <h1 className="text-8xl font-extrabold mb-2">316</h1>
           <p className="text-2xl font-light">We have created</p>
@@ -154,7 +170,14 @@ export default function MasinyusaneHome() {
 
       {/* Scholarship Strip */}
       <section className="relative">
-        <img src="/images/Website Strip - TL.png" alt="Top Learner" className="w-full h-auto" />
+        <Image 
+          src={getImageUrl('images/Website Strip - TL.png')}
+          alt="Top Learner"
+          width={1920}
+          height={600}
+          className="w-full h-auto"
+        />
+        {/* <img src="/images/Website Strip - TL.png" alt="Top Learner" className="w-full h-auto" /> */}
         <div className="absolute top-1/2 left-[10%] -translate-y-1/2 text-white hidden md:block">
           <h1 className="text-8xl font-extrabold mb-2">454</h1>
           <p className="text-2xl font-light">We have empowered</p>
@@ -219,10 +242,14 @@ export default function MasinyusaneHome() {
             <div className="md:col-span-8 relative">
               <div className="relative overflow-hidden rounded-lg">
                 <div className="flex transition-transform duration-500" style={{transform: `translateX(-${activeSlide * 100}%)`}}>
-                  <img src="/images/grads/grad-carousel1.png" alt="Graduate 1" className="w-full flex-shrink-0" />
-                  <img src="/images/grads/grad-carousel2.png" alt="Graduate 2" className="w-full flex-shrink-0" />
-                  <img src="/images/grads/grad-carousel3.png" alt="Graduate 3" className="w-full flex-shrink-0" />
-                  <img src="/images/grads/grad-carousel4.png" alt="Graduate 4" className="w-full flex-shrink-0" />
+                  <Image src={getImageUrl('images/grads/grad-carousel1.png')} alt="Graduate 1" width={800} height={600} className="w-full flex-shrink-0" />
+                  <Image src={getImageUrl('images/grads/grad-carousel2.png')} alt="Graduate 2" width={800} height={600} className="w-full flex-shrink-0" />
+                  <Image src={getImageUrl('images/grads/grad-carousel3.png')} alt="Graduate 3" width={800} height={600} className="w-full flex-shrink-0" />
+                  <Image src={getImageUrl('images/grads/grad-carousel4.png')} alt="Graduate 4" width={800} height={600} className="w-full flex-shrink-0" />
+                  {/* <img src="/images/grads/grad-carousel1.png" alt="Graduate 1" className="w-full flex-shrink-0" /> */}
+                  {/* <img src="/images/grads/grad-carousel2.png" alt="Graduate 2" className="w-full flex-shrink-0" /> */}
+                  {/* <img src="/images/grads/grad-carousel3.png" alt="Graduate 3" className="w-full flex-shrink-0" /> */}
+                  {/* <img src="/images/grads/grad-carousel4.png" alt="Graduate 4" className="w-full flex-shrink-0" /> */}
                 </div>
                 <button onClick={prevSlide} className="absolute left-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition">‹</button>
                 <button onClick={nextSlide} className="absolute right-4 top-1/2 -translate-y-1/2 bg-black/50 text-white p-3 rounded-full hover:bg-black/70 transition">›</button>
@@ -249,7 +276,14 @@ export default function MasinyusaneHome() {
               </a>
             </div>
             <div className="hidden md:block">
-              <img src="/images/polar_chart_transparent_white_labels_with_padding.png" alt="Data Chart" className="w-full h-auto" />
+              <Image 
+                src={getImageUrl('images/polar_chart_transparent_white_labels_with_padding.png')}
+                alt="Data Chart"
+                width={600}
+                height={600}
+                className="w-full h-auto"
+              />
+              {/* <img src="/images/polar_chart_transparent_white_labels_with_padding.png" alt="Data Chart" className="w-full h-auto" /> */}
             </div>
           </div>
         </div>
@@ -313,14 +347,22 @@ export default function MasinyusaneHome() {
             <div className="flex animate-scroll space-x-12">
               {[...Array(2)].map((_, idx) => (
                 <div key={idx} className="flex space-x-12 flex-shrink-0">
-                  <img src="/images/logos/logo-dgmt.jpg" alt="DGMT" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
-                  <img src="/images/logos/logo-MIT.png" alt="MIT" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
-                  <img src="/images/logos/logo-DoE.png" alt="DoE" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
-                  <img src="/images/logos/logo-tlt.png" alt="TLT" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
-                  <img src="/images/logos/logo-vw.png" alt="VW" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
-                  <img src="/images/logos/logo-DoE-national.jpeg" alt="National DoE" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
-                  <img src="/images/logos/logo-dd.png" alt="DD" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
-                  <img src="/images/logos/logo-yebo.png" alt="Yebo" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
+                  <Image src={getImageUrl('images/logos/logo-dgmt.jpg')} alt="DGMT" width={200} height={64} className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
+                  <Image src={getImageUrl('images/logos/logo-MIT.png')} alt="MIT" width={200} height={64} className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
+                  <Image src={getImageUrl('images/logos/logo-DoE.png')} alt="DoE" width={200} height={64} className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
+                  <Image src={getImageUrl('images/logos/logo-tlt.png')} alt="TLT" width={200} height={64} className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
+                  <Image src={getImageUrl('images/logos/logo-vw.png')} alt="VW" width={200} height={64} className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
+                  <Image src={getImageUrl('images/logos/logo-DoE-national.jpeg')} alt="National DoE" width={200} height={64} className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
+                  <Image src={getImageUrl('images/logos/logo-dd.png')} alt="DD" width={200} height={64} className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
+                  <Image src={getImageUrl('images/logos/logo-yebo.png')} alt="Yebo" width={200} height={64} className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" />
+                  {/* <img src="/images/logos/logo-dgmt.jpg" alt="DGMT" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" /> */}
+                  {/* <img src="/images/logos/logo-MIT.png" alt="MIT" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" /> */}
+                  {/* <img src="/images/logos/logo-DoE.png" alt="DoE" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" /> */}
+                  {/* <img src="/images/logos/logo-tlt.png" alt="TLT" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" /> */}
+                  {/* <img src="/images/logos/logo-vw.png" alt="VW" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" /> */}
+                  {/* <img src="/images/logos/logo-DoE-national.jpeg" alt="National DoE" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" /> */}
+                  {/* <img src="/images/logos/logo-dd.png" alt="DD" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" /> */}
+                  {/* <img src="/images/logos/logo-yebo.png" alt="Yebo" className="h-16 object-contain grayscale opacity-50 hover:grayscale-0 hover:opacity-100 transition" /> */}
                 </div>
               ))}
             </div>
@@ -339,18 +381,38 @@ export default function MasinyusaneHome() {
                 <p className="text-sm">72 Russell Road, Central, Gqeberha 6001</p>
                 <p className="text-sm">NPO: 074-244</p>
               </div>
-              <div>
+              <div className="mb-4">
                 <p className="font-semibold text-white text-sm">United States</p>
                 <p className="text-sm">149 Massachusetts Avenue, Boston, MA</p>
-                <p className="text-sm">501c3: 27-3024837</p>
-                <p className="text-sm mt-2">Email: info@masinyusane.org</p>
+                <p className="text-sm">50163: 27-3024837</p>
               </div>
+              <div>
+                <p className="text-sm">Email: info@masinyusane.org</p>
+              </div>
+            </div>
+            <div>
+              <h6 className="text-white mb-4 text-sm font-semibold">Quick Links</h6>
+              <ul className="space-y-2 text-sm">
+                <li><a href="/" className="hover:text-yellow-500 transition">Home</a></li>
+                <li><a href="/about" className="hover:text-yellow-500 transition">About Us</a></li>
+                <li><a href="/where-we-work" className="hover:text-yellow-500 transition">Where We Work</a></li>
+                <li><a href="/apply" className="hover:text-yellow-500 transition">Apply Here</a></li>
+                <li><a href="/staff-portal" className="hover:text-yellow-500 transition">Staff Portal</a></li>
+              </ul>
+            </div>
+            <div>
+              <h6 className="text-white mb-4 text-sm font-semibold">Programmes</h6>
+              <ul className="space-y-2 text-sm">
+                <li><a href="/early-childhood-education" className="hover:text-yellow-500 transition">Early Childhood Education</a></li>
+                <li><a href="/community-jobs" className="hover:text-yellow-500 transition">Community Jobs</a></li>
+                <li><a href="/scholarship-fund" className="hover:text-yellow-500 transition">Scholarship Fund</a></li>
+              </ul>
             </div>
             <div>
               <h6 className="text-white mb-4 text-sm font-semibold">Resources</h6>
               <ul className="space-y-2 text-sm">
                 <li><a href="/data" className="hover:text-yellow-500 transition">Data Portal</a></li>
-                <li><a href="/impact" className="hover:text-yellow-500 transition">Reports</a></li>
+                <li><a href="/reports" className="hover:text-yellow-500 transition">Reports</a></li>
               </ul>
             </div>
             <div>
@@ -360,12 +422,19 @@ export default function MasinyusaneHome() {
                 <li><a href="https://www.tiktok.com/@masinyusane1" className="hover:text-yellow-500 transition">Tik Tok</a></li>
                 <li><a href="https://www.instagram.com/masinyusane/" className="hover:text-yellow-500 transition">Instagram</a></li>
               </ul>
-              <img src="/images/Guidestar Platinum Seal.png" alt="Guidestar" className="h-24 mt-4" />
+              <Image 
+                src={getImageUrl('images/Guidestar Platinum Seal.png')}
+                alt="Guidestar"
+                width={96}
+                height={96}
+                className="h-24 mt-4"
+              />
+              {/* <img src="/images/Guidestar Platinum Seal.png" alt="Guidestar" className="h-24 mt-4" /> */}
             </div>
           </div>
           <hr className="my-8 border-gray-700" />
           <div className="text-center text-sm">
-            <p>&copy; 2024 Masinyusane. All rights reserved.</p>
+            <p>&copy; 2025 Masinyusane. All rights reserved.</p>
           </div>
         </div>
       </footer>
