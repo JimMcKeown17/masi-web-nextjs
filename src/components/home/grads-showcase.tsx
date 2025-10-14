@@ -55,12 +55,12 @@ export default function GradsShowcase() {
           <div className="lg:col-span-5 space-y-6">
             <div className="space-y-4">
               <div className="inline-block">
-                <span className="text-sm font-semibold tracking-wider uppercase bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                <span className="text-sm font-semibold tracking-wider uppercase bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
                   Success Stories
                 </span>
               </div>
               <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
-                Hear <span className="font-light bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">From Our</span>
+                Hear <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">From Our</span>
                 <br />
                 <span className="font-light">Graduates</span>
               </h2>
@@ -76,7 +76,7 @@ export default function GradsShowcase() {
                   key={index}
                   onClick={() => handleDotClick(index)}
                   className={`group relative h-1.5 rounded-full transition-all duration-500 ${
-                    activeSlide === index ? 'w-16 bg-gradient-to-r from-blue-600 to-purple-600' : 'w-8 bg-gray-300 hover:bg-gray-400'
+                    activeSlide === index ? 'w-16 bg-gradient-to-r from-blue-600 to-rose-600' : 'w-8 bg-gray-300 hover:bg-gray-400'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 >
@@ -135,8 +135,8 @@ export default function GradsShowcase() {
               </Card>
 
               {/* Decorative Elements */}
-              <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-blue-400 to-purple-600 rounded-full opacity-20 blur-2xl -z-10" />
-              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-br from-purple-400 to-pink-600 rounded-full opacity-20 blur-2xl -z-10" />
+              <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-blue-400 to-rose-600 rounded-full opacity-20 blur-2xl -z-10" />
+              <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-br from-rose-400 to-rose-600 rounded-full opacity-20 blur-2xl -z-10" />
             </div>
 
             {/* Navigation Dots - Mobile */}
@@ -146,7 +146,7 @@ export default function GradsShowcase() {
                   key={index}
                   onClick={() => handleDotClick(index)}
                   className={`h-2 rounded-full transition-all duration-500 ${
-                    activeSlide === index ? 'w-8 bg-gradient-to-r from-blue-600 to-purple-600' : 'w-2 bg-gray-300'
+                    activeSlide === index ? 'w-8 bg-gradient-to-r from-blue-600 to-rose-600' : 'w-2 bg-gray-300'
                   }`}
                   aria-label={`Go to slide ${index + 1}`}
                 >
