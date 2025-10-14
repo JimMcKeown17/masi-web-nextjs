@@ -19,10 +19,10 @@ export default function ChildStripInfo() {
                 Providing children with the education they deserve.
               </h6>
               <div className="flex flex-wrap gap-4">
-                <a href="https://www.youtube.com/watch?v=5j2d6nlFVe8&t=3s" target="_blank" rel="noopener noreferrer" className="bg-red-600 text-white px-8 py-3 rounded-md hover:bg-red-700 transition">
+                <a href="https://www.youtube.com/watch?v=5j2d6nlFVe8&t=3s" target="_blank" rel="noopener noreferrer" className="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-3 rounded-md hover:from-red-600 hover:to-red-700 transition">
                   Video
                 </a>
-                <a href="/data" className="border-2 border-red-600 text-red-600 px-8 py-3 rounded-md hover:bg-red-50 transition">
+                <a href="/data" className="border-2 border-red-600 bg-gradient-to-r from-red-500 to-red-800 bg-clip-text text-transparent px-8 py-3 rounded-md hover:bg-red-50 transition">
                   Data Portal
                 </a>
               </div>
@@ -41,25 +41,25 @@ export default function ChildStripInfo() {
           <div className="hidden md:grid grid-cols-4 gap-8 mt-16">
             <FadeUp delay={0.1}>
               <div className="pl-6">
-                <h2 className="text-5xl font-bold text-red-600 mb-2">2x</h2>
+                <h2 className="text-5xl font-bold bg-gradient-to-r from-red-500 to-red-800 bg-clip-text text-transparent mb-2">2x</h2>
                 <p className="text-gray-700">Children on the program learn to read twice as fast as children that are not.</p>
               </div>
             </FadeUp>
             <FadeUp delay={0.2}>
               <div className="border-l border-gray-300 pl-6">
-                <h2 className="text-5xl font-bold text-red-600 mb-2">400%</h2>
+                <h2 className="text-5xl font-bold bg-gradient-to-r from-red-500 to-red-800 bg-clip-text text-transparent mb-2">400%</h2>
                 <p className="text-gray-700">Preschool children drastically outperform control groups on literacy basics tests.</p>
               </div>
             </FadeUp>
             <FadeUp delay={0.3}>
               <div className="border-l border-gray-300 pl-6">
-                <h2 className="text-5xl font-bold text-red-600 mb-2">43%</h2>
+                <h2 className="text-5xl font-bold bg-gradient-to-r from-red-500 to-red-800 bg-clip-text text-transparent mb-2">43%</h2>
                 <p className="text-gray-700">On average, our primary school age children outperform peers by 43% YoY.</p>
               </div>
             </FadeUp>
             <FadeUp delay={0.4}>
               <div className="border-l border-gray-300 pl-6">
-                <h2 className="text-5xl font-bold text-red-600 mb-2">18756</h2>
+                <h2 className="text-5xl font-bold bg-gradient-to-r from-red-500 to-red-800 bg-clip-text text-transparent mb-2">18756</h2>
                 <p className="text-gray-700">Children are participating in our literacy & reading projects in 2024</p>
               </div>
             </FadeUp>

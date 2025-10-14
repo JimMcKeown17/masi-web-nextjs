@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/imageUrl';
 import { Card, CardContent } from '@/components/ui/card';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 
 const graduates = [
   { id: 1, image: 'images/grads/grad-carousel1.png', name: 'Graduate Story 1' },
@@ -37,13 +37,6 @@ export default function GradsShowcase() {
     setTimeout(() => setIsAnimating(false), 500);
   };
 
-  const handleDotClick = (index: number) => {
-    if (isAnimating || index === activeSlide) return;
-    setIsAnimating(true);
-    setActiveSlide(index);
-    setTimeout(() => setIsAnimating(false), 500);
-  };
-
   return (
     <section className="relative py-20 md:py-32 overflow-hidden">
       {/* Background Gradient */}
@@ -69,20 +62,15 @@ export default function GradsShowcase() {
               </p>
             </div>
 
-            {/* Navigation Dots - Desktop */}
-            <div className="hidden md:flex gap-3 pt-4">
-              {graduates.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleDotClick(index)}
-                  className={`group relative h-1.5 rounded-full transition-all duration-500 ${
-                    activeSlide === index ? 'w-16 bg-gradient-to-r from-blue-600 to-rose-600' : 'w-8 bg-gray-300 hover:bg-gray-400'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                >
-                  <span className="sr-only">Slide {index + 1}</span>
-                </button>
-              ))}
+            <div className="pt-4">
+              <a 
+                href="/downloads/graduate-magazine.pdf" 
+                className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-rose-600 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300"
+                download
+              >
+                <span>Graduate Magazine</span>
+                <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
+              </a>
             </div>
           </div>
 
@@ -137,22 +125,6 @@ export default function GradsShowcase() {
               {/* Decorative Elements */}
               <div className="absolute -top-6 -right-6 w-24 h-24 bg-gradient-to-br from-blue-400 to-rose-600 rounded-full opacity-20 blur-2xl -z-10" />
               <div className="absolute -bottom-6 -left-6 w-32 h-32 bg-gradient-to-br from-rose-400 to-rose-600 rounded-full opacity-20 blur-2xl -z-10" />
-            </div>
-
-            {/* Navigation Dots - Mobile */}
-            <div className="flex md:hidden justify-center gap-2 mt-6">
-              {graduates.map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => handleDotClick(index)}
-                  className={`h-2 rounded-full transition-all duration-500 ${
-                    activeSlide === index ? 'w-8 bg-gradient-to-r from-blue-600 to-rose-600' : 'w-2 bg-gray-300'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                >
-                  <span className="sr-only">Slide {index + 1}</span>
-                </button>
-              ))}
             </div>
           </div>
         </div>
