@@ -14,6 +14,7 @@ import ScholarshipStripInfo from '@/components/home/scholarship-strip-info';
 import AnnualReportSection from '@/components/home/annual-report-section';
 import DataPortalStrip from '@/components/home/data-portal-strip';
 import MeetOurGrads from '@/components/home/meet-our-grads';
+import GradsShowcase from '@/components/home/grads-showcase';
 import OurApproachStrip from '@/components/home/our-approach-strip';
 import TrustedBySection from '@/components/home/trusted-by-section';
 import Footer from '@/components/layout/Footer';
@@ -61,7 +62,7 @@ export default function MasinyusaneHome() {
       <AnnualReportSection />
 
       {/* Meet Graduates Carousel */}
-      <MeetOurGrads />
+      <GradsShowcase />
 
       {/* Data Portal Section */}
       <DataPortalStrip />
