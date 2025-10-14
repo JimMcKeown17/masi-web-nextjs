@@ -8,11 +8,16 @@ export default function YouthStripInfo() {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Community <span className="font-light">Jobs</span>
+              <div className="inline-block mb-3">
+                <span className="text-sm font-semibold tracking-wider uppercase bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
+                  Employment Initiative
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
+                Community <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Jobs</span>
               </h2>
-              <h6 className="text-xl text-gray-700 mb-2">Empowering a community to uplift itself.</h6>
-              <h6 className="text-xl text-gray-700 mb-6">Local jobs in local schools.</h6>
+              <h6 className="text-lg text-gray-600 mb-2">Empowering a community to uplift itself.</h6>
+              <h6 className="text-lg text-gray-600 mb-6">Local jobs in local schools.</h6>
               <div className="flex flex-wrap gap-4">
                 <a href="https://www.youtube.com/watch?v=5j2d6nlFVe8&t=3s" target="_blank" rel="noopener noreferrer" className="bg-blue-600 text-white px-8 py-3 rounded-md hover:bg-blue-700 transition">
                   Video

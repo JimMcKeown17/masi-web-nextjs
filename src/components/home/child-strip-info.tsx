@@ -7,10 +7,15 @@ export default function ChildStripInfo() {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Early <span className="font-light">Childhood Education</span>
+              <div className="inline-block mb-3">
+                <span className="text-sm font-semibold tracking-wider uppercase bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
+                  Our Programs
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
+                Early <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Childhood Education</span>
               </h2>
-              <h6 className="text-xl text-gray-700 mb-6">
+              <h6 className="text-lg text-gray-600 mb-6">
                 Providing children with the education they deserve.
               </h6>
               <div className="flex flex-wrap gap-4">

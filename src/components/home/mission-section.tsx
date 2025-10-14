@@ -4,8 +4,8 @@ export default function MissionSection() {
     <div className="container mx-auto px-4">
       <div className="grid md:grid-cols-2 gap-12 items-center">
         <div className="text-center md:text-left">
-          <h2 className="text-4xl md:text-5xl font-bold">
-            Our <span className="font-light">Mission</span>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight">
+            Our <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Mission</span>
           </h2>
         </div>
         <div>

@@ -7,10 +7,15 @@ export default function ScholarshipStripInfo() {
         <div className="container mx-auto px-4">
           <div className="grid md:grid-cols-2 gap-12">
             <div>
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                Scholarship <span className="font-light">Fund</span>
+              <div className="inline-block mb-3">
+                <span className="text-sm font-semibold tracking-wider uppercase bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
+                  Higher Education
+                </span>
+              </div>
+              <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
+                Scholarship <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Fund</span>
               </h2>
-              <h6 className="text-xl text-gray-700 mb-6">Investing in a generation of future leaders.</h6>
+              <h6 className="text-lg text-gray-600 mb-6">Investing in a generation of future leaders.</h6>
               <a href="https://www.youtube.com/watch?v=QUfevyYW1H8" target="_blank" rel="noopener noreferrer" className="border-2 border-yellow-500 text-yellow-600 px-8 py-3 rounded-md hover:bg-yellow-50 transition inline-block">
                 Video
               </a>

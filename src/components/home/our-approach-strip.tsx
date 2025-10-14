@@ -9,10 +9,15 @@ export default function OurApproachStrip() {
           <FadeRight>
             <div className="grid md:grid-cols-2 gap-12">
               <div className="flex flex-col justify-center">
-                <h2 className="text-4xl font-bold mb-6">
-                  Our <span className="font-light">Differentiated Approach</span>
+                <div className="inline-block mb-3">
+                  <span className="text-sm font-semibold tracking-wider uppercase bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
+                    How We Work
+                  </span>
+                </div>
+                <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-6">
+                  Our <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Differentiated Approach</span>
                 </h2>
-                <p className="text-lg text-gray-700">
+                <p className="text-lg text-gray-600">
                   We leverage data, scale our programs, stay transparent, and empower communities for lasting impact.
                 </p>
               </div>

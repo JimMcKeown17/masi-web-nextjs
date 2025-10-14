@@ -6,7 +6,7 @@ export default function TrustedBySection() {
     return (
         <section className="py-16 bg-white overflow-hidden">
         <div className="container mx-auto px-4">
-          <h2 className="text-4xl font-bold mb-12">Trusted <span className="font-light">By</span></h2>
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-12">Trusted <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">By</span></h2>
           <div className="relative">
             <div className="flex animate-scroll space-x-12">
               {[...Array(2)].map((_, idx) => (
