@@ -1,5 +1,6 @@
 import { getImageUrl } from '@/lib/imageUrl';
 import Image from 'next/image';
+import { Award, Play } from 'lucide-react';
 
 export default function ExecutiveDirector() {
   return (
@@ -25,7 +26,31 @@ export default function ExecutiveDirector() {
             <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight mb-1">
               Zama <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Zulu</span>
             </h2>
-            <p className="text-base text-gray-600 mb-4">Executive Director, South Africa</p>
+            <p className="text-base text-gray-600 mb-3">Executive Director, South Africa</p>
+            
+            {/* Award Banner and Video Button */}
+            <div className="flex flex-wrap items-center gap-3 mb-4">
+              <div className="inline-flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-yellow-50 to-yellow-100 border-2 border-yellow-400 rounded-full shadow-md">
+                <Award className="w-5 h-5 text-yellow-600" />
+                <span className="text-sm font-semibold bg-gradient-to-r from-yellow-700 to-yellow-900 bg-clip-text text-transparent">
+                  2025 Citizen of the Year
+                </span>
+              </div>
+              
+              <a 
+                href="https://www.youtube.com/watch?v=MqXxGNOeQtM&t=8s" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-2 px-5 py-2 bg-gradient-to-r from-blue-600 to-rose-600 hover:from-blue-700 hover:to-rose-700 text-white font-semibold rounded-full shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-white rounded-full animate-ping opacity-25"></div>
+                  <Play className="w-4 h-4 fill-white relative" />
+                </div>
+                <span className="text-sm">Watch Award Video</span>
+              </a>
+            </div>
+            
             <p className="text-base mb-3">
               Zama, our Executive Director, brings a wealth of experience and passion to our organization.
               With an educational background in accounting, Zama has excelled in the corporate landscape of
