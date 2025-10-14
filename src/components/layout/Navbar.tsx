@@ -25,19 +25,19 @@ import { cn } from "@/lib/utils"
 const aboutUsItems = [
   {
     title: "Our Team",
-    href: "/about",
+    href: "/about/our-team",
     description: "Meet the dedicated people behind Masinyusane's mission.",
     icon: Users,
   },
   {
     title: "Where We Work",
-    href: "/where",
+    href: "/about/where-we-work",
     description: "Discover the communities we serve across South Africa.",
     icon: MapPin,
   },
   {
     title: "Jobs & Applications",
-    href: "/apply",
+    href: "/about/apply",
     description: "Join our team and make a difference in education.",
     icon: Briefcase,
   },
