@@ -48,21 +48,21 @@ export default function ContentSections() {
     {
       title: 'Early Childhood Development',
       content: 'We specialize in teaching children aged 2-9 how to read, write, and comprehend. The ability to read is the gateway to learning, forming the bedrock of a child\'s entire education. We are committed to ensuring that this foundation is strong, giving every child the tools they need to thrive academically and beyond.',
-      imageSrc: '/images/Lit Session 5.jpg',
+      imageSrc: '/images/Literacy Session - Data Driven.png',
       imageAlt: 'Early Childhood Development',
       imageOnRight: true
     },
     {
       title: 'Teaching at the Right Level',
-      content: 'We customize literacy sessions to the level the child is at, ensuring we maximize their learning and confidence while ensuring foundational skill mastery before moving on.',
-      imageSrc: '/images/Lit Session 2.jpg',
+      content: 'We customize literacy sessions to the level the child is at, ensuring we maximize their learning and confidence. We track a dozen metrics for each child (see spider chart) and teach skills that build upon one another. Unlike a classroom teacher, driven by the need to get through a curriculum, we will stay with a child until they have achieved mastery for each skill.',
+      imageSrc: '/images/Child with Score Spider Chart.png',
       imageAlt: 'Teaching at the Right Level',
       imageOnRight: false
     },
     {
-      title: 'Data Driven',
-      content: 'We measure dozens of statistics on thousands of children, employing advanced analytics unique to the nonprofit sector. This allows us to prove overall program impact, project management with efficiency, continue to iterate through better and better versions of our programs, and to customize lessons for each school, classroom, and child.',
-      imageSrc: '/images/Lit Session 6.jpg',
+      title: 'Scaling With Government',
+      content: 'To achieve maximum impact, one must partner with government. To that end, we design versions of our programs that can be implemented by government, NGOs, or schools. For example, we have had tremendous success partnering with the Department of Education to have their Teacher Assistants implement our letter learning initiative.',
+      imageSrc: '/images/Teacher Assistant with Child 2.png',
       imageAlt: 'Data Driven',
       imageOnRight: true
     },
