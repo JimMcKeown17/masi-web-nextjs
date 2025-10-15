@@ -67,13 +67,13 @@ const programsItems = [
 const impactItems = [
   {
     title: "Data Portal",
-    href: "/data",
+    href: "/impact/data-portal",
     description: "Explore our real-time data and measurable impact.",
     icon: Database,
   },
   {
     title: "Impact Reports",
-    href: "/impact",
+    href: "/impact/reports",
     description: "Read our annual reports and success stories.",
     icon: TrendingUp,
   },
