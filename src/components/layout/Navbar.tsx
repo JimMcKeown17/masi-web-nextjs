@@ -3,7 +3,8 @@
 
 import * as React from "react"
 import Link from "next/link"
-import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, X } from "lucide-react"
+import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, X, LogIn } from "lucide-react"
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
 import {
   NavigationMenu,
@@ -154,6 +155,20 @@ export function Navbar() {
               </NavigationMenuList>
             </NavigationMenu>
 
+            {/* Desktop Auth Button */}
+            <SignedOut>
+              <Link
+                href="/auth/sign-in"
+                className="border border-foreground/20 text-foreground px-4 py-2 rounded-md hover:bg-accent transition font-medium flex items-center gap-2"
+              >
+                <LogIn className="h-4 w-4" />
+                Log In
+              </Link>
+            </SignedOut>
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+
             {/* Desktop Donate Button */}
             <Link
               href="/donate"
@@ -165,6 +180,20 @@ export function Navbar() {
 
           {/* Mobile Menu */}
           <div className="flex md:hidden items-center gap-2">
+            {/* Mobile Auth Button */}
+            <SignedOut>
+              <Link
+                href="/auth/sign-in"
+                className="border border-foreground/20 text-foreground px-3 py-2 rounded-md hover:bg-accent transition text-sm font-medium flex items-center gap-1.5"
+              >
+                <LogIn className="h-3.5 w-3.5" />
+                Log In
+              </Link>
+            </SignedOut>
+            <SignedIn>
+              <UserButton afterSignOutUrl="/" />
+            </SignedIn>
+
             {/* Mobile Donate Button */}
             <Link
               href="/donate"
