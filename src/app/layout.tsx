@@ -3,6 +3,8 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { ClerkProvider } from "@clerk/nextjs";
+import { getUserProfile } from '@/lib/server/user'; 
+import { UserProvider } from '@/components/providers/UserProvider';
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -19,11 +21,12 @@ export const metadata: Metadata = {
   description: "Empowering Through Education",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const userProfile = await getUserProfile();
   return (
 
     <html lang="en">
@@ -31,10 +34,12 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
             <ClerkProvider>
+              <UserProvider user={userProfile}>
         <Navbar />
         <main className="pt-16">
           {children}
         </main>
+        </UserProvider>
         </ClerkProvider>
       </body>
     </html>

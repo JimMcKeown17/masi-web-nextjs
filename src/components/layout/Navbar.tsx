@@ -4,6 +4,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, X } from "lucide-react"
+import { useUser } from "@/components/providers/UserProvider" 
 
 import {
   NavigationMenu,
@@ -46,19 +47,19 @@ const aboutUsItems = [
 const programsItems = [
   {
     title: "Early Childhood Education",
-    href: "/children",
+    href: "/early-childhood-education",
     description: "Data-driven literacy programmes for children aged 2-13.",
     icon: Baby,
   },
   {
     title: "Community Jobs",
-    href: "/youth",
+    href: "/community-jobs",
     description: "Creating local employment opportunities in education.",
     icon: User,
   },
   {
     title: "Scholarship Fund",
-    href: "/top-learner",
+    href: "/top-learners",
     description: "Investing in future leaders through university scholarships.",
     icon: GraduationCap,
   },
@@ -81,7 +82,13 @@ const impactItems = [
 
 export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false)
+  const user = useUser();
+  console.log("🔍 User in Navbar:", user);
 
+  // Check if user has management access
+  const hasManagementAccess = user?.role === 'Administrator' || user?.role === 'Project Manager'
+
+  
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm shadow-sm border-b">
       <div className="container mx-auto px-4">

@@ -21,7 +21,7 @@ export default function Dashboard() {
 
         console.log("🔍 Token obtained:", token ? `${token.substring(0, 20)}...` : "null");
         
-        const res = await fetch("http://127.0.0.1:8000/api/me/", {
+        const res = await fetch("https://www.masinyusane.org/api/me/", {
           headers: { 
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
