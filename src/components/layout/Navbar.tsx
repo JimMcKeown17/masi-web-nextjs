@@ -3,13 +3,9 @@
 
 import * as React from "react"
 import Link from "next/link"
-<<<<<<< HEAD
-import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, X } from "lucide-react"
-import { useUser } from "@/components/providers/UserProvider" 
-=======
 import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, X, LogIn } from "lucide-react"
+import { useUser } from "@/components/providers/UserProvider"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
->>>>>>> e7a40b39502d8c2dedae911eb19b7c085f082d1d
 
 import {
   NavigationMenu,
