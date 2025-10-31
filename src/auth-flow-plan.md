@@ -3,126 +3,301 @@
 ## Architecture Overview
 
 - **Clerk**: Handles sign-in/sign-up UI and session management
-- **Django**: Source of truth for users and roles, verifies Clerk JWT tokens
-- **NextJS Context**: Caches user profile (including role) for client-side access
-- **Defense in depth**: Server middleware protects routes + client Context for UX
+- **Django Backend**: Source of truth for users and roles, verifies Clerk JWT tokens via `/api/me/`
+- **Server-Side Fetching**: NextJS Server Components fetch user data at the root layout level
+- **UserProvider Context**: Client-side context provides user profile (including role) to all components
+- **Defense in depth**: Server-side data fetching + client context for optimal UX
 
-## Current State
+## Current Implementation Status
 
-- ✅ Clerk authentication working
+- ✅ Clerk authentication working (sign-in/sign-up flows)
 - ✅ Django `ClerkAuthentication` class verifies JWT tokens
-- ✅ Dashboard fetches from `/api/me/` endpoint
-- ❌ No centralized user context
-- ❌ No role-based access control
+- ✅ Django `/api/me/` endpoint returns user profile with role
+- ✅ Server-side user fetching via `getUserProfile()` in `lib/server/user.ts`
+- ✅ Client-side user context via `UserProvider`
+- ✅ User data available across all components via `useUser()` hook
+- ⚠️ Middleware protection for role-based routes (optional, can be added)
 
-## Implementation Steps
+## How It Works
 
-### 1. Django Backend Setup
+### 1. Django Backend (Unchanged)
 
-**Ensure Django User/Profile Model has roles:**
+**Django User Model with Roles:**
+- User model has `role` field
+- Available roles: Administrator, Project Manager, etc.
 
-- Verify User model or create UserProfile model with `role` field
-- Define role choices (e.g., ADMIN, STAFF, VIEWER)
-- Add role to `/api/me/` endpoint response
+**API Endpoint:** `GET https://www.masinyusane.org/api/me/`
+- Uses `ClerkAuthentication` to verify Clerk JWT tokens
+- Returns user profile: `{id, email, username, first_name, last_name, role}`
+- Creates Django user if first-time Clerk login
 
-**Create/verify endpoint** `GET /api/me/`:
+### 2. Server-Side User Fetching
 
-- Uses `ClerkAuthentication` (already exists)
-- Returns: `{email, username, first_name, last_name, role, id}`
-- This endpoint already seems to exist (referenced in dashboard)
+**File:** `src/lib/server/user.ts`
 
-### 2. NextJS Context & Provider
+```typescript
+export async function getUserProfile() {
+  const { userId } = await auth();
+  
+  if (!userId) return null;
 
-**Create `src/contexts/AuthContext.tsx`:**
+  const response = await fetch(`https://www.masinyusane.org/api/me/`, {
+    headers: {
+      'Authorization': `Bearer ${await getClerkToken()}`,
+      'Content-Type': 'application/json'
+    },
+    next: { revalidate: 300 } // Cache for 5 minutes
+  });
 
-- Provides user profile data and loading state
-- Fetches from Django `/api/me/` on mount (if Clerk session exists)
-- Exports: `AuthProvider`, `useUser()`, `useRequireAuth()`, `useRequireRole(role)`
-- Handles loading, error, and unauthenticated states
+  if (response.ok) {
+    return await response.json();
+  }
+  
+  return null;
+}
+```
 
-**Create `src/lib/api.ts`:**
+**Key Features:**
+- Runs on the server (NextJS Server Components)
+- Checks Clerk authentication via `auth()`
+- Fetches user profile from Django with Clerk JWT token
+- Caches result for 5 minutes to reduce API calls
+- Returns null if user not authenticated or fetch fails
 
-- Helper function `fetchWithAuth()` that automatically adds Clerk token to requests
-- Centralized API base URL configuration (from env variable)
-- Standardized error handling
+### 3. Root Layout Integration
 
-### 3. Integrate Provider in Layout
+**File:** `src/app/layout.tsx`
 
-**Update `src/app/layout.tsx`:**
+```typescript
+export default async function RootLayout({ children }) {
+  const userProfile = await getUserProfile(); // Server-side fetch
+  
+  return (
+    <html lang="en">
+      <body>
+        <ClerkProvider>
+          <UserProvider user={userProfile}> {/* Pass to client context */}
+            <Navbar />
+            <main className="pt-16">
+              {children}
+            </main>
+          </UserProvider>
+        </ClerkProvider>
+      </body>
+    </html>
+  );
+}
+```
 
-- Wrap children in `AuthProvider` (inside ClerkProvider)
-- Provider runs once at app level, not on every page
+**How it works:**
+1. Root layout is a Server Component (async)
+2. Calls `getUserProfile()` to fetch from Django
+3. Passes user data to `UserProvider` (client component)
+4. User data is now available to all child components
 
-### 4. Role-Based Middleware (Server-Side Protection)
+### 4. Client-Side User Context
 
-**Update `src/middleware.ts`:**
+**File:** `src/components/providers/UserProvider.tsx`
 
-- After Clerk authentication, fetch user role from Django
-- Block access to role-restricted routes
-- Define route → role mapping (e.g., `/dashboard` requires STAFF role)
-- Cache role checks to avoid excessive Django calls
+```typescript
+'use client';
 
-### 5. Update Dashboard to Use Context
+import { createContext, useContext, ReactNode } from 'react';
 
-**Simplify `src/app/dashboard/page.tsx`:**
+type UserProfile = {
+  id: string;
+  role: string;
+  email: string;
+  // ... other fields from Django API
+};
 
-- Remove local fetch logic
-- Use `const { user, isLoading } = useUser()`
-- Display user profile from context
+const UserContext = createContext<UserProfile | null>(null);
 
-### 6. Create Protected Route Examples
+export function UserProvider({ children, user }) {
+  return (
+    <UserContext.Provider value={user}>
+      {children}
+    </UserContext.Provider>
+  );
+}
 
-**Create `src/components/auth/RequireRole.tsx`:**
+export function useUser() {
+  return useContext(UserContext);
+}
+```
 
-- Component wrapper that checks user role
-- Shows loading state or redirects if unauthorized
-- Can be used to wrap pages or sections
+**Key Features:**
+- Simple context wrapper (no client-side fetching)
+- Receives pre-fetched user data from server
+- Provides `useUser()` hook for all components
+- Returns `null` if user not authenticated
 
-### 7. Environment Configuration
+### 5. Using User Data in Components
 
-**Update `.env.local`:**
+**Example:** `src/components/layout/Navbar.tsx`
 
-- Add `NEXT_PUBLIC_DJANGO_API_URL=http://127.0.0.1:8000`
-- Ensures consistent API endpoint across app
+```typescript
+'use client';
 
-### 8. Testing Checklist
+import { useUser } from '@/components/providers/UserProvider';
 
-Create tests to verify:
+export function Navbar() {
+  const user = useUser();
+  
+  // Check role for conditional rendering
+  const hasManagementAccess = 
+    user?.role === 'Administrator' || 
+    user?.role === 'Project Manager';
 
-1. New user creation in Django on first Clerk login
-2. Existing user authentication returns correct role
-3. Context provides user data across different pages
-4. Protected routes redirect unauthorized users
-5. Role-specific UI elements show/hide correctly
-6. API calls include authentication token
-7. Token expiration handling
+  return (
+    <nav>
+      {/* Clerk handles sign-in/out UI */}
+      <SignedOut>
+        <Link href="/auth/sign-in">Log In</Link>
+      </SignedOut>
+      <SignedIn>
+        <UserButton />
+      </SignedIn>
+      
+      {/* Role-based UI elements */}
+      {hasManagementAccess && (
+        <Link href="/operations">Operations</Link>
+      )}
+    </nav>
+  );
+}
+```
 
-## Files to Create/Modify
+## Data Flow Diagram
 
-**Create:**
+```
+1. User visits site
+   ↓
+2. layout.tsx (Server Component)
+   - Checks Clerk auth
+   - Calls getUserProfile()
+   ↓
+3. getUserProfile() fetches from Django
+   - Sends Clerk JWT token
+   - Django verifies token
+   - Returns user + role
+   ↓
+4. User data passed to UserProvider
+   ↓
+5. All client components access via useUser()
+   - Navbar checks role for conditional UI
+   - Protected pages check authentication
+   - No additional API calls needed
+```
 
-- `src/contexts/AuthContext.tsx` - User context and provider
-- `src/lib/api.ts` - Authenticated fetch helper
-- `src/components/auth/RequireRole.tsx` - Role protection component
+## Key Architecture Decisions
 
-**Modify:**
+### Why Server-Side Fetching?
 
-- `src/app/layout.tsx` - Add AuthProvider
-- `src/middleware.ts` - Add role-based protection
-- `src/app/dashboard/page.tsx` - Use context instead of local fetch
-- `.env.local` - Add Django API URL
+**Benefits:**
+- ✅ No loading states on client (data ready on initial render)
+- ✅ Better performance (server-side caching)
+- ✅ SEO-friendly (user data available for SSR)
+- ✅ Reduced client bundle size (no API client code)
+- ✅ More secure (API calls from server, not exposed in browser)
 
-**Django (guidance needed):**
+### Why UserProvider Context?
 
-- Verify User/UserProfile model has role field
-- Verify `/api/me/` endpoint exists and returns role
-- Document available roles
-
-## Key Benefits
-
-- ✅ User data fetched once, available everywhere via Context
-- ✅ Server-side security with middleware
-- ✅ Client-side UX with conditional rendering
-- ✅ Django is source of truth for roles
+**Benefits:**
+- ✅ Makes server-fetched data available to client components
 - ✅ No prop drilling needed
-- ✅ Clean separation of concerns
+- ✅ Clean separation between data fetching (server) and data access (client)
+- ✅ Works seamlessly with Next.js App Router
+
+### Caching Strategy
+
+- Server-side cache: 5 minutes (`next: { revalidate: 300 }`)
+- Reduces load on Django API
+- Balance between freshness and performance
+- Can be adjusted based on needs
+
+## Current File Structure
+
+```
+src/
+├── app/
+│   ├── layout.tsx                    # Root layout with UserProvider
+│   ├── auth/
+│   │   ├── sign-in/[[...sign-in]]/  # Clerk sign-in page
+│   │   └── sign-up/[[...sign-up]]/  # Clerk sign-up page
+│   └── ...other pages
+├── components/
+│   ├── providers/
+│   │   └── UserProvider.tsx         # Client context for user data
+│   ├── layout/
+│   │   └── Navbar.tsx               # Uses useUser() hook
+│   └── ...other components
+├── lib/
+│   ├── server/
+│   │   └── user.ts                  # Server-side getUserProfile()
+│   └── utils.ts
+└── middleware.ts                     # Clerk middleware (routes protection)
+```
+
+## Future Enhancements (Optional)
+
+### 1. Role-Based Route Protection
+
+**Add to `middleware.ts`:**
+- Define protected routes and required roles
+- Redirect unauthorized users
+- Server-side enforcement (not just UI hiding)
+
+### 2. Additional Context Helpers
+
+**Add to `UserProvider.tsx`:**
+```typescript
+export function useRequireAuth() {
+  const user = useUser();
+  const router = useRouter();
+  
+  if (!user) {
+    router.push('/auth/sign-in');
+    return false;
+  }
+  return true;
+}
+
+export function useRequireRole(requiredRole: string) {
+  const user = useUser();
+  return user?.role === requiredRole;
+}
+```
+
+### 3. Optimistic Updates
+
+- If user data changes in Django, implement revalidation strategy
+- Consider using `router.refresh()` after profile updates
+
+## Testing Checklist
+
+- [x] User can sign up via Clerk
+- [x] User profile created in Django on first login
+- [x] User data accessible via `useUser()` hook
+- [x] Role-based UI elements show/hide correctly
+- [ ] Protected routes redirect unauthorized users (optional)
+- [x] Clerk sign-out clears user session
+- [x] Server-side caching reduces API calls
+
+## Environment Variables
+
+No public environment variables needed in current setup.
+
+Django API URL is hardcoded in `lib/server/user.ts`:
+- Production: `https://www.masinyusane.org/api/me/`
+- Can be moved to environment variable if needed for local development
+
+## Key Benefits of Current Approach
+
+- ✅ **Simple**: No complex client-side state management
+- ✅ **Fast**: User data ready on initial render (no loading spinner)
+- ✅ **Secure**: API calls happen server-side with proper authentication
+- ✅ **DX**: Clean separation between server fetching and client access
+- ✅ **Scalable**: Easy to add new user-dependent features
+- ✅ **Django as source of truth**: Roles managed in Django admin
+- ✅ **Next.js App Router native**: Uses RSC patterns correctly
