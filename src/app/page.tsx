@@ -7,6 +7,8 @@ import HeroSection from '@/components/home/hero-section';
 import MissionSection from '@/components/home/mission-section';
 import ChildStrip from '@/components/home/child-strip';
 import ChildStripInfo from '@/components/home/child-strip-info';
+import ChildStripInfoV2 from '@/components/home/child-strip-info-v2';
+import ChildStripV2 from '@/components/home/child-strip-v2';
 import YouthStrip from '@/components/home/youth-strip';
 import YouthStripInfo from '@/components/home/youth-strip-info';
 import ScholarshipStrip from '@/components/home/scholarship-strip';
@@ -32,6 +34,14 @@ export default function MasinyusaneHome() {
       {/* Mission Section - fade-up like your Django version */}
       <FadeUp>
         <MissionSection />
+      </FadeUp>
+
+            {/* Child Strip - fade-right on overlay text */}
+      <ChildStripV2 />
+
+      {/* Child Info Strip - fade-up */}
+      <FadeUp>
+        <ChildStripInfoV2 />
       </FadeUp>
 
       {/* Child Strip - fade-right on overlay text */}

@@ -3,6 +3,7 @@
 
 import * as React from "react"
 import Link from "next/link"
+import Image from "next/image"
 import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, X, LogIn } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
@@ -95,7 +96,14 @@ export function Navbar() {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
+          <Link href="/" className="flex items-center gap-2">
+            <Image 
+              src="/Masi Logo Colour Brief.png" 
+              alt="Masinyusane Logo" 
+              width={40} 
+              height={40}
+              className="object-contain"
+            />
             <span className="text-2xl font-bold text-foreground">Masinyusane</span>
           </Link>
 
