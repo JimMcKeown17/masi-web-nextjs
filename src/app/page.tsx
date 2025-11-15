@@ -22,6 +22,8 @@ import TrustedBySection from '@/components/home/trusted-by-section';
 import Footer from '@/components/layout/Footer';
 import YouthStripV2 from '@/components/home/youth-strip-v2';
 import YouthStripInfoV2 from '@/components/home/youth-strip-info-v2';
+import ScholarshipStripV2 from '@/components/home/scholarship-strip-v2';
+import ScholarshipStripInfoV2 from '@/components/home/scholarship-strip-info-v2';
 
 export default function MasinyusaneHome() {
 
@@ -36,6 +38,13 @@ export default function MasinyusaneHome() {
       {/* Mission Section - fade-up like your Django version */}
       <FadeUp>
         <MissionSection />
+      </FadeUp>
+
+      {/* Decorative Gradient Bar */}
+      <FadeUp>
+        <div className="flex justify-center py-8">
+          <div className="h-1 w-32 rounded-full bg-gradient-to-r from-[#FF006B] via-purple-500 to-[#4F46E5]"></div>
+        </div>
       </FadeUp>
 
             {/* Child Strip - fade-right on overlay text */}
@@ -53,20 +62,12 @@ export default function MasinyusaneHome() {
         <YouthStripInfoV2 />
       </FadeUp>
 
-      {/* Youth Strip - fade-right */}
-      <YouthStrip />
-
-      {/* Youth Info Strip - fade-up */}
-      <FadeUp>
-        <YouthStripInfo />
-      </FadeUp>
-
       {/* Scholarship Strip - fade-right */}
-      <ScholarshipStrip />
+      <ScholarshipStripV2 />
 
       {/* Scholarship Info Strip - fade-up */}
       <FadeUp>
-        <ScholarshipStripInfo />
+        <ScholarshipStripInfoV2 />
       </FadeUp>
 
       {/* Annual Report Section */}
