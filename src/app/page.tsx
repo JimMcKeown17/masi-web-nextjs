@@ -20,6 +20,8 @@ import GradsShowcase from '@/components/home/grads-showcase';
 import OurApproachStrip from '@/components/home/our-approach-strip';
 import TrustedBySection from '@/components/home/trusted-by-section';
 import Footer from '@/components/layout/Footer';
+import YouthStripV2 from '@/components/home/youth-strip-v2';
+import YouthStripInfoV2 from '@/components/home/youth-strip-info-v2';
 
 export default function MasinyusaneHome() {
 
@@ -43,13 +45,12 @@ export default function MasinyusaneHome() {
       <FadeUp>
         <ChildStripInfoV2 />
       </FadeUp>
+      {/* Youth Strip - fade-right */}
+      <YouthStripV2 />
 
-      {/* Child Strip - fade-right on overlay text */}
-      <ChildStrip />
-
-      {/* Child Info Strip - fade-up */}
+      {/* Youth Info Strip - fade-up */}
       <FadeUp>
-        <ChildStripInfo />
+        <YouthStripInfoV2 />
       </FadeUp>
 
       {/* Youth Strip - fade-right */}
