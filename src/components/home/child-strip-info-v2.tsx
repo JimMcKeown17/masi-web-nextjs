@@ -3,7 +3,7 @@ import { FadeUp } from '@/components/animations/FadeAnimations';
 
 export default function ChildStripInfoV2() {
   return (
-    <section className="bg-red-600/90 text-white pt-12 md:pt-16 pb-16 md:pb-20">
+    <section className="bg-gradient-to-b from-red-500/90 to-red-700/90 text-white pt-12 md:pt-16 pb-16 md:pb-20">
       <div className="container mx-auto px-4">
         {/* Heading */}
         <FadeUp>

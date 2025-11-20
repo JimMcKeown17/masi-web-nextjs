@@ -5,18 +5,11 @@ import Image from 'next/image';
 import { FadeIn, FadeRight, FadeLeft, FadeUp } from '@/components/animations/FadeAnimations';
 import HeroSection from '@/components/home/hero-section';
 import MissionSection from '@/components/home/mission-section';
-import ChildStrip from '@/components/home/child-strip';
-import ChildStripInfo from '@/components/home/child-strip-info';
 import ChildStripInfoV2 from '@/components/home/child-strip-info-v2';
 import ChildStripV2 from '@/components/home/child-strip-v2';
-import YouthStrip from '@/components/home/youth-strip';
-import YouthStripInfo from '@/components/home/youth-strip-info';
-import ScholarshipStrip from '@/components/home/scholarship-strip';
-import ScholarshipStripInfo from '@/components/home/scholarship-strip-info';
 import AnnualReportSection from '@/components/home/annual-report-section';
 import DataPortalStrip from '@/components/home/data-portal-strip';
 import MeetOurGrads from '@/components/home/meet-our-grads';
-import GradsShowcase from '@/components/home/grads-showcase';
 import OurApproachStrip from '@/components/home/our-approach-strip';
 import TrustedBySection from '@/components/home/trusted-by-section';
 import Footer from '@/components/layout/Footer';
@@ -74,7 +67,7 @@ export default function MasinyusaneHome() {
       <AnnualReportSection />
 
       {/* Meet Graduates Carousel */}
-      <GradsShowcase />
+      <MeetOurGrads />
 
       {/* Data Portal Section */}
       <DataPortalStrip />

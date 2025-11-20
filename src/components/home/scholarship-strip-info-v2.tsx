@@ -3,7 +3,7 @@ import { FadeUp } from '@/components/animations/FadeAnimations';
 
 export default function ScholarshipStripInfoV2() {
   return (
-    <section className="bg-yellow-600/90 text-white pt-12 md:pt-16 pb-16 md:pb-20">
+    <section className="bg-gradient-to-b from-yellow-500/90 to-yellow-700/90 text-white pt-12 md:pt-16 pb-16 md:pb-20">
       <div className="container mx-auto px-4">
         {/* Heading */}
         <FadeUp>
