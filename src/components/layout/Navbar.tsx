@@ -4,7 +4,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, FolderKanban, UserCog } from "lucide-react"
+import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 

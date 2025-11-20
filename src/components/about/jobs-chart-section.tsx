@@ -15,8 +15,8 @@ export default function JobsChartSection() {
   const plotData = useMemo(() => [{
     x: chartData.years,
     y: chartData.jobs,
-    type: 'scatter',
-    mode: 'lines+markers',
+    type: 'scatter' as const,
+    mode: 'lines+markers' as const,
     marker: { 
       color: '#dc2626', // red-600
       size: 10 
@@ -25,7 +25,7 @@ export default function JobsChartSection() {
       color: '#dc2626',
       width: 3 
     },
-    fill: 'tozeroy',
+    fill: 'tozeroy' as const,
     fillcolor: 'rgba(220, 38, 38, 0.1)'
   }], []);
 
@@ -35,19 +35,19 @@ export default function JobsChartSection() {
       font: { size: 20, family: 'Arial, sans-serif' }
     },
     xaxis: {
-      title: 'Year',
+      title: { text: 'Year' },
       showgrid: true,
       gridcolor: '#e5e7eb'
     },
     yaxis: {
-      title: 'Number of Women',
+      title: { text: 'Number of Women' },
       showgrid: true,
       gridcolor: '#e5e7eb'
     },
     plot_bgcolor: '#ffffff',
     paper_bgcolor: '#ffffff',
     margin: { t: 60, r: 40, b: 60, l: 60 },
-    hovermode: 'closest',
+    hovermode: 'closest' as const,
     autosize: true
   }), []);
 

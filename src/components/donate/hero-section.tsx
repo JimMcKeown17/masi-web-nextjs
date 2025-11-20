@@ -82,8 +82,6 @@ export default function DonateHeroSection() {
                     <iframe
                       src="https://donorbox.org/embed/masi-donations?language=en-us"
                       name="donorbox"
-                      allowPaymentRequest
-                      seamless
                       frameBorder="0"
                       scrolling="no"
                       height="900px"
