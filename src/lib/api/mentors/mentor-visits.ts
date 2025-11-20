@@ -18,6 +18,10 @@ export async function getMentorVisits(
     headers: { 'Authorization': `Bearer ${token}` },
   });
   
+  if (!response.ok) {
+    throw new Error('Failed to fetch mentor visits');
+  }
+  
   return response.json();
 }
 
@@ -31,6 +35,10 @@ export async function createMentorVisit(token: string, data: Record<string, unkn
     body: JSON.stringify(data),
   });
   
+  if (!response.ok) {
+    throw new Error('Failed to create mentor visit');
+  }
+  
   return response.json();
 }
 
@@ -43,6 +51,10 @@ export async function updateMentorVisit(token: string, id: number, data: Record<
     },
     body: JSON.stringify(data),
   });
+  
+  if (!response.ok) {
+    throw new Error('Failed to update mentor visit');
+  }
   
   return response.json();
 }

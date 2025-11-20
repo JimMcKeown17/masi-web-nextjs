@@ -6,5 +6,9 @@ export async function getSchools(token: string) {
     headers: { 'Authorization': `Bearer ${token}` },
   });
   
+  if (!response.ok) {
+    throw new Error('Failed to fetch schools');
+  }
+  
   return response.json();
 }
