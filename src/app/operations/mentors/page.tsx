@@ -56,15 +56,37 @@ export default function MentorDashboardPage() {
   // Loading state
   if (!schools || !mentors) {
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-6">Mentor Visit Dashboard</h1>
-        <div className="space-y-4">
-          <Skeleton className="h-20 w-full" />
-          <div className="grid grid-cols-4 gap-4">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-8 py-12 lg:py-16">
+          {/* Header Skeleton */}
+          <div className="space-y-3 mb-12">
+            <Skeleton className="h-10 w-80 rounded-xl bg-gradient-to-r from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60" />
+            <Skeleton className="h-5 w-96 rounded-lg bg-gradient-to-r from-slate-200/40 to-slate-100/40 dark:from-slate-800/40 dark:to-slate-700/40" />
+          </div>
+          
+          {/* Filter Skeleton */}
+          <Skeleton className="h-24 w-full rounded-2xl mb-10 bg-gradient-to-r from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60" />
+          
+          {/* Stats Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton 
+                key={i} 
+                className="h-40 rounded-2xl bg-gradient-to-br from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60"
+                style={{ animationDelay: `${i * 100}ms` }}
+              />
+            ))}
+          </div>
+          
+          {/* Program Breakdown Skeleton */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[...Array(4)].map((_, i) => (
+              <Skeleton 
+                key={i} 
+                className="h-36 rounded-2xl bg-gradient-to-br from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60"
+                style={{ animationDelay: `${(i + 4) * 100}ms` }}
+              />
+            ))}
           </div>
         </div>
       </div>
@@ -74,65 +96,95 @@ export default function MentorDashboardPage() {
   // Error state
   if (schoolsError || mentorsError || summaryError) {
     return (
-      <div className="container mx-auto py-8">
-        <h1 className="text-3xl font-bold mb-6">Mentor Visit Dashboard</h1>
-        <Alert variant="destructive">
-          <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Failed to load dashboard data. Please try again.
-            {summaryError && <div className="mt-2 text-xs">{summaryError.message}</div>}
-          </AlertDescription>
-        </Alert>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-8 py-12 lg:py-16">
+          <div className="space-y-4 mb-12">
+            <h1 className="text-4xl lg:text-5xl font-semibold tracking-tight text-slate-900 dark:text-white">
+              Mentor Visit Dashboard
+            </h1>
+            <p className="text-lg text-slate-600 dark:text-slate-400">
+              Real-time insights and analytics
+            </p>
+          </div>
+          
+          <Alert 
+            variant="destructive" 
+            className="max-w-2xl border-red-200/50 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20 backdrop-blur-sm rounded-2xl"
+          >
+            <AlertCircle className="h-5 w-5" />
+            <AlertDescription className="text-base">
+              Failed to load dashboard data. Please try again.
+              {summaryError && (
+                <div className="mt-3 text-sm font-mono text-red-800 dark:text-red-300 bg-red-100/50 dark:bg-red-900/20 p-3 rounded-lg">
+                  {summaryError.message}
+                </div>
+              )}
+            </AlertDescription>
+          </Alert>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="container mx-auto py-8">
-      <h1 className="text-3xl font-bold mb-6">Mentor Visit Dashboard</h1>
-
-      {/* Filter Bar */}
-      <FilterBar
-        timeFilter={timeFilter}
-        schoolFilter={schoolFilter}
-        mentorFilter={mentorFilter}
-        schools={schools}
-        mentors={mentors}
-        onTimeFilterChange={setTimeFilter}
-        onSchoolFilterChange={setSchoolFilter}
-        onMentorFilterChange={setMentorFilter}
-        onAddNewVisit={() => {
-          // TODO: Navigate to add visit page or open modal
-          console.log('Add new visit');
-        }}
-      />
-
-      {/* Dashboard Stats */}
-      {summaryLoading ? (
-        <div className="space-y-4">
-          <div className="grid grid-cols-4 gap-4">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-          </div>
-          <div className="grid grid-cols-4 gap-4">
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-            <Skeleton className="h-32 w-full" />
-          </div>
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+      <div className="max-w-[1400px] mx-auto px-6 lg:px-8 py-12 lg:py-16">
+        {/* Header Section */}
+        <div className="space-y-4 mb-12">
+          <h1 className="text-4xl lg:text-5xl font-semibold tracking-tight text-slate-900 dark:text-white">
+            Mentor Visit Dashboard
+          </h1>
+          <p className="text-lg text-slate-600 dark:text-slate-400">
+            Real-time insights and analytics across all programs
+          </p>
         </div>
-      ) : summary ? (
-        <>
-          <DashboardStats summary={summary} />
-          <ProgramBreakdown summary={summary} />
-        </>
-      ) : null}
 
-      {/* TODO: Add charts and tables */}
-      <div className="text-center text-muted-foreground py-12">
-        Charts and tables coming next...
+        {/* Filter Bar */}
+        <div className="mb-10">
+          <FilterBar
+            timeFilter={timeFilter}
+            schoolFilter={schoolFilter}
+            mentorFilter={mentorFilter}
+            schools={schools}
+            mentors={mentors}
+            onTimeFilterChange={setTimeFilter}
+            onSchoolFilterChange={setSchoolFilter}
+            onMentorFilterChange={setMentorFilter}
+            onAddNewVisit={() => {
+              // TODO: Navigate to add visit page or open modal
+              console.log('Add new visit');
+            }}
+          />
+        </div>
+
+        {/* Dashboard Content */}
+        {summaryLoading ? (
+          <div className="space-y-10">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton 
+                  key={i} 
+                  className="h-40 rounded-2xl bg-gradient-to-br from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60"
+                  style={{ animationDelay: `${i * 100}ms` }}
+                />
+              ))}
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[...Array(4)].map((_, i) => (
+                <Skeleton 
+                  key={i} 
+                  className="h-36 rounded-2xl bg-gradient-to-br from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60"
+                  style={{ animationDelay: `${(i + 4) * 100}ms` }}
+                />
+              ))}
+            </div>
+          </div>
+        ) : summary ? (
+          <div className="space-y-10">
+            <DashboardStats summary={summary} />
+            <ProgramBreakdown summary={summary} />
+          </div>
+        ) : null}
       </div>
     </div>
   );

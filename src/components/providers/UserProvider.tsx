@@ -3,11 +3,31 @@
 
 import { createContext, useContext, ReactNode } from 'react';
 
-type UserProfile = {
-  id: string;
-  role: string;
-  email: string;
-  // ... other fields from your Django API
+// Django role choices (stored values from UserProfile.ROLE_CHOICES)
+export type UserRole = 
+  | 'ADMIN'
+  | 'STAFF'
+  | 'PROJECT MANAGER'
+  | 'MENTOR'
+  | 'VIEWER'
+  | 'FUNDER'
+  | 'YOUTH';
+
+// Matches Django User + UserProfile serialized response from /api/me/
+export type UserProfile = {
+  // From Django User model
+  username: string;           // required in Django User
+  email: string;             // required in Django User
+  first_name?: string;       // optional in Django User (blank=True)
+  last_name?: string;        // optional in Django User (blank=True)
+  
+  // From Django UserProfile model
+  role: UserRole;            // required, has default='VIEWER'
+  job_title?: string;        // optional (blank=True, null=True)
+  project?: string;          // optional (blank=True, null=True)
+  
+  // May be included in API response
+  id?: string | number;      // Django primary key (if included)
 };
 
 const UserContext = createContext<UserProfile | null>(null);
