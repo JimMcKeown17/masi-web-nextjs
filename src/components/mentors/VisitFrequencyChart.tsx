@@ -27,7 +27,7 @@ export function VisitFrequencyChart({
 }: VisitFrequencyChartProps) {
   const chartData = useMemo(() => {
     // Group visits by date
-    const groupByDate = (visits: any[]) => {
+    const groupByDate = (visits: Array<{ visit_date: string }>) => {
       const grouped: Record<string, number> = {};
       
       visits.forEach((visit) => {

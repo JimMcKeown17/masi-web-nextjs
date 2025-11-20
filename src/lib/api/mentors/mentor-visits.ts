@@ -21,7 +21,7 @@ export async function getMentorVisits(
   return response.json();
 }
 
-export async function createMentorVisit(token: string, data: any) {
+export async function createMentorVisit(token: string, data: Record<string, unknown>) {
   const response = await fetch(`${API_URL}/mentor-visits/`, {
     method: 'POST',
     headers: {
@@ -34,7 +34,7 @@ export async function createMentorVisit(token: string, data: any) {
   return response.json();
 }
 
-export async function updateMentorVisit(token: string, id: number, data: any) {
+export async function updateMentorVisit(token: string, id: number, data: Record<string, unknown>) {
   const response = await fetch(`${API_URL}/mentor-visits/${id}/`, {
     method: 'PATCH',
     headers: {

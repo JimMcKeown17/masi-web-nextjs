@@ -1,8 +1,6 @@
 'use client';
-import React, { useState, useEffect } from 'react';
-import { getImageUrl } from '@/lib/imageUrl';
-import Image from 'next/image';
-import { FadeIn, FadeRight, FadeLeft, FadeUp } from '@/components/animations/FadeAnimations';
+import React from 'react';
+import { FadeUp } from '@/components/animations/FadeAnimations';
 import HeroSection from '@/components/home/hero-section';
 import MissionSection from '@/components/home/mission-section';
 import ChildStripInfoV2 from '@/components/home/child-strip-info-v2';

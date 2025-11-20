@@ -4,8 +4,11 @@ import React, { useState, useEffect } from 'react';
 import { ChevronLeft, ChevronRight, Download, ZoomIn, ZoomOut, FileText } from 'lucide-react';
 
 // Dynamic imports for PDF.js to avoid SSR issues
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let Document: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let Page: any;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 let pdfjs: any;
 
 interface PDFViewerProps {

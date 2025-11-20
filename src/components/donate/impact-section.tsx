@@ -25,7 +25,7 @@ const impactAreas = [
   {
     icon: Heart,
     title: 'Community Impact',
-    description: 'Building a generation of leaders empowered to solve their own community\'s challenges.',
+    description: "Building a generation of leaders empowered to solve their own community's challenges.",
     stat: '154 schools',
     color: 'from-pink-500 to-pink-600'
   }

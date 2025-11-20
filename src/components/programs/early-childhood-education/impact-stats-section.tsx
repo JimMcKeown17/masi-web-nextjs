@@ -29,13 +29,14 @@ function CounterStat({ target, label, suffix = '' }: StatData) {
       { threshold: 0.1 }
     );
 
-    if (statRef.current) {
-      observer.observe(statRef.current);
+    const currentRef = statRef.current;
+    if (currentRef) {
+      observer.observe(currentRef);
     }
 
     return () => {
-      if (statRef.current) {
-        observer.unobserve(statRef.current);
+      if (currentRef) {
+        observer.unobserve(currentRef);
       }
     };
   }, []);

@@ -32,7 +32,7 @@ export default function MentorDashboardPage() {
     }
     if (url.includes('summary')) {
       return getDashboardSummary(token, {
-        time_filter: timeFilter as any,
+        time_filter: timeFilter as '7days' | '30days' | '90days' | 'thisyear' | 'all',
         school: schoolFilter,
         mentor: mentorFilter,
       });

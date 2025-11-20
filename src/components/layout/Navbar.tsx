@@ -4,7 +4,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
-import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, X, LogIn } from "lucide-react"
+import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
@@ -88,8 +88,8 @@ export function Navbar() {
   console.log("🔍 User in Navbar:", user);
 
   // Check if user has management access
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const hasManagementAccess = user?.role === 'Administrator' || user?.role === 'Project Manager'
-
   
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm shadow-sm border-b">
