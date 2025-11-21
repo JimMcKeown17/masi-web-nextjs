@@ -7,7 +7,8 @@ import useSWR from 'swr';
 import { FilterBar } from '@/components/mentors/FilterBar';
 import { DashboardStats } from '@/components/mentors/DashboardStats';
 import { ProgramBreakdown } from '@/components/mentors/ProgramBreakdown';
-import { getSchools, getMentors, getDashboardSummary } from '@/lib/api/mentors';
+import { VisitFrequencyChart } from '@/components/mentors/VisitFrequencyChart';
+import { getSchools, getMentors, getDashboardSummary, getVisitFrequency } from '@/lib/api/mentors';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle } from 'lucide-react';
@@ -41,6 +42,18 @@ export default function MentorDashboardPage() {
     throw new Error('Unknown URL');
   };
 
+  // Fetcher for visit frequency
+  const frequencyFetcher = async (url: string) => {
+    const token = await getToken();
+    if (!token) throw new Error('Not authenticated');
+    
+    return getVisitFrequency(token, {
+      time_filter: timeFilter as '7days' | '30days' | '90days' | 'thisyear' | 'all',
+      school: schoolFilter,
+      mentor: mentorFilter,
+    });
+  };
+
   // Fetch data with SWR
   const { data: schools, error: schoolsError } = useSWR('/api/schools', fetcher);
   const { data: mentors, error: mentorsError } = useSWR('/api/mentors-list', fetcher);
@@ -51,6 +64,14 @@ export default function MentorDashboardPage() {
   } = useSWR(
     `/api/summary?time=${timeFilter}&school=${schoolFilter}&mentor=${mentorFilter}`,
     fetcher
+  );
+  const {
+    data: visitFrequency,
+    error: frequencyError,
+    isLoading: frequencyLoading
+  } = useSWR(
+    `/api/visit-frequency?time=${timeFilter}&school=${schoolFilter}&mentor=${mentorFilter}`,
+    frequencyFetcher
   );
 
   // Loading state
@@ -94,7 +115,7 @@ export default function MentorDashboardPage() {
   }
 
   // Error state
-  if (schoolsError || mentorsError || summaryError) {
+  if (schoolsError || mentorsError || summaryError || frequencyError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-8 py-12 lg:py-16">
@@ -114,9 +135,9 @@ export default function MentorDashboardPage() {
             <AlertCircle className="h-5 w-5" />
             <AlertDescription className="text-base">
               Failed to load dashboard data. Please try again.
-              {summaryError && (
+              {(summaryError || frequencyError) && (
                 <div className="mt-3 text-sm font-mono text-red-800 dark:text-red-300 bg-red-100/50 dark:bg-red-900/20 p-3 rounded-lg">
-                  {summaryError.message}
+                  {summaryError?.message || frequencyError?.message}
                 </div>
               )}
             </AlertDescription>
@@ -183,6 +204,13 @@ export default function MentorDashboardPage() {
           <div className="space-y-10">
             <DashboardStats summary={summary} />
             <ProgramBreakdown summary={summary} />
+            
+            {/* Visit Frequency Chart */}
+            {frequencyLoading ? (
+              <Skeleton className="h-[700px] rounded-2xl bg-gradient-to-br from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60" />
+            ) : visitFrequency ? (
+              <VisitFrequencyChart data={visitFrequency} />
+            ) : null}
           </div>
         ) : null}
       </div>

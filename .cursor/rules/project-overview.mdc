@@ -1,0 +1,36 @@
+---
+description: MASI Web project structure and backend-first philosophy
+globs:
+alwaysApply: true
+---
+
+# MASI Web Project Overview
+
+## Project Structure
+- **Frontend**: Next.js 15 (App Router) in `/masi-website/`
+- **Backend**: Django REST Framework (separate repo, user-controlled)
+- **Documentation**: `/cursor_project_rules/` contains comprehensive guides
+
+## Core Philosophy: Backend-First Processing
+
+**Always prefer backend endpoints over frontend processing for:**
+- Data aggregation (monthly/weekly summaries)
+- Complex calculations across multiple tables
+- Large datasets (>100 records)
+- Business logic that should be centralized
+
+**Example:**
+- ❌ Bad: Fetch 1000+ visit records and aggregate on frontend
+- ✅ Good: Create `/api/visit-frequency/` endpoint returning monthly aggregates
+
+## Documentation Structure
+Check these files before implementing features:
+- `cursor_project_rules/backend-django-notes.md` - Django backend reference
+- `cursor_project_rules/api-endpoints.md` - All available API endpoints
+- `cursor_project_rules/frontend-backend-integration.md` - Integration patterns
+- `cursor_project_rules/recommended-backend-endpoints.md` - Future improvements
+
+## When in Doubt
+1. Check if API endpoint exists in `api-endpoints.md`
+2. If aggregated data needed, recommend backend endpoint
+3. Follow established patterns in `frontend-backend-integration.md`

@@ -6,3 +6,4 @@ export * from './schools';
 export * from './yebo-visits';
 export * from './thousand-stories-visits';
 export * from './numeracy-visits';
+export * from './visit-frequency';
