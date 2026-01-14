@@ -10,7 +10,7 @@ export interface MentorVisit {
     reading_trackers_correct: boolean;
     sessions_correct: boolean;
     admin_correct: boolean;
-    quality_rating: number;
+    quality_rating: number | null;
     supplies_needed?: string;
     commentary?: string;
     created_at: string;
@@ -30,7 +30,7 @@ export interface MentorVisit {
     reading_trackers_correct: boolean;
     sessions_correct: boolean;
     admin_correct: boolean;
-    quality_rating: number;
+    quality_rating?: number | null;
     supplies_needed?: string;
     commentary?: string;
   }

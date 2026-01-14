@@ -3,8 +3,9 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/components/layout/Navbar";
 import { ClerkProvider } from "@clerk/nextjs";
-import { getUserProfile } from '@/lib/server/user'; 
+import { getUserProfile } from '@/lib/server/user';
 import { UserProvider } from '@/components/providers/UserProvider';
+import { Toaster } from "@/components/ui/sonner";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -39,6 +40,7 @@ export default async function RootLayout({
               {children}
             </main>
           </UserProvider>
+          <Toaster />
         </ClerkProvider>
       </body>
     </html>

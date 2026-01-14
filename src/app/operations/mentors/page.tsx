@@ -3,11 +3,12 @@
 
 import { useState } from 'react';
 import { useAuth } from '@clerk/nextjs';
-import useSWR from 'swr';
+import useSWR, { mutate } from 'swr';
 import { FilterBar } from '@/components/mentors/FilterBar';
 import { DashboardStats } from '@/components/mentors/DashboardStats';
 import { ProgramBreakdown } from '@/components/mentors/ProgramBreakdown';
 import { VisitFrequencyChart } from '@/components/mentors/VisitFrequencyChart';
+import { MentorVisitFormDialog } from '@/components/mentors/MentorVisitFormDialog';
 import { getSchools, getMentors, getDashboardSummary, getVisitFrequency } from '@/lib/api/mentors';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -18,6 +19,7 @@ export default function MentorDashboardPage() {
   const [timeFilter, setTimeFilter] = useState('all');
   const [schoolFilter, setSchoolFilter] = useState('');
   const [mentorFilter, setMentorFilter] = useState('');
+  const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
 
   // Fetcher function for SWR
   const fetcher = async (url: string) => {
@@ -43,10 +45,10 @@ export default function MentorDashboardPage() {
   };
 
   // Fetcher for visit frequency
-  const frequencyFetcher = async (url: string) => {
+  const frequencyFetcher = async () => {
     const token = await getToken();
     if (!token) throw new Error('Not authenticated');
-    
+
     return getVisitFrequency(token, {
       time_filter: timeFilter as '7days' | '30days' | '90days' | 'thisyear' | 'all',
       school: schoolFilter,
@@ -171,10 +173,7 @@ export default function MentorDashboardPage() {
             onTimeFilterChange={setTimeFilter}
             onSchoolFilterChange={setSchoolFilter}
             onMentorFilterChange={setMentorFilter}
-            onAddNewVisit={() => {
-              // TODO: Navigate to add visit page or open modal
-              console.log('Add new visit');
-            }}
+            onAddNewVisit={() => setIsFormDialogOpen(true)}
           />
         </div>
 
@@ -213,6 +212,20 @@ export default function MentorDashboardPage() {
             ) : null}
           </div>
         ) : null}
+
+        {/* Visit Form Dialog */}
+        {schools && (
+          <MentorVisitFormDialog
+            open={isFormDialogOpen}
+            onOpenChange={setIsFormDialogOpen}
+            schools={schools}
+            onSuccess={() => {
+              // Refresh dashboard data after successful submission
+              mutate(`/api/summary?time=${timeFilter}&school=${schoolFilter}&mentor=${mentorFilter}`);
+              mutate(`/api/visit-frequency?time=${timeFilter}&school=${schoolFilter}&mentor=${mentorFilter}`);
+            }}
+          />
+        )}
       </div>
     </div>
   );

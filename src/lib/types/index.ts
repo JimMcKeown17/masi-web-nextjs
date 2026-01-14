@@ -6,3 +6,4 @@ export * from './thousand-stories-visit';
 export * from './numeracy-visit';
 export * from './dashboard';
 export * from './visit-frequency';
+export * from './visit-form';

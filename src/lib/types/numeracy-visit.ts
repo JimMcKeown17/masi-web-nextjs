@@ -11,7 +11,7 @@ export interface NumeracyVisit {
     teaching_number_concepts: boolean;
     teaching_patterns: boolean;
     teaching_addition_subtraction: boolean;
-    quality_rating: number;
+    quality_rating: number | null;
     supplies_needed?: string;
     commentary?: string;
     created_at: string;
@@ -26,7 +26,7 @@ export interface NumeracyVisit {
     teaching_number_concepts: boolean;
     teaching_patterns: boolean;
     teaching_addition_subtraction: boolean;
-    quality_rating: number;
+    quality_rating?: number | null;
     supplies_needed?: string;
     commentary?: string;
   }

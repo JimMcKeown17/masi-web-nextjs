@@ -10,7 +10,7 @@ export interface ThousandStoriesVisit {
     tracking_sheets_up_to_date: boolean;
     book_boxes_and_borrowing: boolean;
     daily_target_met: boolean;
-    story_time_quality: number;
+    story_time_quality: number | null;
     other_comments?: string;
     created_at: string;
     updated_at: string;
@@ -23,6 +23,6 @@ export interface ThousandStoriesVisit {
     tracking_sheets_up_to_date: boolean;
     book_boxes_and_borrowing: boolean;
     daily_target_met: boolean;
-    story_time_quality: number;
+    story_time_quality?: number | null;
     other_comments?: string;
   }

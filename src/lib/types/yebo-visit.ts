@@ -8,7 +8,7 @@ export interface YeboVisit {
     visit_date: string;
     paired_reading_took_place: boolean;
     paired_reading_tracking_updated: boolean;
-    afternoon_session_quality: number;
+    afternoon_session_quality: number | null;
     commentary?: string;
     created_at: string;
     updated_at: string;
@@ -19,6 +19,6 @@ export interface YeboVisit {
     visit_date: string;
     paired_reading_took_place: boolean;
     paired_reading_tracking_updated: boolean;
-    afternoon_session_quality: number;
+    afternoon_session_quality?: number | null;
     commentary?: string;
   }
