@@ -1,10 +1,6 @@
 import type { NextConfig } from "next";
-import path from "path";
 
 const nextConfig: NextConfig = {
-  // Silence workspace root warning (we have a pnpm workspace structure)
-  outputFileTracingRoot: path.join(__dirname, "../../"),
-
   images: {
     remotePatterns: [
       {
