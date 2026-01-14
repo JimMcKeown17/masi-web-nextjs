@@ -26,6 +26,8 @@ export async function getMentorVisits(
 }
 
 export async function createMentorVisit(token: string, data: Record<string, unknown>) {
+  console.log('Sending mentor visit data:', data);
+
   const response = await fetch(`${API_URL}/mentor-visits/`, {
     method: 'POST',
     headers: {
@@ -34,11 +36,14 @@ export async function createMentorVisit(token: string, data: Record<string, unkn
     },
     body: JSON.stringify(data),
   });
-  
+
   if (!response.ok) {
-    throw new Error('Failed to create mentor visit');
+    const errorData = await response.json().catch(() => null);
+    console.error('Backend error:', errorData);
+    const errorMessage = errorData ? JSON.stringify(errorData) : `HTTP ${response.status}`;
+    throw new Error(`Failed to create mentor visit: ${errorMessage}`);
   }
-  
+
   return response.json();
 }
 

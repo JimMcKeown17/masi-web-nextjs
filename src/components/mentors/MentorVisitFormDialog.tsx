@@ -60,6 +60,7 @@ import { createMentorVisit } from '@/lib/api/mentors/mentor-visits';
 import { createYeboVisit } from '@/lib/api/mentors/yebo-visits';
 import { createThousandStoriesVisit } from '@/lib/api/mentors/thousand-stories-visits';
 import { createNumeracyVisit } from '@/lib/api/mentors/numeracy-visits';
+import { ObservationFields } from '@/components/mentors/ObservationFields';
 import { cn } from '@/lib/utils';
 
 interface MentorVisitFormDialogProps {
@@ -77,6 +78,7 @@ export function MentorVisitFormDialog({
 }: MentorVisitFormDialogProps) {
   const { getToken } = useAuth();
   const [formType, setFormType] = useState<VisitFormType>('masi_literacy');
+  const [visitType, setVisitType] = useState<'observation' | 'meeting' | 'delivery' | 'other'>('observation');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Get the appropriate schema based on form type
@@ -93,26 +95,83 @@ export function MentorVisitFormDialog({
     }
   };
 
+  // Get default values for each form type
+  const getDefaultValues = (type: VisitFormType) => {
+    const baseDefaults = {
+      form_type: type,
+      school_id: undefined,
+      visit_date: new Date(),
+      visit_type: visitType,
+    };
+
+    switch (type) {
+      case 'masi_literacy':
+        return {
+          ...baseDefaults,
+          letter_trackers_correct: null,
+          reading_trackers_correct: null,
+          sessions_correct: null,
+          admin_correct: null,
+          quality_rating: null,
+          supplies_needed: '',
+          commentary: '',
+        };
+      case 'yebo':
+        return {
+          ...baseDefaults,
+          paired_reading_took_place: false,
+          paired_reading_tracking_updated: false,
+          afternoon_session_quality: null,
+          after_school_observation: '',
+          paired_reading_observation: '',
+          commentary: '',
+        };
+      case 'thousand_stories':
+        return {
+          ...baseDefaults,
+          library_neat_and_tidy: false,
+          tracking_sheets_up_to_date: false,
+          book_boxes_and_borrowing: false,
+          daily_target_met: false,
+          story_time_quality: null,
+          other_comments: '',
+        };
+      case 'numeracy':
+        return {
+          ...baseDefaults,
+          numeracy_tracker_correct: false,
+          teaching_counting: false,
+          teaching_number_concepts: false,
+          teaching_patterns: false,
+          teaching_addition_subtraction: false,
+          quality_rating: null,
+          supplies_needed: '',
+          commentary: '',
+        };
+    }
+  };
+
   // Use any to avoid TypeScript issues with discriminated unions in react-hook-form
   // Validation is still handled by Zod at runtime
   const form = useForm<any>({
     resolver: zodResolver(getSchema()),
-    defaultValues: {
-      form_type: formType,
-      school_id: undefined,
-      visit_date: new Date(),
-    },
+    defaultValues: getDefaultValues(formType),
   });
 
-  // Reset form when form type changes
+  // Reset form when form type or visit type changes
   useEffect(() => {
+    const currentSchoolId = form.getValues('school_id');
+    const currentVisitDate = form.getValues('visit_date');
+
+    const newDefaults = getDefaultValues(formType);
     form.reset({
-      form_type: formType,
-      school_id: form.getValues('school_id'),
-      visit_date: form.getValues('visit_date') || new Date(),
+      ...newDefaults,
+      school_id: currentSchoolId,
+      visit_date: currentVisitDate || new Date(),
+      visit_type: visitType,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formType]);
+  }, [formType, visitType]);
 
   const onSubmit = async (data: VisitFormData) => {
     try {
@@ -152,7 +211,8 @@ export function MentorVisitFormDialog({
       onSuccess?.();
     } catch (error) {
       console.error('Error submitting visit report:', error);
-      toast.error('Failed to submit visit report. Please try again.');
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      toast.error(`Failed to submit: ${errorMessage}`);
     } finally {
       setIsSubmitting(false);
     }
@@ -169,9 +229,9 @@ export function MentorVisitFormDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
-            {/* Form Type Selector */}
+            {/* Program Type Selector */}
             <div className="space-y-2">
-              <Label htmlFor="form-type-select">Visit Type</Label>
+              <Label htmlFor="form-type-select">Program Type</Label>
               <Select
                 value={formType}
                 onValueChange={(value) => setFormType(value as VisitFormType)}
@@ -249,7 +309,11 @@ export function MentorVisitFormDialog({
                         mode="single"
                         selected={field.value}
                         onSelect={field.onChange}
-                        disabled={(date) => date > new Date()}
+                        disabled={(date) => {
+                          const today = new Date();
+                          today.setHours(23, 59, 59, 999);
+                          return date > today;
+                        }}
                         initialFocus
                       />
                     </PopoverContent>
@@ -259,9 +323,63 @@ export function MentorVisitFormDialog({
               )}
             />
 
+            {/* Visit Type Selector - only show for Masi Literacy */}
+            {formType === 'masi_literacy' && (
+              <div className="space-y-2">
+                <Label htmlFor="visit-type-select">Type of Visit</Label>
+                <Select
+                  value={visitType}
+                  onValueChange={(value) => setVisitType(value as any)}
+                >
+                  <SelectTrigger id="visit-type-select" className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="observation">Observation</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="delivery">Delivery</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
             {/* Dynamic Fields Based on Form Type */}
             {formType === 'masi_literacy' && (
-              <MasiLiteracyFields form={form} />
+              <>
+                {visitType === 'observation' ? (
+                  <ObservationFields
+                    form={form}
+                    checkboxFields={[
+                      { name: 'letter_trackers_correct', label: 'Letter trackers correct' },
+                      { name: 'reading_trackers_correct', label: 'Reading trackers correct' },
+                      { name: 'sessions_correct', label: 'Sessions correct' },
+                      { name: 'admin_correct', label: 'Admin correct' },
+                    ]}
+                    qualityRatingField={{
+                      name: 'quality_rating',
+                      label: 'Quality of Sessions Observed',
+                    }}
+                    commentaryField={{
+                      name: 'commentary',
+                      label: 'Commentary (Optional)',
+                      maxLength: 1000,
+                    }}
+                  />
+                ) : (
+                  <ObservationFields
+                    form={form}
+                    checkboxFields={[]}
+                    showCheckboxes={false}
+                    showQualityRating={false}
+                    commentaryField={{
+                      name: 'commentary',
+                      label: 'Commentary',
+                      maxLength: 1000,
+                    }}
+                  />
+                )}
+              </>
             )}
             {formType === 'yebo' && <YeboFields form={form} />}
             {formType === 'thousand_stories' && (
@@ -442,6 +560,44 @@ function YeboFields({ form }: { form: any }) {
         form={form}
         name="afternoon_session_quality"
         label="Afternoon Session Quality"
+      />
+
+      <FormField
+        control={form.control}
+        name="after_school_observation"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>After-School Observation (Optional)</FormLabel>
+            <FormControl>
+              <Textarea {...field} rows={4} className="rounded-xl resize-none" />
+            </FormControl>
+            <div className="flex justify-between">
+              <FormMessage />
+              <span className="text-xs text-slate-500">
+                {field.value?.length || 0} / 1000
+              </span>
+            </div>
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
+        name="paired_reading_observation"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel>Paired Reading Observation (Optional)</FormLabel>
+            <FormControl>
+              <Textarea {...field} rows={4} className="rounded-xl resize-none" />
+            </FormControl>
+            <div className="flex justify-between">
+              <FormMessage />
+              <span className="text-xs text-slate-500">
+                {field.value?.length || 0} / 1000
+              </span>
+            </div>
+          </FormItem>
+        )}
       />
 
       <FormField

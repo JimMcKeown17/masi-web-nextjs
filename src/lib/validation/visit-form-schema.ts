@@ -5,7 +5,15 @@ import { z } from 'zod';
 // Base schema for common fields across all visit forms
 const visitFormBaseSchema = z.object({
   school_id: z.number().int().positive('Please select a school'),
-  visit_date: z.date().max(new Date(), 'Visit date cannot be in the future'),
+  visit_date: z.date().refine(
+    (date) => {
+      // Compare dates without time component to avoid timezone issues
+      const today = new Date();
+      today.setHours(23, 59, 59, 999); // Set to end of today
+      return date <= today;
+    },
+    { message: 'Visit date cannot be in the future' }
+  ),
 });
 
 // Quality rating schema - optional, but must be 1-10 if provided
@@ -33,10 +41,12 @@ const commentarySchema = z
 // Masi Literacy Program Form Schema
 export const masiLiteracyFormSchema = visitFormBaseSchema.extend({
   form_type: z.literal('masi_literacy'),
-  letter_trackers_correct: z.boolean(),
-  reading_trackers_correct: z.boolean(),
-  sessions_correct: z.boolean(),
-  admin_correct: z.boolean(),
+  visit_type: z.enum(['observation', 'meeting', 'delivery', 'other']).default('observation'),
+  // Observation fields - optional (required only for observation visits)
+  letter_trackers_correct: z.boolean().optional().nullable(),
+  reading_trackers_correct: z.boolean().optional().nullable(),
+  sessions_correct: z.boolean().optional().nullable(),
+  admin_correct: z.boolean().optional().nullable(),
   quality_rating: qualityRatingSchema,
   supplies_needed: suppliesNeededSchema,
   commentary: commentarySchema,
@@ -48,6 +58,8 @@ export const yeboFormSchema = visitFormBaseSchema.extend({
   paired_reading_took_place: z.boolean(),
   paired_reading_tracking_updated: z.boolean(),
   afternoon_session_quality: qualityRatingSchema,
+  after_school_observation: commentarySchema,
+  paired_reading_observation: commentarySchema,
   commentary: commentarySchema,
 });
 
