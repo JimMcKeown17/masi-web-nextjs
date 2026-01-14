@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Textarea } from '@/components/ui/textarea';
@@ -12,7 +14,7 @@ import {
 } from '@/components/ui/form';
 
 interface ObservationFieldsProps {
-  form: any; // Using any to avoid TypeScript complexity with react-hook-form
+  form: any;
   checkboxFields?: Array<{
     name: string;
     label: string;
