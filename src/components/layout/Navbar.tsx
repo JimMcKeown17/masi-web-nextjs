@@ -94,7 +94,6 @@ const projectManagementItems = [
 export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false)
   const user = useUser();
-  console.log("🔍 User in Navbar:", user);
 
   // Check if user has management access (using Django stored values)
   const hasManagementAccess = user?.role === 'ADMIN' || user?.role === 'PROJECT MANAGER'

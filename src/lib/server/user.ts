@@ -7,7 +7,7 @@ export async function getUserProfile() {
   if (!userId) return null;
 
   try {
-    const response = await fetch(`https://www.masinyusane.org/api/me/`, {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/me/`, {
       headers: {
         'Authorization': `Bearer ${await getClerkToken()}`,
         'Content-Type': 'application/json'
