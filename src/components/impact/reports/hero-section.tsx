@@ -1,5 +1,5 @@
 'use client';
-import { getImageUrl } from '@/lib/imageUrl';
+import { getImageUrl, getAssetUrl } from '@/lib/imageUrl';
 import { FadeRight } from '@/components/animations/FadeAnimations';
 import { useState, useEffect } from 'react';
 
@@ -33,10 +33,11 @@ export default function ReportsHeroSection() {
                     <p className="text-xl md:text-2xl text-gray-700 mb-8">
                       Access our annual reports, success stories, vital statistics, and financial statements to see how we're building a better future.
                     </p>
-                    <a 
-                      href="/downloads/annual-report.pdf" 
+                    <a
+                      href={getAssetUrl('reports/Masinyusane Annual Report 2024 (R).pdf')}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-rose-600 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300"
-                      download
                     >
                       Annual Report
                     </a>
@@ -75,10 +76,11 @@ export default function ReportsHeroSection() {
                     <p className="text-xl mb-6 drop-shadow-lg">
                       Access our annual reports, success stories, vital statistics, and financial statements to see how we're building a better future.
                     </p>
-                    <a 
-                      href="/downloads/annual-report.pdf" 
+                    <a
+                      href={getAssetUrl('reports/Masinyusane Annual Report 2024 (R).pdf')}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       className="inline-flex items-center gap-2 px-6 py-3 bg-white text-blue-600 font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300"
-                      download
                     >
                       Annual Report
                     </a>

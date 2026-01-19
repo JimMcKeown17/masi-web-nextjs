@@ -1,5 +1,5 @@
-import { FileText, Eye } from 'lucide-react';
-import Link from 'next/link';
+import { FileText } from 'lucide-react';
+import { getAssetUrl } from '@/lib/imageUrl';
 
 interface Report {
   name: string;
@@ -82,28 +82,17 @@ export default function YearlyReportsSection() {
                   {yearData.reports.map((report, reportIndex) => (
                     <li key={reportIndex}>
                       {report.available !== false ? (
-                        <div className="space-y-2">
-                          <a
-                            href={report.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="group flex items-start gap-2 text-gray-700 hover:text-blue-600 transition-colors"
-                          >
-                            <FileText className="w-4 h-4 mt-1 flex-shrink-0 text-blue-600 group-hover:scale-110 transition-transform" />
-                            <span className="text-sm leading-relaxed group-hover:underline">
-                              {report.name}
-                            </span>
-                          </a>
-                          {report.name === 'Annual Report' && (
-                            <Link
-                              href={`/impact/annual-report/${yearData.year}`}
-                              className="ml-6 inline-flex items-center gap-1 text-xs text-blue-600 hover:text-blue-700 hover:underline transition-colors"
-                            >
-                              <Eye className="w-3 h-3" />
-                              View in Reader
-                            </Link>
-                          )}
-                        </div>
+                        <a
+                          href={getAssetUrl(report.url)}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="group flex items-start gap-2 text-gray-700 hover:text-blue-600 transition-colors"
+                        >
+                          <FileText className="w-4 h-4 mt-1 flex-shrink-0 text-blue-600 group-hover:scale-110 transition-transform" />
+                          <span className="text-sm leading-relaxed group-hover:underline">
+                            {report.name}
+                          </span>
+                        </a>
                       ) : (
                         <div className="flex items-start gap-2 text-gray-400">
                           <FileText className="w-4 h-4 mt-1 flex-shrink-0" />

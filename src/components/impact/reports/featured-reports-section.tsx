@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { getImageUrl } from '@/lib/imageUrl';
+import { getImageUrl, getAssetUrl } from '@/lib/imageUrl';
 import { FileText } from 'lucide-react';
 
 interface FeaturedReport {
@@ -46,7 +46,7 @@ export default function FeaturedReportsSection() {
             {featuredReports.map((report, index) => (
               <a
                 key={index}
-                href={report.pdfUrl}
+                href={getAssetUrl(report.pdfUrl)}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="group block"
