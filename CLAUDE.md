@@ -8,6 +8,14 @@ Next.js 15 website for Masinyusane (MASI), an educational non-profit in South Af
 
 **Backend Control:** Both the frontend (this repository) and backend Django API are fully under your control. You can freely add new endpoints, modify auth logic, update database models, or make any other backend changes as needed.
 
+**CRITICAL: Repository Location**
+
+This repository (`masi-web-nextjs`) is located at:
+- **Local path:** `/Users/jimmckeown/Development/Masi_Website_2026/frontend/masi-website/`
+- **GitHub URL:** `https://github.com/JimMcKeown17/masi-web-nextjs`
+- **Working directory:** Always `cd` to `frontend/masi-website` before running git commands
+- **Important:** The parent directories (`Masi_Website_2026/` and `frontend/`) are NOT git repositories
+
 **Monorepo Structure:**
 - `/masi-website/` - Next.js 15 application (main development workspace)
 - Root `/` - pnpm workspace configuration
