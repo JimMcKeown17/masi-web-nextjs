@@ -95,8 +95,8 @@ export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false)
   const user = useUser();
 
-  // Check if user has management access (using Django stored values)
-  const hasManagementAccess = user?.role === 'ADMIN' || user?.role === 'PROJECT MANAGER'
+  // Check if user has access to Project Management dropdown (using Django stored values)
+  const hasProjectManagementAccess = user?.role === 'ADMIN' || user?.role === 'PROJECT MANAGER' || user?.role === 'MENTOR'
   
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm shadow-sm border-b">
@@ -175,8 +175,8 @@ export function Navbar() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-                {/* Project Management Dropdown - Only for Administrators and Project Managers */}
-                {hasManagementAccess && (
+                {/* Project Management Dropdown - Only for Administrators, Project Managers, and Mentors */}
+                {hasProjectManagementAccess && (
                   <NavigationMenuItem>
                     <NavigationMenuTrigger>Project Management</NavigationMenuTrigger>
                     <NavigationMenuContent>
@@ -300,8 +300,8 @@ export function Navbar() {
                     </ul>
                   </div>
 
-                  {/* Project Management Section - Only for Administrators and Project Managers */}
-                  {hasManagementAccess && (
+                  {/* Project Management Section - Only for Administrators, Project Managers, and Mentors */}
+                  {hasProjectManagementAccess && (
                     <div>
                       <h3 className="font-semibold text-sm mb-3 text-muted-foreground">Project Management</h3>
                       <ul className="space-y-3">
