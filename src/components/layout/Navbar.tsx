@@ -49,19 +49,19 @@ const aboutUsItems = [
 const programsItems = [
   {
     title: "Early Childhood Education",
-    href: "/early-childhood-education",
+    href: "/programs/early-childhood-education",
     description: "Data-driven literacy programmes for children aged 2-13.",
     icon: Baby,
   },
   {
     title: "Community Jobs",
-    href: "/community-jobs",
+    href: "/programs/community-jobs",
     description: "Creating local employment opportunities in education.",
     icon: User,
   },
   {
     title: "Scholarship Fund",
-    href: "/top-learners",
+    href: "/programs/top-learners",
     description: "Investing in future leaders through university scholarships.",
     icon: GraduationCap,
   },

@@ -47,7 +47,7 @@ export default function DataPortalStrip() {
 
               <div className="pt-4">
                 <a 
-                  href="/data" 
+                  href="/impact/data-portal" 
                   className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-rose-600 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300"
                 >
                   <span>Enter Data Portal</span>
