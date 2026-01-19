@@ -29,17 +29,7 @@ export default function ScholarshipStripV2() {
               >
                 Watch Video
               </a>
-              <a 
-                href="/impact/data-portal" 
-                className="border-2 px-8 py-3 rounded-md transition font-medium hover:bg-gray-50"
-                style={{
-                  borderImage: 'linear-gradient(to right, rgb(234 179 8), rgb(249 115 22), rgb(220 38 38)) 1',
-                }}
-              >
-                <span className="bg-gradient-to-r from-yellow-500 via-orange-500 to-red-600 bg-clip-text text-transparent">
-                  Data Portal
-                </span>
-              </a>
+
             </div>
 
             <p className="text-gray-700 text-lg leading-relaxed">
