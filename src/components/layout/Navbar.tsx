@@ -257,7 +257,7 @@ export function Navbar() {
                 <SheetHeader>
                   <SheetTitle>Menu</SheetTitle>
                 </SheetHeader>
-                <div className="mt-8 flex flex-col gap-6">
+                <div className="mt-8 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-8rem)] pb-6">
                   {/* About Us Section */}
                   <div>
                     <h3 className="font-semibold text-sm mb-3 text-muted-foreground">About Us</h3>
