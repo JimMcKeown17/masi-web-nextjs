@@ -2,6 +2,7 @@
 
 import GradsShowcase from './grads-showcase';
 import { ArrowRight } from 'lucide-react';
+import { getAssetUrl } from '@/lib/imageUrl';
 
 const graduatesData = [
   {
@@ -58,9 +59,10 @@ export default function MeetOurGrads() {
           {/* Graduate Magazine Button */}
           <div className="pt-6">
             <a 
-              href="/downloads/graduate-magazine.pdf" 
+              href={getAssetUrl('reports/2025 Graduates Magazine.pdf')} 
               className="group inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-purple-600 to-pink-600 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300"
-              download
+              target="_blank"
+              rel="noopener noreferrer"
             >
               <span>Graduate Magazine</span>
               <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
