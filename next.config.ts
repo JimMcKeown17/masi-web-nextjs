@@ -3,7 +3,8 @@ import path from 'path';
 
 const nextConfig: NextConfig = {
   // Fix workspace root detection for pnpm workspace
-  outputFileTracingRoot: path.join(__dirname, '../../'),
+  // In the separate frontend repo, workspace root is one level up (frontend/)
+  outputFileTracingRoot: path.join(__dirname, '../'),
 
   // Image optimization for Google Cloud Storage
   images: {
