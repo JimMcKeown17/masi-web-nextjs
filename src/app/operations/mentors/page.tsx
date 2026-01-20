@@ -12,7 +12,8 @@ import { MentorVisitFormDialog } from '@/components/mentors/MentorVisitFormDialo
 import { getSchools, getMentors, getDashboardSummary, getVisitFrequency } from '@/lib/api/mentors';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { AlertCircle, Plus } from 'lucide-react';
 
 export default function MentorDashboardPage() {
   const { getToken } = useAuth();
@@ -162,6 +163,46 @@ export default function MentorDashboardPage() {
           </p>
         </div>
 
+        {/* Add New Visit Button Section */}
+        <div className="mb-6">
+          <div className="
+            relative rounded-2xl border border-slate-200/60 dark:border-slate-800/60
+            bg-white/80 dark:bg-slate-900/80 backdrop-blur-xl
+            p-6 shadow-sm shadow-slate-200/50 dark:shadow-slate-900/50
+            transition-all duration-300
+          ">
+            <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-transparent to-slate-50/30 dark:from-slate-800/20 dark:to-slate-900/10 rounded-2xl pointer-events-none" />
+            <div className="relative flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-slate-900 dark:text-white mb-1">
+                  Record a New Visit
+                </h3>
+                <p className="hidden md:block text-sm text-slate-600 dark:text-slate-400">
+                  Add a new mentor visit to track program progress
+                </p>
+              </div>
+              <Button
+                onClick={() => setIsFormDialogOpen(true)}
+                className="
+                  h-11 rounded-xl px-6
+                  bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-100 dark:to-slate-50
+                  text-white dark:text-slate-900
+                  hover:from-slate-800 hover:to-slate-700 dark:hover:from-white dark:hover:to-slate-100
+                  shadow-md shadow-slate-900/10 dark:shadow-slate-100/10
+                  hover:shadow-lg hover:shadow-slate-900/20 dark:hover:shadow-slate-100/20
+                  border-0
+                  transition-all duration-300
+                  font-medium
+                  group
+                "
+              >
+                <Plus className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
+                Add New Visit
+              </Button>
+            </div>
+          </div>
+        </div>
+
         {/* Filter Bar */}
         <div className="mb-10">
           <FilterBar
@@ -173,7 +214,6 @@ export default function MentorDashboardPage() {
             onTimeFilterChange={setTimeFilter}
             onSchoolFilterChange={setSchoolFilter}
             onMentorFilterChange={setMentorFilter}
-            onAddNewVisit={() => setIsFormDialogOpen(true)}
           />
         </div>
 
@@ -204,12 +244,14 @@ export default function MentorDashboardPage() {
             <DashboardStats summary={summary} />
             <ProgramBreakdown summary={summary} />
             
-            {/* Visit Frequency Chart */}
-            {frequencyLoading ? (
-              <Skeleton className="h-[700px] rounded-2xl bg-gradient-to-br from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60" />
-            ) : visitFrequency ? (
-              <VisitFrequencyChart data={visitFrequency} />
-            ) : null}
+            {/* Visit Frequency Chart - Hidden on mobile */}
+            <div className="hidden md:block">
+              {frequencyLoading ? (
+                <Skeleton className="h-[700px] rounded-2xl bg-gradient-to-br from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60" />
+              ) : visitFrequency ? (
+                <VisitFrequencyChart data={visitFrequency} />
+              ) : null}
+            </div>
           </div>
         ) : null}
 

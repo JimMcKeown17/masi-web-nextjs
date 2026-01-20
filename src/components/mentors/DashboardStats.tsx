@@ -71,19 +71,19 @@ export function DashboardStats({ summary }: DashboardStatsProps) {
             {/* Subtle gradient overlay on hover */}
             <div className="absolute inset-0 bg-gradient-to-br from-white/40 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             
-            <div className="relative p-6 space-y-4">
+            <div className="relative p-4 md:p-6 flex md:flex-col gap-3 md:gap-4 items-start md:items-start">
               {/* Icon */}
               <div className={`
-                inline-flex items-center justify-center w-12 h-12 rounded-xl
+                flex-shrink-0 inline-flex items-center justify-center w-10 h-10 md:w-12 md:h-12 rounded-xl
                 ${stat.iconBg} ${stat.iconColor}
                 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3
               `}>
-                <Icon className="w-6 h-6" strokeWidth={2.5} />
+                <Icon className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
               </div>
 
               {/* Value */}
-              <div className="space-y-1">
-                <div className="text-4xl font-semibold tracking-tight text-slate-900 dark:text-white tabular-nums">
+              <div className="space-y-0.5 md:space-y-1 min-w-0 flex-1">
+                <div className="text-3xl md:text-4xl font-semibold tracking-tight text-slate-900 dark:text-white tabular-nums">
                   {stat.value}
                 </div>
                 <div className="flex flex-col">

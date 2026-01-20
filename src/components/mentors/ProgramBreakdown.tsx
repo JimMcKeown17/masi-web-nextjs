@@ -93,58 +93,67 @@ export function ProgramBreakdown({ summary }: ProgramBreakdownProps) {
               {/* Hover gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-br from-white/30 to-transparent dark:from-white/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
               
-              <div className="relative p-6">
-                {/* Icon and Name */}
-                <div className="flex items-start justify-between mb-4">
-                  <div className={`
-                    inline-flex items-center justify-center w-10 h-10 rounded-lg
-                    ${program.iconBg} ${program.iconColor}
-                    transition-all duration-500 group-hover:scale-110
-                  `}>
-                    <Icon className="w-5 h-5" strokeWidth={2.5} />
-                  </div>
-                  <div className={`
-                    w-1.5 h-1.5 rounded-full ${program.accentColor}
-                    transition-all duration-500 group-hover:scale-150
-                  `} />
-                </div>
-
-                {/* Stats */}
-                <div className="space-y-3">
-                  {/* Total Visits */}
-                  <div>
-                    <div className="text-3xl font-semibold tracking-tight text-slate-900 dark:text-white tabular-nums">
-                      {program.visits.toLocaleString()}
+              <div className="relative p-4 md:p-6">
+                {/* Mobile: Horizontal Layout, Desktop: Vertical Layout */}
+                <div className="flex md:flex-col gap-3 md:gap-0">
+                  {/* Icon Section */}
+                  <div className="flex-shrink-0 md:flex md:items-start md:justify-between md:mb-4">
+                    <div className={`
+                      inline-flex items-center justify-center w-10 h-10 rounded-lg
+                      ${program.iconBg} ${program.iconColor}
+                      transition-all duration-500 group-hover:scale-110
+                    `}>
+                      <Icon className="w-5 h-5" strokeWidth={2.5} />
                     </div>
-                    <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-1">
-                      {program.name}
-                    </div>
+                    <div className={`
+                      hidden md:block w-1.5 h-1.5 rounded-full ${program.accentColor}
+                      transition-all duration-500 group-hover:scale-150
+                    `} />
                   </div>
 
-                  {/* Recent Activity */}
-                  <div className="pt-3 border-t border-slate-200/50 dark:border-slate-700/50">
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs text-slate-600 dark:text-slate-400">
-                        Last 30 Days
-                      </span>
-                      <div className="flex items-center gap-1.5">
-                        <TrendingUp className="w-3 h-3 text-slate-400 dark:text-slate-500" />
-                        <span className="text-xs font-medium text-slate-700 dark:text-slate-300 tabular-nums">
-                          {program.recentVisits}
-                        </span>
+                  {/* Stats Section */}
+                  <div className="flex-1 min-w-0 space-y-2 md:space-y-3">
+                    {/* Total Visits */}
+                    <div>
+                      <div className="text-2xl md:text-3xl font-semibold tracking-tight text-slate-900 dark:text-white tabular-nums">
+                        {program.visits.toLocaleString()}
+                      </div>
+                      <div className="text-sm font-medium text-slate-700 dark:text-slate-300 mt-0.5 md:mt-1">
+                        {program.name}
                       </div>
                     </div>
-                    {/* Progress indicator */}
-                    <div className="mt-2 h-1 bg-slate-200/50 dark:bg-slate-700/50 rounded-full overflow-hidden">
-                      <div 
-                        className={`h-full ${program.accentColor} transition-all duration-700 ease-out`}
-                        style={{ 
-                          width: `${Math.min(Number(recentPercentage), 100)}%`,
-                          transitionDelay: `${index * 100 + 200}ms`
-                        }}
-                      />
+
+                    {/* Recent Activity */}
+                    <div className="pt-2 md:pt-3 border-t border-slate-200/50 dark:border-slate-700/50">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs text-slate-600 dark:text-slate-400">
+                          Last 30 Days
+                        </span>
+                        <div className="flex items-center gap-1.5">
+                          <TrendingUp className="w-3 h-3 text-slate-400 dark:text-slate-500" />
+                          <span className="text-xs font-medium text-slate-700 dark:text-slate-300 tabular-nums">
+                            {program.recentVisits}
+                          </span>
+                        </div>
+                      </div>
+                      {/* Progress indicator */}
+                      <div className="mt-2 h-1 bg-slate-200/50 dark:bg-slate-700/50 rounded-full overflow-hidden">
+                        <div
+                          className={`h-full ${program.accentColor} transition-all duration-700 ease-out`}
+                          style={{
+                            width: `${Math.min(Number(recentPercentage), 100)}%`,
+                            transitionDelay: `${index * 100 + 200}ms`
+                          }}
+                        />
+                      </div>
                     </div>
                   </div>
+
+                  {/* Accent dot on mobile (right side) */}
+                  <div className={`
+                    md:hidden flex-shrink-0 mt-1 w-1.5 h-1.5 rounded-full ${program.accentColor}
+                    transition-all duration-500 group-hover:scale-150
+                  `} />
                 </div>
               </div>
             </div>

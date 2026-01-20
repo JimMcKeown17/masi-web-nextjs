@@ -9,8 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
-import { Plus, Calendar, School as SchoolIcon, User as UserIcon } from 'lucide-react';
+import { Calendar, School as SchoolIcon, User as UserIcon } from 'lucide-react';
 
 interface FilterBarProps {
   timeFilter: string;
@@ -21,7 +20,6 @@ interface FilterBarProps {
   onTimeFilterChange: (value: string) => void;
   onSchoolFilterChange: (value: string) => void;
   onMentorFilterChange: (value: string) => void;
-  onAddNewVisit?: () => void;
 }
 
 export function FilterBar({
@@ -33,7 +31,6 @@ export function FilterBar({
   onTimeFilterChange,
   onSchoolFilterChange,
   onMentorFilterChange,
-  onAddNewVisit,
 }: FilterBarProps) {
   return (
     <div className="
@@ -45,7 +42,7 @@ export function FilterBar({
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-50/50 via-transparent to-slate-50/30 dark:from-slate-800/20 dark:to-slate-900/10 rounded-2xl pointer-events-none" />
       
-      <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* Time Filter */}
         <div className="space-y-3">
           <label className="flex items-center gap-2 text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -130,31 +127,6 @@ export function FilterBar({
               ))}
             </SelectContent>
           </Select>
-        </div>
-
-        {/* Add New Visit Button */}
-        <div className="space-y-3">
-          <label className="text-sm font-medium opacity-0 select-none pointer-events-none">
-            Action
-          </label>
-          <Button 
-            onClick={onAddNewVisit} 
-            className="
-              w-full h-11 rounded-xl
-              bg-gradient-to-r from-slate-900 to-slate-800 dark:from-slate-100 dark:to-slate-50
-              text-white dark:text-slate-900
-              hover:from-slate-800 hover:to-slate-700 dark:hover:from-white dark:hover:to-slate-100
-              shadow-md shadow-slate-900/10 dark:shadow-slate-100/10
-              hover:shadow-lg hover:shadow-slate-900/20 dark:hover:shadow-slate-100/20
-              border-0
-              transition-all duration-300
-              font-medium
-              group
-            "
-          >
-            <Plus className="mr-2 h-4 w-4 transition-transform duration-300 group-hover:rotate-90" />
-            Add New Visit
-          </Button>
         </div>
       </div>
     </div>
