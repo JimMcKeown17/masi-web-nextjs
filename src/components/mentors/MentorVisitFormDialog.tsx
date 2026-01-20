@@ -229,120 +229,126 @@ export function MentorVisitFormDialog({
 
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6 mt-4">
-            {/* Program Type Selector */}
-            <div className="space-y-2">
-              <Label htmlFor="form-type-select">Program Type</Label>
-              <Select
-                value={formType}
-                onValueChange={(value) => setFormType(value as VisitFormType)}
-              >
-                <SelectTrigger id="form-type-select" className="rounded-xl">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {Object.entries(VISIT_FORM_LABELS).map(([key, label]) => (
-                    <SelectItem key={key} value={key}>
-                      {label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* School Selector */}
-            <FormField
-              control={form.control}
-              name="school_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>School</FormLabel>
-                  <Select
-                    onValueChange={(value) => field.onChange(parseInt(value))}
-                    value={field.value?.toString()}
-                  >
-                    <FormControl>
-                      <SelectTrigger className="rounded-xl">
-                        <SelectValue placeholder="Select a school" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {schools.map((school) => (
-                        <SelectItem key={school.id} value={school.id.toString()}>
-                          {school.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Date Picker */}
-            <FormField
-              control={form.control}
-              name="visit_date"
-              render={({ field }) => (
-                <FormItem className="flex flex-col">
-                  <FormLabel>Visit Date</FormLabel>
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <FormControl>
-                        <Button
-                          variant="outline"
-                          className={cn(
-                            'rounded-xl pl-3 text-left font-normal',
-                            !field.value && 'text-muted-foreground'
-                          )}
-                        >
-                          {field.value ? (
-                            format(field.value, 'PPP')
-                          ) : (
-                            <span>Pick a date</span>
-                          )}
-                          <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
-                        </Button>
-                      </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={field.value}
-                        onSelect={field.onChange}
-                        disabled={(date) => {
-                          const today = new Date();
-                          today.setHours(23, 59, 59, 999);
-                          return date > today;
-                        }}
-                        initialFocus
-                      />
-                    </PopoverContent>
-                  </Popover>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-
-            {/* Visit Type Selector - only show for Masi Literacy */}
-            {formType === 'masi_literacy' && (
+            {/* Row 1: Programme and Visit Date */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Programme Selector */}
               <div className="space-y-2">
-                <Label htmlFor="visit-type-select">Type of Visit</Label>
+                <Label htmlFor="form-type-select">Programme</Label>
                 <Select
-                  value={visitType}
-                  onValueChange={(value) => setVisitType(value as any)}
+                  value={formType}
+                  onValueChange={(value) => setFormType(value as VisitFormType)}
                 >
-                  <SelectTrigger id="visit-type-select" className="rounded-xl">
+                  <SelectTrigger id="form-type-select" className="rounded-xl">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="observation">Observation</SelectItem>
-                    <SelectItem value="meeting">Meeting</SelectItem>
-                    <SelectItem value="delivery">Delivery</SelectItem>
-                    <SelectItem value="other">Other</SelectItem>
+                    {Object.entries(VISIT_FORM_LABELS).map(([key, label]) => (
+                      <SelectItem key={key} value={key}>
+                        {label}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
-            )}
+
+              {/* Date Picker */}
+              <FormField
+                control={form.control}
+                name="visit_date"
+                render={({ field }) => (
+                  <FormItem className="flex flex-col">
+                    <FormLabel>Visit Date</FormLabel>
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <FormControl>
+                          <Button
+                            variant="outline"
+                            className={cn(
+                              'rounded-xl pl-3 text-left font-normal',
+                              !field.value && 'text-muted-foreground'
+                            )}
+                          >
+                            {field.value ? (
+                              format(field.value, 'PPP')
+                            ) : (
+                              <span>Pick a date</span>
+                            )}
+                            <CalendarIcon className="ml-auto h-4 w-4 opacity-50" />
+                          </Button>
+                        </FormControl>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-auto p-0" align="start">
+                        <Calendar
+                          mode="single"
+                          selected={field.value}
+                          onSelect={field.onChange}
+                          disabled={(date) => {
+                            const today = new Date();
+                            today.setHours(23, 59, 59, 999);
+                            return date > today;
+                          }}
+                          initialFocus
+                        />
+                      </PopoverContent>
+                    </Popover>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            </div>
+
+            {/* Row 2: School and Type of Visit */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* School Selector */}
+              <FormField
+                control={form.control}
+                name="school_id"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>School</FormLabel>
+                    <Select
+                      onValueChange={(value) => field.onChange(parseInt(value))}
+                      value={field.value?.toString()}
+                    >
+                      <FormControl>
+                        <SelectTrigger className="rounded-xl">
+                          <SelectValue placeholder="Select a school" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {schools.map((school) => (
+                          <SelectItem key={school.id} value={school.id.toString()}>
+                            {school.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Visit Type Selector - only show for Masi Literacy */}
+              {formType === 'masi_literacy' && (
+                <div className="space-y-2">
+                  <Label htmlFor="visit-type-select">Type of Visit</Label>
+                  <Select
+                    value={visitType}
+                    onValueChange={(value) => setVisitType(value as any)}
+                  >
+                    <SelectTrigger id="visit-type-select" className="rounded-xl">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="observation">Observation</SelectItem>
+                      <SelectItem value="meeting">Meeting</SelectItem>
+                      <SelectItem value="delivery">Delivery</SelectItem>
+                      <SelectItem value="other">Other</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+              )}
+            </div>
 
             {/* Dynamic Fields Based on Form Type */}
             {formType === 'masi_literacy' && (
@@ -419,7 +425,7 @@ export function MentorVisitFormDialog({
 function YeboFields({ form }: { form: any }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 pb-4">
         <FormField
           control={form.control}
           name="paired_reading_took_place"
@@ -520,7 +526,7 @@ function YeboFields({ form }: { form: any }) {
 function ThousandStoriesFields({ form }: { form: any }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 pb-4">
         <FormField
           control={form.control}
           name="library_neat_and_tidy"
@@ -611,7 +617,7 @@ function ThousandStoriesFields({ form }: { form: any }) {
 function NumeracyFields({ form }: { form: any }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 gap-4 pb-4">
         <FormField
           control={form.control}
           name="numeracy_tracker_correct"

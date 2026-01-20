@@ -50,7 +50,7 @@ export function ObservationFields({
     <div className="space-y-4">
       {/* Checkboxes */}
       {showCheckboxes && checkboxFields.length > 0 && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4 pb-4">
           {checkboxFields.map((field) => (
             <FormField
               key={field.name}
