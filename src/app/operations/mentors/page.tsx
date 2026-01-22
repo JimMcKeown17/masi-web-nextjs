@@ -8,8 +8,9 @@ import { FilterBar } from '@/components/mentors/FilterBar';
 import { DashboardStats } from '@/components/mentors/DashboardStats';
 import { ProgramBreakdown } from '@/components/mentors/ProgramBreakdown';
 import { VisitFrequencyChart } from '@/components/mentors/VisitFrequencyChart';
+import { RecentVisitsTable } from '@/components/mentors/RecentVisitsTable';
 import { MentorVisitFormDialog } from '@/components/mentors/MentorVisitFormDialog';
-import { getSchools, getMentors, getDashboardSummary, getVisitFrequency } from '@/lib/api/mentors';
+import { getSchools, getMentors, getDashboardSummary, getVisitFrequency, getRecentVisits } from '@/lib/api/mentors';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -57,6 +58,19 @@ export default function MentorDashboardPage() {
     });
   };
 
+  // Fetcher for recent visits
+  const recentVisitsFetcher = async () => {
+    const token = await getToken();
+    if (!token) throw new Error('Not authenticated');
+
+    return getRecentVisits(token, {
+      time_filter: timeFilter as '7days' | '30days' | '90days' | 'thisyear' | 'all',
+      school: schoolFilter,
+      mentor: mentorFilter,
+      limit: 100,
+    });
+  };
+
   // Fetch data with SWR
   const { data: schools, error: schoolsError } = useSWR('/api/schools', fetcher);
   const { data: mentors, error: mentorsError } = useSWR('/api/mentors-list', fetcher);
@@ -75,6 +89,14 @@ export default function MentorDashboardPage() {
   } = useSWR(
     `/api/visit-frequency?time=${timeFilter}&school=${schoolFilter}&mentor=${mentorFilter}`,
     frequencyFetcher
+  );
+  const {
+    data: recentVisitsData,
+    error: recentVisitsError,
+    isLoading: recentVisitsLoading
+  } = useSWR(
+    `/api/recent-visits?time=${timeFilter}&school=${schoolFilter}&mentor=${mentorFilter}`,
+    recentVisitsFetcher
   );
 
   // Loading state
@@ -118,7 +140,7 @@ export default function MentorDashboardPage() {
   }
 
   // Error state
-  if (schoolsError || mentorsError || summaryError || frequencyError) {
+  if (schoolsError || mentorsError || summaryError || frequencyError || recentVisitsError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
         <div className="max-w-[1400px] mx-auto px-6 lg:px-8 py-12 lg:py-16">
@@ -138,9 +160,9 @@ export default function MentorDashboardPage() {
             <AlertCircle className="h-5 w-5" />
             <AlertDescription className="text-base">
               Failed to load dashboard data. Please try again.
-              {(summaryError || frequencyError) && (
+              {(summaryError || frequencyError || recentVisitsError) && (
                 <div className="mt-3 text-sm font-mono text-red-800 dark:text-red-300 bg-red-100/50 dark:bg-red-900/20 p-3 rounded-lg">
-                  {summaryError?.message || frequencyError?.message}
+                  {summaryError?.message || frequencyError?.message || recentVisitsError?.message}
                 </div>
               )}
             </AlertDescription>
@@ -252,6 +274,15 @@ export default function MentorDashboardPage() {
                 <VisitFrequencyChart data={visitFrequency} />
               ) : null}
             </div>
+
+            {/* Recent Visits Table */}
+            <div>
+              {recentVisitsLoading ? (
+                <Skeleton className="h-[600px] rounded-2xl bg-gradient-to-br from-slate-200/60 to-slate-100/60 dark:from-slate-800/60 dark:to-slate-700/60" />
+              ) : recentVisitsData ? (
+                <RecentVisitsTable visits={recentVisitsData.visits} />
+              ) : null}
+            </div>
           </div>
         ) : null}
 
@@ -265,6 +296,7 @@ export default function MentorDashboardPage() {
               // Refresh dashboard data after successful submission
               mutate(`/api/summary?time=${timeFilter}&school=${schoolFilter}&mentor=${mentorFilter}`);
               mutate(`/api/visit-frequency?time=${timeFilter}&school=${schoolFilter}&mentor=${mentorFilter}`);
+              mutate(`/api/recent-visits?time=${timeFilter}&school=${schoolFilter}&mentor=${mentorFilter}`);
             }}
           />
         )}

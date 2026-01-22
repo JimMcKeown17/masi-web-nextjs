@@ -7,3 +7,4 @@ export * from './numeracy-visit';
 export * from './dashboard';
 export * from './visit-frequency';
 export * from './visit-form';
+export * from './recent-visit';
