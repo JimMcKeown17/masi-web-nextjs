@@ -17,7 +17,7 @@ import { AlertCircle, Plus } from 'lucide-react';
 
 export default function MentorDashboardPage() {
   const { getToken } = useAuth();
-  const [timeFilter, setTimeFilter] = useState('all');
+  const [timeFilter, setTimeFilter] = useState('thisyear');
   const [schoolFilter, setSchoolFilter] = useState('');
   const [mentorFilter, setMentorFilter] = useState('');
   const [isFormDialogOpen, setIsFormDialogOpen] = useState(false);
