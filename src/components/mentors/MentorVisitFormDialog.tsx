@@ -119,8 +119,8 @@ export function MentorVisitFormDialog({
       case 'yebo':
         return {
           ...baseDefaults,
-          paired_reading_took_place: false,
-          paired_reading_tracking_updated: false,
+          paired_reading_took_place: null,
+          paired_reading_tracking_updated: null,
           afternoon_session_quality: null,
           after_school_observation: '',
           paired_reading_observation: '',
@@ -129,21 +129,21 @@ export function MentorVisitFormDialog({
       case 'thousand_stories':
         return {
           ...baseDefaults,
-          library_neat_and_tidy: false,
-          tracking_sheets_up_to_date: false,
-          book_boxes_and_borrowing: false,
-          daily_target_met: false,
+          library_neat_and_tidy: null,
+          tracking_sheets_up_to_date: null,
+          book_boxes_and_borrowing: null,
+          daily_target_met: null,
           story_time_quality: null,
           other_comments: '',
         };
       case 'numeracy':
         return {
           ...baseDefaults,
-          numeracy_tracker_correct: false,
-          teaching_counting: false,
-          teaching_number_concepts: false,
-          teaching_patterns: false,
-          teaching_addition_subtraction: false,
+          numeracy_tracker_correct: null,
+          teaching_counting: null,
+          teaching_number_concepts: null,
+          teaching_patterns: null,
+          teaching_addition_subtraction: null,
           quality_rating: null,
           supplies_needed: '',
           commentary: '',
@@ -328,26 +328,24 @@ export function MentorVisitFormDialog({
                 )}
               />
 
-              {/* Visit Type Selector - only show for Masi Literacy */}
-              {formType === 'masi_literacy' && (
-                <div className="space-y-2">
-                  <Label htmlFor="visit-type-select">Type of Visit</Label>
-                  <Select
-                    value={visitType}
-                    onValueChange={(value) => setVisitType(value as any)}
-                  >
-                    <SelectTrigger id="visit-type-select" className="rounded-xl">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="observation">Observation</SelectItem>
-                      <SelectItem value="meeting">Meeting</SelectItem>
-                      <SelectItem value="delivery">Delivery</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-              )}
+              {/* Visit Type Selector - show for all programs */}
+              <div className="space-y-2">
+                <Label htmlFor="visit-type-select">Type of Visit</Label>
+                <Select
+                  value={visitType}
+                  onValueChange={(value) => setVisitType(value as any)}
+                >
+                  <SelectTrigger id="visit-type-select" className="rounded-xl">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="observation">Observation</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="delivery">Delivery</SelectItem>
+                    <SelectItem value="other">Other</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
 
             {/* Dynamic Fields Based on Form Type */}
@@ -387,11 +385,33 @@ export function MentorVisitFormDialog({
                 )}
               </>
             )}
-            {formType === 'yebo' && <YeboFields form={form} />}
-            {formType === 'thousand_stories' && (
-              <ThousandStoriesFields form={form} />
+            {formType === 'yebo' && (
+              <>
+                {visitType === 'observation' ? (
+                  <YeboFields form={form} showAllFields={true} />
+                ) : (
+                  <YeboFields form={form} showAllFields={false} />
+                )}
+              </>
             )}
-            {formType === 'numeracy' && <NumeracyFields form={form} />}
+            {formType === 'thousand_stories' && (
+              <>
+                {visitType === 'observation' ? (
+                  <ThousandStoriesFields form={form} showAllFields={true} />
+                ) : (
+                  <ThousandStoriesFields form={form} showAllFields={false} />
+                )}
+              </>
+            )}
+            {formType === 'numeracy' && (
+              <>
+                {visitType === 'observation' ? (
+                  <NumeracyFields form={form} showAllFields={true} />
+                ) : (
+                  <NumeracyFields form={form} showAllFields={false} />
+                )}
+              </>
+            )}
 
             {/* Submit/Cancel Buttons */}
             <DialogFooter className="gap-2">
@@ -422,90 +442,94 @@ export function MentorVisitFormDialog({
 }
 
 // Component for Yebo specific fields
-function YeboFields({ form }: { form: any }) {
+function YeboFields({ form, showAllFields }: { form: any; showAllFields: boolean }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4 pb-4">
-        <FormField
-          control={form.control}
-          name="paired_reading_took_place"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Paired reading took place</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="paired_reading_tracking_updated"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Paired reading tracking updated</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-      </div>
+      {showAllFields && (
+        <>
+          <div className="grid grid-cols-2 gap-4 pb-4">
+            <FormField
+              control={form.control}
+              name="paired_reading_took_place"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Paired reading took place</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="paired_reading_tracking_updated"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Paired reading tracking updated</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
 
-      <QualityRatingField
-        form={form}
-        name="afternoon_session_quality"
-        label="Afternoon Session Quality"
-      />
+          <QualityRatingField
+            form={form}
+            name="afternoon_session_quality"
+            label="Afternoon Session Quality"
+          />
 
-      <FormField
-        control={form.control}
-        name="after_school_observation"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>After-School Observation (Optional)</FormLabel>
-            <FormControl>
-              <Textarea {...field} rows={4} className="rounded-xl resize-none" />
-            </FormControl>
-            <div className="flex justify-between">
-              <FormMessage />
-              <span className="text-xs text-slate-500">
-                {field.value?.length || 0} / 1000
-              </span>
-            </div>
-          </FormItem>
-        )}
-      />
+          <FormField
+            control={form.control}
+            name="after_school_observation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>After-School Observation (Optional)</FormLabel>
+                <FormControl>
+                  <Textarea {...field} rows={4} className="rounded-xl resize-none" />
+                </FormControl>
+                <div className="flex justify-between">
+                  <FormMessage />
+                  <span className="text-xs text-slate-500">
+                    {field.value?.length || 0} / 1000
+                  </span>
+                </div>
+              </FormItem>
+            )}
+          />
 
-      <FormField
-        control={form.control}
-        name="paired_reading_observation"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Paired Reading Observation (Optional)</FormLabel>
-            <FormControl>
-              <Textarea {...field} rows={4} className="rounded-xl resize-none" />
-            </FormControl>
-            <div className="flex justify-between">
-              <FormMessage />
-              <span className="text-xs text-slate-500">
-                {field.value?.length || 0} / 1000
-              </span>
-            </div>
-          </FormItem>
-        )}
-      />
+          <FormField
+            control={form.control}
+            name="paired_reading_observation"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Paired Reading Observation (Optional)</FormLabel>
+                <FormControl>
+                  <Textarea {...field} rows={4} className="rounded-xl resize-none" />
+                </FormControl>
+                <div className="flex justify-between">
+                  <FormMessage />
+                  <span className="text-xs text-slate-500">
+                    {field.value?.length || 0} / 1000
+                  </span>
+                </div>
+              </FormItem>
+            )}
+          />
+        </>
+      )}
 
       <FormField
         control={form.control}
         name="commentary"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Commentary (Optional)</FormLabel>
+            <FormLabel>Commentary {showAllFields && '(Optional)'}</FormLabel>
             <FormControl>
               <Textarea {...field} rows={4} className="rounded-xl resize-none" />
             </FormControl>
@@ -523,80 +547,84 @@ function YeboFields({ form }: { form: any }) {
 }
 
 // Component for 1000 Stories specific fields
-function ThousandStoriesFields({ form }: { form: any }) {
+function ThousandStoriesFields({ form, showAllFields }: { form: any; showAllFields: boolean }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4 pb-4">
-        <FormField
-          control={form.control}
-          name="library_neat_and_tidy"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Library neat and tidy</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="tracking_sheets_up_to_date"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Tracking sheets up to date</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="book_boxes_and_borrowing"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Book boxes and borrowing</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="daily_target_met"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Daily target met</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-      </div>
+      {showAllFields && (
+        <>
+          <div className="grid grid-cols-2 gap-4 pb-4">
+            <FormField
+              control={form.control}
+              name="library_neat_and_tidy"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Library neat and tidy</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="tracking_sheets_up_to_date"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Tracking sheets up to date</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="book_boxes_and_borrowing"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Book boxes and borrowing</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="daily_target_met"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Daily target met</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
 
-      <QualityRatingField
-        form={form}
-        name="story_time_quality"
-        label="Story Time Session Quality"
-      />
+          <QualityRatingField
+            form={form}
+            name="story_time_quality"
+            label="Story Time Session Quality"
+          />
+        </>
+      )}
 
       <FormField
         control={form.control}
         name="other_comments"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Other Comments (Optional)</FormLabel>
+            <FormLabel>Other Comments {showAllFields && '(Optional)'}</FormLabel>
             <FormControl>
               <Textarea {...field} rows={4} className="rounded-xl resize-none" />
             </FormControl>
@@ -614,109 +642,113 @@ function ThousandStoriesFields({ form }: { form: any }) {
 }
 
 // Component for Numeracy specific fields
-function NumeracyFields({ form }: { form: any }) {
+function NumeracyFields({ form, showAllFields }: { form: any; showAllFields: boolean }) {
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-2 gap-4 pb-4">
-        <FormField
-          control={form.control}
-          name="numeracy_tracker_correct"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Numeracy tracker correct</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="teaching_counting"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Teaching counting</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="teaching_number_concepts"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Teaching number concepts</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="teaching_patterns"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Teaching patterns</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={form.control}
-          name="teaching_addition_subtraction"
-          render={({ field }) => (
-            <FormItem className="flex flex-row items-start space-x-3 space-y-0 col-span-2">
-              <FormControl>
-                <Checkbox checked={field.value} onCheckedChange={field.onChange} />
-              </FormControl>
-              <div className="space-y-1 leading-none">
-                <FormLabel>Teaching addition/subtraction</FormLabel>
-              </div>
-            </FormItem>
-          )}
-        />
-      </div>
+      {showAllFields && (
+        <>
+          <div className="grid grid-cols-2 gap-4 pb-4">
+            <FormField
+              control={form.control}
+              name="numeracy_tracker_correct"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Numeracy tracker correct</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="teaching_counting"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Teaching counting</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="teaching_number_concepts"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Teaching number concepts</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="teaching_patterns"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Teaching patterns</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="teaching_addition_subtraction"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 col-span-2">
+                  <FormControl>
+                    <Checkbox checked={field.value || false} onCheckedChange={field.onChange} />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>Teaching addition/subtraction</FormLabel>
+                  </div>
+                </FormItem>
+              )}
+            />
+          </div>
 
-      <QualityRatingField form={form} name="quality_rating" label="Quality of Sessions Observed" />
+          <QualityRatingField form={form} name="quality_rating" label="Quality of Sessions Observed" />
 
-      <FormField
-        control={form.control}
-        name="supplies_needed"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Supplies Needed (Optional)</FormLabel>
-            <FormControl>
-              <Textarea {...field} rows={4} className="rounded-xl resize-none" />
-            </FormControl>
-            <div className="flex justify-between">
-              <FormMessage />
-              <span className="text-xs text-slate-500">
-                {field.value?.length || 0} / 500
-              </span>
-            </div>
-          </FormItem>
-        )}
-      />
+          <FormField
+            control={form.control}
+            name="supplies_needed"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Supplies Needed (Optional)</FormLabel>
+                <FormControl>
+                  <Textarea {...field} rows={4} className="rounded-xl resize-none" />
+                </FormControl>
+                <div className="flex justify-between">
+                  <FormMessage />
+                  <span className="text-xs text-slate-500">
+                    {field.value?.length || 0} / 500
+                  </span>
+                </div>
+              </FormItem>
+            )}
+          />
+        </>
+      )}
 
       <FormField
         control={form.control}
         name="commentary"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Commentary (Optional)</FormLabel>
+            <FormLabel>Commentary {showAllFields && '(Optional)'}</FormLabel>
             <FormControl>
               <Textarea {...field} rows={4} className="rounded-xl resize-none" />
             </FormControl>

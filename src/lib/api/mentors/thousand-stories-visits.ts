@@ -41,7 +41,9 @@ export async function createThousandStoriesVisit(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create 1000 Stories visit');
+    const errorData = await response.json().catch(() => null);
+    const errorMessage = errorData?.detail || errorData?.message || `HTTP ${response.status}: ${response.statusText}`;
+    throw new Error(`Failed to create 1000 Stories visit: ${errorMessage}`);
   }
 
   return response.json();

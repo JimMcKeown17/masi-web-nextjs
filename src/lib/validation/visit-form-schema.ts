@@ -55,8 +55,9 @@ export const masiLiteracyFormSchema = visitFormBaseSchema.extend({
 // Yebo Program Form Schema
 export const yeboFormSchema = visitFormBaseSchema.extend({
   form_type: z.literal('yebo'),
-  paired_reading_took_place: z.boolean(),
-  paired_reading_tracking_updated: z.boolean(),
+  visit_type: z.enum(['observation', 'meeting', 'delivery', 'other']).default('observation'),
+  paired_reading_took_place: z.boolean().optional().nullable(),
+  paired_reading_tracking_updated: z.boolean().optional().nullable(),
   afternoon_session_quality: qualityRatingSchema,
   after_school_observation: commentarySchema,
   paired_reading_observation: commentarySchema,
@@ -66,10 +67,11 @@ export const yeboFormSchema = visitFormBaseSchema.extend({
 // 1000 Stories Program Form Schema
 export const thousandStoriesFormSchema = visitFormBaseSchema.extend({
   form_type: z.literal('thousand_stories'),
-  library_neat_and_tidy: z.boolean(),
-  tracking_sheets_up_to_date: z.boolean(),
-  book_boxes_and_borrowing: z.boolean(),
-  daily_target_met: z.boolean(),
+  visit_type: z.enum(['observation', 'meeting', 'delivery', 'other']).default('observation'),
+  library_neat_and_tidy: z.boolean().optional().nullable(),
+  tracking_sheets_up_to_date: z.boolean().optional().nullable(),
+  book_boxes_and_borrowing: z.boolean().optional().nullable(),
+  daily_target_met: z.boolean().optional().nullable(),
   story_time_quality: qualityRatingSchema,
   other_comments: commentarySchema,
 });
@@ -77,11 +79,12 @@ export const thousandStoriesFormSchema = visitFormBaseSchema.extend({
 // Numeracy Program Form Schema
 export const numeracyFormSchema = visitFormBaseSchema.extend({
   form_type: z.literal('numeracy'),
-  numeracy_tracker_correct: z.boolean(),
-  teaching_counting: z.boolean(),
-  teaching_number_concepts: z.boolean(),
-  teaching_patterns: z.boolean(),
-  teaching_addition_subtraction: z.boolean(),
+  visit_type: z.enum(['observation', 'meeting', 'delivery', 'other']).default('observation'),
+  numeracy_tracker_correct: z.boolean().optional().nullable(),
+  teaching_counting: z.boolean().optional().nullable(),
+  teaching_number_concepts: z.boolean().optional().nullable(),
+  teaching_patterns: z.boolean().optional().nullable(),
+  teaching_addition_subtraction: z.boolean().optional().nullable(),
   quality_rating: qualityRatingSchema,
   supplies_needed: suppliesNeededSchema,
   commentary: commentarySchema,

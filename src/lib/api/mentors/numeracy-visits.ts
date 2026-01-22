@@ -41,7 +41,9 @@ export async function createNumeracyVisit(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create Numeracy visit');
+    const errorData = await response.json().catch(() => null);
+    const errorMessage = errorData?.detail || errorData?.message || `HTTP ${response.status}: ${response.statusText}`;
+    throw new Error(`Failed to create Numeracy visit: ${errorMessage}`);
   }
 
   return response.json();

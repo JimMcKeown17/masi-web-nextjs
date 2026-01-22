@@ -41,7 +41,9 @@ export async function createYeboVisit(
   });
 
   if (!response.ok) {
-    throw new Error('Failed to create Yebo visit');
+    const errorData = await response.json().catch(() => null);
+    const errorMessage = errorData?.detail || errorData?.message || `HTTP ${response.status}: ${response.statusText}`;
+    throw new Error(`Failed to create Yebo visit: ${errorMessage}`);
   }
 
   return response.json();
