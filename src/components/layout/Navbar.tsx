@@ -4,6 +4,7 @@
 import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
+import { usePathname } from "next/navigation"
 import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
@@ -91,15 +92,37 @@ const projectManagementItems = [
   },
 ]
 
+// Pages where the navbar starts transparent over a full-screen hero
+const HERO_PAGES = ['/about/our-team']
+
 export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false)
+  const [isScrolled, setIsScrolled] = React.useState(false)
+  const pathname = usePathname()
   const user = useUser();
+
+  const isHeroPage = HERO_PAGES.includes(pathname)
+  // Navbar is transparent only when on a hero page AND the user hasn't scrolled down
+  const isTransparent = isHeroPage && !isScrolled
+
+  React.useEffect(() => {
+    const handleScroll = () => setIsScrolled(window.scrollY > 50)
+    // Set initial state in case the page loads already scrolled
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [])
+
+  // When the navbar is transparent, override trigger styles so text is white
+  const triggerClass = isTransparent
+    ? 'bg-transparent text-white hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white data-[state=open]:hover:bg-white/10'
+    : ''
 
   // Check if user has access to Project Management dropdown (using Django stored values)
   const hasProjectManagementAccess = user?.role === 'ADMIN' || user?.role === 'PROJECT MANAGER' || user?.role === 'MENTOR'
-  
+
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/95 backdrop-blur-sm shadow-sm border-b">
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${isTransparent ? 'bg-transparent' : 'bg-background/95 backdrop-blur-sm shadow-sm border-b'}`}>
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
@@ -111,7 +134,7 @@ export function Navbar() {
               height={40}
               className="object-contain"
             />
-            <span className="hidden sm:inline text-2xl font-bold text-foreground">Masinyusane</span>
+            <span className={`hidden sm:inline text-2xl font-bold transition-colors duration-300 ${isTransparent ? 'text-white' : 'text-foreground'}`}>Masinyusane</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -120,7 +143,7 @@ export function Navbar() {
               <NavigationMenuList>
                 {/* About Us Dropdown */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>About Us</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className={triggerClass}>About Us</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
                       {aboutUsItems.map((item) => (
@@ -139,7 +162,7 @@ export function Navbar() {
 
                 {/* Programs Dropdown */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>Programs</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className={triggerClass}>Programs</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
                       {programsItems.map((item) => (
@@ -158,7 +181,7 @@ export function Navbar() {
 
                 {/* Impact Dropdown */}
                 <NavigationMenuItem>
-                  <NavigationMenuTrigger>Impact</NavigationMenuTrigger>
+                  <NavigationMenuTrigger className={triggerClass}>Impact</NavigationMenuTrigger>
                   <NavigationMenuContent>
                     <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
                       {impactItems.map((item) => (
@@ -178,7 +201,7 @@ export function Navbar() {
                 {/* Project Management Dropdown - Only for Administrators, Project Managers, and Mentors */}
                 {hasProjectManagementAccess && (
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger>Project Management</NavigationMenuTrigger>
+                    <NavigationMenuTrigger className={triggerClass}>Project Management</NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
                         {projectManagementItems.map((item) => (
@@ -202,7 +225,7 @@ export function Navbar() {
             <SignedOut>
               <Link
                 href="/auth/sign-in"
-                className="border border-foreground/20 text-foreground px-4 py-2 rounded-md hover:bg-accent transition font-medium flex items-center gap-2"
+                className={`px-4 py-2 rounded-md transition font-medium flex items-center gap-2 ${isTransparent ? 'border border-white/60 text-white hover:bg-white/10' : 'border border-foreground/20 text-foreground hover:bg-accent'}`}
               >
                 <LogIn className="h-4 w-4" />
                 Log In
@@ -227,7 +250,7 @@ export function Navbar() {
             <SignedOut>
               <Link
                 href="/auth/sign-in"
-                className="border border-foreground/20 text-foreground px-3 py-2 rounded-md hover:bg-accent transition text-sm font-medium flex items-center gap-1.5"
+                className={`px-3 py-2 rounded-md transition text-sm font-medium flex items-center gap-1.5 ${isTransparent ? 'border border-white/60 text-white hover:bg-white/10' : 'border border-foreground/20 text-foreground hover:bg-accent'}`}
               >
                 <LogIn className="h-3.5 w-3.5" />
                 Log In
@@ -248,7 +271,7 @@ export function Navbar() {
             {/* Mobile Menu Toggle */}
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger asChild>
-                <button className="p-2 hover:bg-accent rounded-md">
+                <button className={`p-2 rounded-md ${isTransparent ? 'text-white hover:bg-white/10' : 'hover:bg-accent'}`}>
                   <Menu className="h-6 w-6" />
                   <span className="sr-only">Open menu</span>
                 </button>

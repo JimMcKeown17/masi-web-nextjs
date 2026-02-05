@@ -12,7 +12,8 @@ export function getImageUrl(path: string): string {
       return `/${cleanPath}`;
     }
     
-    return `https://storage.googleapis.com/${bucketName}/${cleanPath}`;
+    // encodeURI handles spaces and other special chars in filenames while leaving / and : intact
+    return encodeURI(`https://storage.googleapis.com/${bucketName}/${cleanPath}`);
   }
 
 /**

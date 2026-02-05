@@ -1,7 +1,6 @@
 'use client';
 import { FadeUp } from '@/components/animations/FadeAnimations';
 import HeroSection from '@/components/about/hero-section';
-import CommunitySection from '@/components/about/community-section';
 import ExecutiveDirector from '@/components/about/executive-director';
 import TeamSection from '@/components/about/team-section';
 import FemaleStatSection from '@/components/about/female-stat-section';
@@ -12,11 +11,10 @@ import Footer from '@/components/layout/Footer';
 export default function AboutPage() {
   return (
     <div className="min-h-screen bg-white">
-      {/* Hero Section */}
-      <HeroSection />
-
-      {/* Community Section */}
-      <CommunitySection />
+      {/* Negative margin pulls hero under the fixed navbar so it fills the full viewport */}
+      <div className="-mt-16">
+        <HeroSection />
+      </div>
 
       {/* Executive Director Section */}
       <FadeUp>

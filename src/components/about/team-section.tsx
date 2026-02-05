@@ -1,54 +1,61 @@
-import { getImageUrl } from '@/lib/imageUrl';
-import Image from 'next/image';
+import StaffPhoto from '@/components/about/staff-photo';
 
 const teamMembers = [
   {
     id: 1,
-    name: 'Thembeka Nobomvu',
+    firstName: 'Thembeka',
+    lastName: 'Nobomvu',
     role: 'Programme Manager',
-    image: 'images/staff/Thembeka-Nobomvu.jpg'
+    image: 'images/staff/thembeka-mask.webp'
   },
   {
     id: 2,
-    name: 'Buyiswa Xaba',
+    firstName: 'Buyiswa',
+    lastName: 'Xaba',
     role: 'Programme Manager',
-    image: 'images/staff/Buyi-Xaba.jpg'
+    image: 'images/staff/buyi-mask.webp'
   },
   {
     id: 3,
-    name: 'Zola Mbusi',
+    firstName: 'Zola',
+    lastName: 'Mbusi',
     role: 'Chief Operating Officer',
-    image: 'images/staff/Zola-Mbusi.jpg'
+    image: 'images/staff/zola-mask.webp'
   },
   {
     id: 4,
-    name: 'Chombe Ncandana',
+    firstName: 'Chombe',
+    lastName: 'Ncandana',
     role: 'ECD Team Leader',
-    image: 'images/staff/Chombe-Ncandana.jpg'
+    image: 'images/staff/chombe-mask.webp'
   },
   {
     id: 5,
-    name: 'Nwabisa Ngceshe',
+    firstName: 'Nwabisa',
+    lastName: 'Ngceshe',
     role: 'Finance Team',
-    image: 'images/staff/Nwabisa.jpg'
+    image: 'images/staff/nwabisa-mask.webp'
   },
   {
     id: 6,
-    name: 'Tumelo Lungile',
+    firstName: 'Tumelo',
+    lastName: 'Lungile',
     role: 'Data Team Lead',
-    image: 'images/staff/Tumelo.jpg'
+    image: 'images/staff/tumelo-mask.webp'
   },
   {
     id: 7,
-    name: 'Sinesipho Ntunuka',
+    firstName: 'Sinesipho',
+    lastName: 'Ntunuka',
     role: 'Bursary Project Manager',
-    image: 'images/staff/Sinesipho-Ntunuka.jpg'
+    image: 'images/staff/sine-mask.webp'
   },
   {
     id: 8,
-    name: 'Ziyanda Fayindlala',
+    firstName: 'Ziyanda',
+    lastName: 'Fayindlala',
     role: 'ECD Project Manager',
-    image: 'images/staff/Ziyanda-Fayindlala.jpg'
+    image: 'images/staff/ziyanda-mask.webp'
   }
 ];
 
@@ -56,40 +63,44 @@ export default function TeamSection() {
   return (
     <section className="py-12 md:py-16 bg-white">
       <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-          <div className="lg:col-span-3 flex flex-col justify-center">
-            <div className="inline-block mb-2">
-              <span className="text-sm font-semibold tracking-wider uppercase bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
-                Meet The Team
-              </span>
+        {/* Centered Header */}
+        <div className="text-center mb-12">
+          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-3">
+            Our Team
+          </h2>
+          <p className="text-xl md:text-2xl font-medium bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
+            Meet the team behind Masinyusane
+          </p>
+        </div>
+
+        {/* Team Grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10 max-w-7xl mx-auto">
+          {teamMembers.map((member) => (
+            <div key={member.id} className="flex flex-col items-center">
+              {/* Staff Photo */}
+              <StaffPhoto
+                imageSrc={member.image}
+                alt={`${member.firstName} ${member.lastName}`}
+                align="center"
+                className="mb-2"
+              />
+
+              {/* Name with gradient */}
+              <h3 className="text-xl font-bold text-center mb-1">
+                <span className="bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
+                  {member.firstName}
+                </span>{' '}
+                <span className="text-gray-900">{member.lastName}</span>
+              </h3>
+
+              {/* Role */}
+              <p className="text-sm text-gray-600 text-center">
+                {member.role}
+              </p>
             </div>
-            <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
-              Our <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Team</span>
-            </h2>
-          </div>
-          <div className="lg:col-span-9">
-            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-              {teamMembers.map((member) => (
-                <div key={member.id} className="overflow-hidden rounded-lg shadow-md hover:shadow-xl transition-shadow duration-300 group">
-                  <div className="relative aspect-[3/4]">
-                    <Image
-                      src={getImageUrl(member.image)}
-                      alt={member.name}
-                      fill
-                      className="object-cover"
-                    />
-                    <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-3 text-white text-center">
-                      <h5 className="font-bold text-sm mb-0.5">{member.name}</h5>
-                      <p className="text-xs opacity-90">{member.role}</p>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
+          ))}
         </div>
       </div>
     </section>
   );
 }
-
