@@ -93,7 +93,7 @@ const projectManagementItems = [
 ]
 
 // Pages where the navbar starts transparent over a full-screen hero
-const HERO_PAGES = ['/about/our-team']
+const HERO_PAGES = ['/about/our-team', '/about/where-we-work']
 
 export function Navbar() {
   const [isOpen, setIsOpen] = React.useState(false)

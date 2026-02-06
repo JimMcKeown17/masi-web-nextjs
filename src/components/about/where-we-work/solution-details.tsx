@@ -1,73 +1,59 @@
 "use client";
-import Image from "next/image";
-import { FadeUp, FadeLeft } from "@/components/animations/FadeAnimations";
-import { getImageUrl } from "@/lib/imageUrl";
-import { CheckCircle } from "lucide-react";
-import { Card } from "@/components/ui/card";
+import { Briefcase, DollarSign, BookOpen, Sparkles } from "lucide-react";
+
+// Benefit card component
+function BenefitCard({ icon: Icon, text }: { icon: React.ElementType; text: string }) {
+  return (
+    <div className="flex flex-col items-center text-center px-4">
+      <div className="w-16 h-16 md:w-20 md:h-20 rounded-full border-4 border-white/80 flex items-center justify-center mb-4">
+        <Icon className="w-8 h-8 md:w-10 md:h-10 text-white" strokeWidth={2.5} />
+      </div>
+      <p className="text-white text-sm md:text-base max-w-[280px]">
+        {text}
+      </p>
+    </div>
+  );
+}
 
 export default function SolutionDetails() {
   return (
-    <section className="py-16 md:py-20 bg-gray-50">
-      <FadeUp>
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-            <div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-6">
-                We Are Solving Both Problems
-              </h1>
-              <h4 className="text-lg md:text-xl text-gray-700 mb-6 leading-relaxed">
-                We hire women from the local communities, train them, and deploy
-                them as reading coaches in schools and preschools.
-              </h4>
-              <ul className="space-y-4">
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-                  <span className="text-gray-700">
-                    Women get their first job, receiving training, and are on the economic ladder.
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-                  <span className="text-gray-700">
-                    Families are now receiving incomes.
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-                  <span className="text-gray-700">
-                    Children are taught to read and write, thus unlocking their ability to learn in all other subjects.
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-                  <span className="text-gray-700">
-                    Children hear 1,000 stories before age 7, supercharging their vocabulary, imagination, and memory.
-                  </span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 text-green-600 flex-shrink-0 mt-1" />
-                  <span className="text-gray-700">
-                    Children&apos;s confidence soars.
-                  </span>
-                </li>
-              </ul>
-            </div>
-            <div className="flex justify-center">
-              <FadeLeft>
-                <Card className="overflow-hidden p-0">
-                  <Image
-                    src={getImageUrl("images/the-solution-model.png")}
-                    alt="The Solution Model"
-                    width={600}
-                    height={500}
-                    className="w-full h-auto object-cover"
-                  />
-                </Card>
-              </FadeLeft>
-            </div>
-          </div>
+    <section className="py-16 md:py-24 bg-[#7CB342]">
+      <div className="container mx-auto px-4">
+        {/* Eyebrow text */}
+        <p className="text-center text-sm md:text-base font-semibold tracking-wider uppercase text-white/90 mb-8">
+          Two Birds, One Stone
+        </p>
+
+        {/* Main heading - BIG and POWERFUL */}
+        <h1 className="text-center text-5xl md:text-6xl lg:text-7xl font-bold text-white mb-6 max-w-5xl mx-auto leading-tight">
+          Two Crises. One Solution.
+        </h1>
+
+        {/* Subtext */}
+        <p className="text-center text-lg md:text-xl text-white/95 mb-16 md:mb-20 max-w-4xl mx-auto leading-relaxed">
+          We hire unemployed women and train them as reading & numeracy coaches in schools and preschools.
+        </p>
+
+        {/* Benefits grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 md:gap-6 max-w-6xl mx-auto">
+          <BenefitCard
+            icon={Briefcase}
+            text="Women enter their first jobs, gaining skills and income."
+          />
+          <BenefitCard
+            icon={DollarSign}
+            text="Families are now receiving incomes."
+          />
+          <BenefitCard
+            icon={BookOpen}
+            text="Children learn to read and write, unlocking all learning."
+          />
+          <BenefitCard
+            icon={Sparkles}
+            text="By age seven, children hear 1,000 stories, boosting vocabulary and imagination."
+          />
         </div>
-      </FadeUp>
+      </div>
     </section>
   );
 }
