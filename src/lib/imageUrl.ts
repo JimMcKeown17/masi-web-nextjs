@@ -6,14 +6,16 @@
 export function getImageUrl(path: string): string {
     const cleanPath = path.startsWith('/') ? path.slice(1) : path;
     const bucketName = process.env.NEXT_PUBLIC_GCS_BUCKET_NAME;
-    
+
     if (!bucketName) {
       console.warn('NEXT_PUBLIC_GCS_BUCKET_NAME not set, using local path');
       return `/${cleanPath}`;
     }
-    
-    // encodeURI handles spaces and other special chars in filenames while leaving / and : intact
-    return encodeURI(`https://storage.googleapis.com/${bucketName}/${cleanPath}`);
+
+    // Properly encode each path segment to handle spaces and special characters
+    // This ensures Next.js Image Optimization can fetch the images in production
+    const encodedPath = cleanPath.split('/').map(segment => encodeURIComponent(segment)).join('/');
+    return `https://storage.googleapis.com/${bucketName}/${encodedPath}`;
   }
 
 /**
