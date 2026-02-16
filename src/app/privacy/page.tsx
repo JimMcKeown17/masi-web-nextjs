@@ -1,3 +1,5 @@
+import { getAssetUrl } from "@/lib/imageUrl";
+
 export const metadata = {
   title: "Privacy Policy | Masinyusane",
   description: "Privacy Policy for Masinyusane mobile and web applications.",
@@ -144,6 +146,21 @@ export default function PrivacyPolicyPage() {
           Access to child-related data is restricted to authorized personnel with a
           legitimate programmatic need. We implement role-based access controls and
           other safeguards designed to protect sensitive information.
+        </p>
+        <p>
+          Masinyusane maintains a comprehensive Child Protection Policy that governs
+          how all staff, volunteers, and partners are expected to handle interactions
+          with and data about children in our programs. You can read the full policy
+          here:{" "}
+          <a
+            className="underline"
+            href={getAssetUrl("reports/Masinyusane - Child Protection Policy.pdf")}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            Masinyusane Child Protection Policy (PDF)
+          </a>
+          .
         </p>
 
         <h2 className="mt-8 text-xl font-semibold">Data retention</h2>
