@@ -32,22 +32,28 @@ export default function PrivacyPolicyPage() {
         <ul className="list-disc space-y-2 pl-6">
           <li>
             <strong>Account and authentication data:</strong> name, email address,
-            organization/role, and login identifiers needed to provide access.
+            organization/role, and login identifiers needed to provide secure access.
           </li>
           <li>
-            <strong>Program and session data:</strong> information entered by staff
-            about educational sessions (e.g., date, location or site name,
-            attendance counts, skills/letters covered, notes, outcomes).
+            <strong>Program and session data:</strong> information entered by authorized
+            staff about educational sessions (e.g., date, site, attendance, skills or
+            letters covered, notes, and outcomes).
           </li>
           <li>
-            <strong>Child learning data (where applicable):</strong> assessment
-            results or learning progress data that may be linked to a child
-            identifier used for program monitoring and improvement.
+            <strong>Child learning data:</strong> limited personal information about
+            children participating in Masinyusane programs, such as child names,
+            identifiers, and assessment or learning progress data, collected solely for
+            educational program delivery, monitoring, and improvement.
           </li>
           <li>
-            <strong>Device and usage data:</strong> basic technical information
-            such as device type, operating system, app version, and diagnostics
-            (e.g., crash logs) to maintain and improve the Services.
+            <strong>Location data:</strong> the app may collect approximate or precise
+            device location when authorized by the user, for purposes such as verifying
+            session locations, program monitoring, and operational support.
+          </li>
+          <li>
+            <strong>Device and usage data:</strong> basic technical information such as
+            device type, operating system, app version, and diagnostic data (for
+            example, crash logs) to maintain and improve the Services.
           </li>
         </ul>
 
@@ -55,12 +61,19 @@ export default function PrivacyPolicyPage() {
         <ul className="list-disc space-y-2 pl-6">
           <li>To provide, maintain, and secure access to the Services.</li>
           <li>
-            To operate and improve education programs, including monitoring,
-            evaluation, and reporting using aggregated and de-identified data
-            where possible.
+            To support delivery, monitoring, and improvement of Masinyusane education
+            programs.
+          </li>
+          <li>
+            To verify session activity and locations where relevant to program
+            integrity.
+          </li>
+          <li>
+            To generate aggregated and de-identified reports for internal management,
+            partners, and funders.
           </li>
           <li>To troubleshoot issues, prevent abuse, and protect our systems.</li>
-          <li>To communicate about Service updates, support, and account issues.</li>
+          <li>To communicate about Service updates, support, and account matters.</li>
         </ul>
 
         <h2 className="mt-8 text-xl font-semibold">How we share information</h2>
@@ -85,11 +98,21 @@ export default function PrivacyPolicyPage() {
 
         <h2 className="mt-8 text-xl font-semibold">Children's privacy</h2>
         <p>
-          Our Services are not directed to children. Any child-related data we
-          process is collected by authorized staff for educational program
-          delivery, monitoring, and improvement. We aim to minimize personal
-          identifiers and use de-identified or aggregated reporting where
-          feasible.
+          Our mobile applications are intended for use by authorized adults (such as
+          staff, volunteers, and partners), not by children directly. However,
+          authorized users may enter limited information about children participating
+          in Masinyusane programs, including names and assessment data, for legitimate
+          educational and program monitoring purposes.
+        </p>
+        <p>
+          We aim to minimize the personal data collected about children and use
+          aggregated or de-identified reporting where feasible. We do not knowingly
+          permit children to create accounts in the Services.
+        </p>
+        <p>
+          Access to child-related data is restricted to authorized personnel with a
+          legitimate programmatic need. We implement role-based access controls and
+          other safeguards designed to protect sensitive information.
         </p>
 
         <h2 className="mt-8 text-xl font-semibold">Data retention</h2>
