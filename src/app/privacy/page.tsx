@@ -23,9 +23,10 @@ export default function PrivacyPolicyPage() {
 
         <h2 className="mt-8 text-xl font-semibold">Who this policy applies to</h2>
         <p>
-          Our mobile applications are intended for staff, volunteers,
-          and partners who deliver or support Masinyusane programs. They are not
-          intended for children to use directly.
+          Our mobile applications are intended for authorized adults — staff,
+          volunteers, and partners — who deliver or support Masinyusane programs.{" "}
+          <strong>Users must be 18 years of age or older to create an account.</strong>{" "}
+          The Services are not intended for children to use directly.
         </p>
 
         <h2 className="mt-8 text-xl font-semibold">Information we collect</h2>
@@ -33,6 +34,7 @@ export default function PrivacyPolicyPage() {
           <li>
             <strong>Account and authentication data:</strong> name, email address,
             organization/role, and login identifiers needed to provide secure access.
+            This data is required to use the Services.
           </li>
           <li>
             <strong>Program and session data:</strong> information entered by authorized
@@ -42,13 +44,18 @@ export default function PrivacyPolicyPage() {
           <li>
             <strong>Child learning data:</strong> limited personal information about
             children participating in Masinyusane programs, such as child names,
-            identifiers, and assessment or learning progress data, collected solely for
-            educational program delivery, monitoring, and improvement.
+            identifiers, and assessment or learning progress data (including letter and
+            skill scores), collected solely for educational program delivery, monitoring,
+            and improvement. This data is entered by authorized staff, not by children
+            themselves.
           </li>
           <li>
-            <strong>Location data:</strong> the app may collect approximate or precise
-            device location when authorized by the user, for purposes such as verifying
-            session locations, program monitoring, and operational support.
+            <strong>Location data:</strong> the app may request permission to collect
+            approximate or precise device location to verify session attendance,
+            support program monitoring, and assist with operational logistics. Location
+            access is requested at runtime and can be denied without losing access to
+            core app features. Precise location is used only when necessary for session
+            verification; approximate location is used for general program monitoring.
           </li>
           <li>
             <strong>Device and usage data:</strong> basic technical information such as
@@ -82,19 +89,43 @@ export default function PrivacyPolicyPage() {
         </p>
         <ul className="list-disc space-y-2 pl-6">
           <li>
-            <strong>With service providers</strong> who help us operate the
-            Services (e.g., hosting, analytics, error monitoring), under
-            confidentiality and security obligations.
+            <strong>With service providers</strong> who help us operate the Services,
+            under confidentiality and security obligations (see "Third-party service
+            providers" below).
           </li>
           <li>
-            <strong>With partners and funders</strong> in aggregated or
-            de-identified form for reporting on program results.
+            <strong>With partners and funders</strong> in aggregated or de-identified
+            form for reporting on program results.
           </li>
           <li>
-            <strong>For legal reasons</strong> if required to comply with law or
-            to protect rights, safety, and security.
+            <strong>For legal reasons</strong> if required to comply with law or to
+            protect rights, safety, and security.
           </li>
         </ul>
+
+        <h2 className="mt-8 text-xl font-semibold">Third-party service providers</h2>
+        <p>
+          We use the following third-party services to operate the Services. Each
+          processes data only as necessary to provide their function and is bound by
+          appropriate data protection obligations:
+        </p>
+        <ul className="list-disc space-y-2 pl-6">
+          <li>
+            <strong>Clerk (clerk.com):</strong> handles user authentication and account
+            management, including storing account credentials and session tokens.
+          </li>
+          <li>
+            <strong>Google Cloud Storage (cloud.google.com):</strong> used for secure
+            cloud storage of application data and uploaded files.
+          </li>
+          <li>
+            <strong>Render (render.com):</strong> hosts the backend API and database
+            infrastructure.
+          </li>
+        </ul>
+        <p>
+          We do not use third-party advertising networks or data brokers.
+        </p>
 
         <h2 className="mt-8 text-xl font-semibold">Children's privacy</h2>
         <p>
@@ -125,27 +156,45 @@ export default function PrivacyPolicyPage() {
 
         <h2 className="mt-8 text-xl font-semibold">Security</h2>
         <p>
-          We use reasonable administrative, technical, and organizational
-          measures to protect information. No system is 100% secure, but we
-          continuously work to improve safeguards.
+          We use reasonable administrative, technical, and organizational measures to
+          protect information, including encrypted data transmission (HTTPS),
+          authentication controls via Clerk, and role-based access restrictions. No
+          system is 100% secure, but we continuously work to improve our safeguards.
         </p>
 
         <h2 className="mt-8 text-xl font-semibold">Your choices</h2>
         <ul className="list-disc space-y-2 pl-6">
           <li>
-            <strong>Access and updates:</strong> authorized users may request
-            updates to their account information.
+            <strong>Location permissions:</strong> location access is requested at
+            runtime on your device. You may deny or revoke location permissions at any
+            time in your device settings without losing access to core app features.
           </li>
           <li>
-            <strong>Deletion:</strong> where applicable, you may request deletion
-            of your account data, subject to operational and legal requirements.
+            <strong>Access and updates:</strong> authorized users may request updates
+            to their account information by contacting us at{" "}
+            <a className="underline" href="mailto:info@masinyusane.org">
+              info@masinyusane.org
+            </a>
+            .
+          </li>
+          <li>
+            <strong>Account deletion:</strong> you may request deletion of your account
+            and associated personal data by emailing{" "}
+            <a className="underline" href="mailto:info@masinyusane.org">
+              info@masinyusane.org
+            </a>{" "}
+            with the subject line "Account Deletion Request". We will process your
+            request within 30 days, subject to any operational or legal retention
+            requirements. Note that program data entered on behalf of Masinyusane
+            (such as session records) may be retained for legitimate organizational
+            purposes even after account deletion.
           </li>
         </ul>
 
         <h2 className="mt-8 text-xl font-semibold">Contact us</h2>
         <p>
-          If you have questions about this Privacy Policy or our privacy
-          practices, contact us at{" "}
+          If you have questions about this Privacy Policy or our privacy practices,
+          contact us at{" "}
           <a className="underline" href="mailto:info@masinyusane.org">
             info@masinyusane.org
           </a>
@@ -154,8 +203,8 @@ export default function PrivacyPolicyPage() {
 
         <h2 className="mt-8 text-xl font-semibold">Changes to this policy</h2>
         <p>
-          We may update this Privacy Policy from time to time. If we make
-          material changes, we will update the "Last updated" date above.
+          We may update this Privacy Policy from time to time. If we make material
+          changes, we will update the "Last updated" date above.
         </p>
       </section>
     </main>
