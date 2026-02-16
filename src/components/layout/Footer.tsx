@@ -77,8 +77,13 @@ export default function Footer() {
             </div>
           </div>
           <hr className="my-8 border-gray-700" />
-          <div className="text-center text-sm">
+          <div className="text-center text-sm space-y-1">
             <p>&copy; 2025 Masinyusane. All rights reserved.</p>
+            <p>
+              <Link href="/privacy" className="hover:text-blue-400 transition-colors">
+                Privacy Policy
+              </Link>
+            </p>
           </div>
         </div>
       </footer>
