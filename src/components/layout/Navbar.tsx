@@ -78,7 +78,7 @@ const impactItems = [
   {
     title: "Impact Overview",
     href: "/impact",
-    description: "See the numbers behind our work — KPIs, charts, and results.",
+    description: "Key metrics, statistics, and impact stories.",
     icon: TrendingUp,
   },
   {
@@ -88,9 +88,9 @@ const impactItems = [
     icon: Database,
   },
   {
-    title: "Impact Reports",
+    title: "Reports & Publications",
     href: "/impact/reports",
-    description: "Read our annual reports and success stories.",
+    description: "Read our annual reports, audited financials, and project reports.",
     icon: TrendingUp,
   },
 ]

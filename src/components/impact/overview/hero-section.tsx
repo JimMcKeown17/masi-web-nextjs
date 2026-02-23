@@ -34,7 +34,7 @@ export default function ImpactHeroSection() {
         priority
       />
       {/* Dark overlay for readability */}
-      <div className="absolute inset-0 bg-black/50" />
+      <div className="absolute inset-0 bg-black/30" />
 
       <div className="container relative z-10 mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center mb-16">
@@ -48,7 +48,7 @@ export default function ImpactHeroSection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+        <div className="hidden sm:grid sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
           {pillars.map((pillar) => {
             const Icon = pillar.icon;
             return (

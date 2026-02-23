@@ -82,16 +82,27 @@ export default function EducationSection() {
             </div>
           </div>
         </div>
+      </div>
 
-        {/* Data portal CTA */}
-        <div className="text-center mt-12">
-          <p className="text-gray-600 mb-4">
+      {/* Every child tracked strip — full width */}
+      <Image
+        src="/impact/every-child-tracked-strip.png"
+        alt="Every child tracked — Masinyusane data-driven approach"
+        width={1920}
+        height={300}
+        className="w-full h-auto block"
+      />
+
+      {/* Data portal CTA */}
+      <div className="container mx-auto px-4">
+        <div className="text-center py-6 md:py-10">
+          <p className="text-gray-600 mb-4 md:text-lg">
             Dive deeper into our assessment data, school-level results, and programme trends.
           </p>
-          <Button asChild size="lg" className="bg-blue-700 hover:bg-blue-800 text-white">
+          <Button asChild className="bg-blue-700 hover:bg-blue-800 text-white text-base md:text-lg px-8 py-3 md:px-12 md:py-6 h-auto rounded-xl">
             <Link href="/impact/data-portal">
               Explore the Data Portal
-              <ArrowRight className="h-4 w-4 ml-2" />
+              <ArrowRight className="h-5 w-5 ml-2" />
             </Link>
           </Button>
         </div>

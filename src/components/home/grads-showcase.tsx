@@ -31,14 +31,14 @@ export default function GradsShowcase({
     if (isAnimating) return;
     setIsAnimating(true);
     setActiveSlide((prev) => (prev + 1) % graduates.length);
-    setTimeout(() => setIsAnimating(false), 600);
+    setTimeout(() => setIsAnimating(false), 300);
   };
 
   const handlePrev = () => {
     if (isAnimating) return;
     setIsAnimating(true);
     setActiveSlide((prev) => (prev - 1 + graduates.length) % graduates.length);
-    setTimeout(() => setIsAnimating(false), 600);
+    setTimeout(() => setIsAnimating(false), 300);
   };
 
   useEffect(() => {
@@ -106,10 +106,10 @@ export default function GradsShowcase({
                 {graduates.map((grad, index) => (
                   <div
                     key={grad.id}
-                    className={`absolute inset-0 transition-all duration-700 ${
+                    className={`absolute inset-0 transition-opacity duration-300 ${
                       index === activeSlide
-                        ? 'opacity-100 scale-100 translate-y-0'
-                        : 'opacity-0 scale-95 translate-y-4'
+                        ? 'opacity-100'
+                        : 'opacity-0'
                     }`}
                   >
                     <div className="relative w-full h-full">
@@ -156,7 +156,7 @@ export default function GradsShowcase({
                 if (!isAnimating) {
                   setIsAnimating(true);
                   setActiveSlide(index);
-                  setTimeout(() => setIsAnimating(false), 600);
+                  setTimeout(() => setIsAnimating(false), 300);
                 }
               }}
               className={`h-2 rounded-full transition-all duration-300 ${

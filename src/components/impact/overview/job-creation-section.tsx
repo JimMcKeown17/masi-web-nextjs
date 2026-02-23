@@ -2,6 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
 
@@ -102,28 +103,33 @@ export default function JobCreationSection() {
         </div>
 
         {/* Youth testimony + Video CTA */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10 md:mt-6 items-stretch">
           {/* Quote card */}
-          <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
-            <div className="text-4xl text-rose-300 mb-4">&ldquo;</div>
-            <p className="text-lg text-gray-700 italic leading-relaxed mb-6">
+          <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100 flex flex-col justify-center">
+            <div className="flex items-center gap-5 mb-6">
+              <Image
+                src="/impact/alutha.png"
+                alt="Alutha"
+                width={96}
+                height={96}
+                className="w-24 h-24 rounded-full object-cover border-3 border-rose-200 shrink-0"
+              />
+              <div>
+                <div className="text-xl font-bold text-gray-900">Alutha</div>
+                <div className="text-base text-gray-500">Education Assistant, Eastern Cape</div>
+              </div>
+            </div>
+            <div className="text-5xl text-rose-300 leading-none mb-3">&ldquo;</div>
+            <p className="text-xl md:text-2xl text-gray-700 italic leading-relaxed">
               Masinyusane gave me my first real job. Now I can earn money, support my family
               and I&apos;m making a difference in children&apos;s lives every day. I wake
               up with purpose.
             </p>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
-                <span className="text-rose-600 font-bold text-sm">NM</span>
-              </div>
-              <div>
-                <div className="font-semibold text-gray-900">Ncumisa Mselane</div>
-                <div className="text-sm text-gray-500">Education Assistant, Eastern Cape</div>
-              </div>
-            </div>
+            <div className="text-5xl text-rose-300 leading-none mt-2 text-right">&rdquo;</div>
           </div>
 
           {/* Video embed */}
-          <div className="rounded-xl overflow-hidden shadow-md aspect-video">
+          <div className="rounded-xl overflow-hidden shadow-md md:aspect-auto aspect-video">
             <iframe
               src="https://www.youtube.com/embed/5j2d6nlFVe8"
               title="Masinyusane Youth Employment Impact"
