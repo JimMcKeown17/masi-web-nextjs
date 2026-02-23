@@ -1,29 +1,23 @@
-import { Users, School, BookOpen, Target } from 'lucide-react';
+import { BookOpen, Briefcase, GraduationCap } from 'lucide-react';
 
-const heroStats = [
-  {
-    icon: School,
-    value: '250+',
-    label: 'Schools Reached',
-    description: 'across Eastern Cape',
-  },
-  {
-    icon: Users,
-    value: '25,000+',
-    label: 'Children Assessed',
-    description: 'ECD, Grade R & Grade 1',
-  },
+const pillars = [
   {
     icon: BookOpen,
-    value: '500+',
-    label: 'Mentors Active',
-    description: 'Trained Education Assistants',
+    value: '25,000+',
+    label: "Children's Education",
+    description: 'Children assessed across 250+ schools',
   },
   {
-    icon: Target,
-    value: '45%',
-    label: 'Literacy Improvement',
-    description: 'Average across cohorts',
+    icon: Briefcase,
+    value: '1,806',
+    label: 'Jobs Created',
+    description: 'Women employed from the community',
+  },
+  {
+    icon: GraduationCap,
+    value: '500+',
+    label: 'University Graduates',
+    description: 'Scholarship fund recipients who graduated',
   },
 ];
 
@@ -39,34 +33,30 @@ export default function ImpactHeroSection() {
         }}
       />
 
-      <div className="container relative z-10">
+      <div className="container relative z-10 mx-auto px-4">
         <div className="max-w-4xl mx-auto text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-4">
-            <div className="w-8 h-1 bg-yellow-400" />
-            <span className="text-sm font-semibold uppercase tracking-widest text-yellow-400">
-              Masinyusane
-            </span>
-            <div className="w-8 h-1 bg-yellow-400" />
-          </div>
+          <span className="text-sm font-semibold tracking-widest uppercase text-blue-200 mb-4 block">
+            Masinyusane Impact
+          </span>
           <h1 className="text-5xl md:text-6xl font-bold mb-6">Our Impact</h1>
           <p className="text-xl md:text-2xl text-white/90 max-w-3xl mx-auto">
-            Data-driven evidence of how Masinyusane is transforming early
-            literacy outcomes and creating dignified employment across South Africa.
+            Three pillars of impact — transforming children&apos;s education, creating
+            dignified employment, and supporting university graduates across South Africa.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-5xl mx-auto">
-          {heroStats.map((stat) => {
-            const Icon = stat.icon;
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+          {pillars.map((pillar) => {
+            const Icon = pillar.icon;
             return (
               <div
-                key={stat.label}
-                className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-lg hover:bg-white/20 transition-all duration-300"
+                key={pillar.label}
+                className="text-center p-6 bg-white/10 backdrop-blur-sm rounded-xl hover:bg-white/20 transition-all duration-300"
               >
-                <Icon className="h-10 w-10 mx-auto mb-3 text-yellow-400" />
-                <div className="text-4xl font-bold mb-1">{stat.value}</div>
-                <div className="text-lg font-semibold mb-1">{stat.label}</div>
-                <div className="text-sm text-white/70">{stat.description}</div>
+                <Icon className="h-10 w-10 mx-auto mb-3 text-blue-200" />
+                <div className="text-4xl font-bold mb-1">{pillar.value}</div>
+                <div className="text-lg font-semibold mb-1">{pillar.label}</div>
+                <div className="text-sm text-white/70">{pillar.description}</div>
               </div>
             );
           })}

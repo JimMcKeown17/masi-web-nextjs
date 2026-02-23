@@ -1,10 +1,10 @@
 'use client';
-import React from 'react';
+
 import { FadeUp } from '@/components/animations/FadeAnimations';
 import ImpactHeroSection from '@/components/impact/overview/hero-section';
-import KpiSection from '@/components/impact/overview/kpi-section';
-import ImpactStatsSection from '@/components/impact/overview/stats-section';
-import ChartsSection from '@/components/impact/overview/charts-section';
+import EducationSection from '@/components/impact/overview/education-section';
+import JobCreationSection from '@/components/impact/overview/job-creation-section';
+import ScholarshipSection from '@/components/impact/overview/scholarship-section';
 import Footer from '@/components/layout/Footer';
 
 export default function ImpactPage() {
@@ -13,13 +13,15 @@ export default function ImpactPage() {
       <ImpactHeroSection />
 
       <FadeUp>
-        <KpiSection />
+        <EducationSection />
       </FadeUp>
 
-      <ImpactStatsSection />
+      <FadeUp>
+        <JobCreationSection />
+      </FadeUp>
 
       <FadeUp>
-        <ChartsSection />
+        <ScholarshipSection />
       </FadeUp>
 
       <Footer />
