@@ -3,7 +3,7 @@
 import dynamic from 'next/dynamic';
 import { useMemo } from 'react';
 import Link from 'next/link';
-import { ArrowRight, Play } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
@@ -107,37 +107,31 @@ export default function JobCreationSection() {
           <div className="bg-white rounded-xl p-8 shadow-md border border-gray-100">
             <div className="text-4xl text-rose-300 mb-4">&ldquo;</div>
             <p className="text-lg text-gray-700 italic leading-relaxed mb-6">
-              Masinyusane gave me my first real job. Now I can support my family
+              Masinyusane gave me my first real job. Now I can earn money, support my family
               and I&apos;m making a difference in children&apos;s lives every day. I wake
               up with purpose.
             </p>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-rose-100 rounded-full flex items-center justify-center">
-                <span className="text-rose-600 font-bold text-sm">YM</span>
+                <span className="text-rose-600 font-bold text-sm">NM</span>
               </div>
               <div>
-                <div className="font-semibold text-gray-900">Youth Mentor</div>
+                <div className="font-semibold text-gray-900">Ncumisa Mselane</div>
                 <div className="text-sm text-gray-500">Education Assistant, Eastern Cape</div>
               </div>
             </div>
           </div>
 
-          {/* Video CTA */}
-          <a
-            href="https://www.youtube.com/watch?v=EnEIL25_7Vs"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="group relative bg-gradient-to-br from-blue-900 to-blue-700 rounded-xl p-8 text-white flex flex-col justify-center items-center text-center hover:shadow-lg transition-shadow overflow-hidden"
-          >
-            <div className="w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center mb-4 group-hover:bg-white/30 transition-colors">
-              <Play className="h-8 w-8 text-white ml-1" />
-            </div>
-            <h3 className="text-xl font-bold mb-2">Watch: Youth Employment Impact</h3>
-            <p className="text-white/80 text-sm">
-              eNCA interview — how Masinyusane is creating employment for young
-              people in the Eastern Cape.
-            </p>
-          </a>
+          {/* Video embed */}
+          <div className="rounded-xl overflow-hidden shadow-md aspect-video">
+            <iframe
+              src="https://www.youtube.com/embed/5j2d6nlFVe8"
+              title="Masinyusane Youth Employment Impact"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowFullScreen
+              className="w-full h-full"
+            />
+          </div>
         </div>
 
         {/* Link to community jobs */}

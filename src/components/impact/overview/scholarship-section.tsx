@@ -1,7 +1,9 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, GraduationCap, BarChart3 } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
+import { getAssetUrl } from '@/lib/imageUrl';
 import MeetOurGrads from '@/components/home/meet-our-grads';
 
 export default function ScholarshipSection() {
@@ -25,34 +27,37 @@ export default function ScholarshipSection() {
         </div>
 
         {/* Graduates stat + chart placeholder */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-          {/* Big stat */}
-          <div className="bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl p-8 border border-orange-100 flex flex-col justify-center items-center text-center">
-            <GraduationCap className="h-12 w-12 text-orange-500 mb-4" />
-            <div className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-orange-500 to-rose-600 bg-clip-text text-transparent mb-2">
-              500+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12 items-stretch">
+          {/* Grad magazine cover */}
+          <a
+            href={getAssetUrl('reports/2025 Graduates Magazine.pdf')}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="group bg-gradient-to-br from-orange-50 to-rose-50 rounded-xl p-3 pb-4 border border-orange-100 flex flex-col items-center hover:shadow-lg transition-shadow"
+          >
+            <div className="flex-1 flex items-center">
+              <Image
+                src="/impact/grad-magazine-2025.png"
+                alt="2025 Graduates Magazine cover"
+                width={400}
+                height={530}
+                className="w-auto h-full object-contain rounded-lg group-hover:scale-[1.02] transition-transform"
+              />
             </div>
-            <p className="text-gray-700 text-lg font-medium mb-1">
-              University Graduates
+            <p className="text-center text-sm font-semibold text-orange-600 mt-3 shrink-0 group-hover:text-orange-700 transition-colors">
+              Read the 2025 Graduates Magazine &rarr;
             </p>
-            <p className="text-gray-500 text-sm max-w-sm">
-              Supported through bursaries, mentorship, and academic guidance from
-              first year through to graduation.
-            </p>
-          </div>
+          </a>
 
-          {/* Chart placeholder */}
-          <div className="bg-gray-50 rounded-xl p-8 border border-gray-200 flex flex-col justify-center items-center text-center">
-            <BarChart3 className="h-12 w-12 text-gray-300 mb-4" />
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Graduates Over Time
-            </h3>
-            <p className="text-sm text-gray-500 mb-3">
-              A chart showing graduate numbers by year will be added here.
-            </p>
-            <span className="inline-block text-xs font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full border border-gray-200">
-              Chart Coming Soon
-            </span>
+          {/* Road to 500 */}
+          <div className="bg-gradient-to-br from-orange-50 to-white rounded-xl p-6 border border-orange-100 flex items-center">
+            <Image
+              src="/impact/road-to-500.png"
+              alt="Road to 500 graduates — growth of Masinyusane scholarship fund over the years"
+              width={600}
+              height={400}
+              className="w-full h-auto rounded-lg"
+            />
           </div>
         </div>
 

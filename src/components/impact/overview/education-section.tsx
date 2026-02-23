@@ -1,12 +1,13 @@
 import Image from 'next/image';
 import Link from 'next/link';
-import { ArrowRight, School, Users, TrendingUp, BookOpen } from 'lucide-react';
+import { ArrowRight, Users, TrendingUp, BookOpen } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const stats = [
-  { icon: School, value: '250+', label: 'Schools' },
-  { icon: Users, value: '25,000+', label: 'Learners Assessed' },
-  { icon: TrendingUp, value: '45%', label: 'Literacy Improvement' },
+  { icon: Users, value: '25,000+', label: 'Children per Year' },
+  { icon: TrendingUp, value: '75%-200%', label: 'Literacy Improvement' },
   { icon: BookOpen, value: '95%', label: 'Zero-Letter Reduction' },
+  { icon: TrendingUp, value: '125%', label: 'Numeracy Improvement' },
 ];
 
 export default function EducationSection() {
@@ -20,12 +21,11 @@ export default function EducationSection() {
           </span>
           <h2 className="text-4xl md:text-5xl font-bold mb-4">
             <span className="bg-gradient-to-r from-blue-700 to-blue-500 bg-clip-text text-transparent">
-              Transforming Early Literacy
+              Transforming Early Literacy & Numeracy
             </span>
           </h2>
           <p className="text-lg text-gray-600">
-            Through the Zazi iZandi programme, we assess and support children across
-            the Eastern Cape, delivering measurable literacy gains at scale.
+            Pioneering data-driven early literacy & numeracy interventions for children across South Africa.
           </p>
         </div>
 
@@ -48,51 +48,53 @@ export default function EducationSection() {
           })}
         </div>
 
-        {/* Benchmark highlight + Numeracy placeholder */}
+        {/* Benchmark highlight + Numeracy Improvement */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
           {/* Programme impact chart */}
-          <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-6 border border-blue-100">
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              2024 Programme Impact
+          <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-6 border border-blue-100 flex flex-col">
+            <h3 className="text-xl font-bold text-gray-700 mb-4">
+              Doubling the Number of Children Reading in a Classroom
             </h3>
-            <p className="text-sm text-gray-600 mb-4">
-              In 2024, we doubled the number of children reaching their reading
-              benchmark — from 13% to over 52%.
-            </p>
-            <Image
-              src="/zazi-izandi/images/programme-impact-2024.svg"
-              alt="Programme impact chart showing reading benchmark improvements in 2024"
-              width={600}
-              height={350}
-              className="w-full h-auto rounded-lg"
-            />
+            <div className="flex-1 flex items-center">
+              <Image
+                src="impact/literacy-improvement.svg"
+                alt="Programme impact chart showing reading benchmark improvements in 2024"
+                width={600}
+                height={350}
+                className="w-full h-auto rounded-lg"
+              />
+            </div>
           </div>
 
-          {/* Numeracy placeholder */}
-          <div className="bg-gradient-to-br from-green-50 to-white rounded-xl p-6 border border-green-100 flex flex-col justify-center items-center text-center">
-            <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mb-4">
-              <TrendingUp className="h-8 w-8 text-green-600" />
-            </div>
-            <h3 className="text-lg font-bold text-gray-900 mb-2">
-              Numeracy Programme
+          {/* Numeracy improvement */}
+          <div className="bg-gradient-to-br from-blue-50 to-white rounded-xl p-6 border border-blue-100 flex flex-col">
+            <h3 className="text-xl text-center font-bold text-gray-700 mb-4">
+              2X'ing Numeracy Skills Each Year
             </h3>
-            <p className="text-sm text-gray-600 mb-2">
-              Coming soon — expanding our impact to numeracy outcomes.
-            </p>
-            <span className="inline-block text-xs font-semibold text-green-600 bg-green-50 px-3 py-1 rounded-full border border-green-200">
-              In Development
-            </span>
+            <div className="flex-1 flex items-center justify-center">
+              <Image
+                src="impact/numeracy-improvement.svg"
+                alt="Programme impact chart showing numeracy scores doubling from 24.6 to 49.6"
+                width={450}
+                height={263}
+                className="w-3/4 h-auto rounded-lg"
+              />
+            </div>
           </div>
         </div>
 
-        {/* Link to ZZ programme */}
-        <Link
-          href="/programs/zazi-izandi"
-          className="inline-flex items-center gap-2 text-blue-700 font-semibold hover:text-blue-800 transition-colors"
-        >
-          Learn more about Zazi iZandi
-          <ArrowRight className="h-4 w-4" />
-        </Link>
+        {/* Data portal CTA */}
+        <div className="text-center mt-12">
+          <p className="text-gray-600 mb-4">
+            Dive deeper into our assessment data, school-level results, and programme trends.
+          </p>
+          <Button asChild size="lg" className="bg-blue-700 hover:bg-blue-800 text-white">
+            <Link href="/impact/data-portal">
+              Explore the Data Portal
+              <ArrowRight className="h-4 w-4 ml-2" />
+            </Link>
+          </Button>
+        </div>
       </div>
     </section>
   );
