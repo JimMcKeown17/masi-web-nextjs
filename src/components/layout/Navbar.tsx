@@ -5,7 +5,7 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog } from "lucide-react"
+import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog, BookOpen, Newspaper, PlayCircle } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
@@ -55,6 +55,12 @@ const programsItems = [
     icon: Baby,
   },
   {
+    title: "Zazi iZandi",
+    href: "/programs/zazi-izandi",
+    description: "Teaching children their letter sounds — our flagship early literacy programme.",
+    icon: BookOpen,
+  },
+  {
     title: "Community Jobs",
     href: "/programs/community-jobs",
     description: "Creating local employment opportunities in education.",
@@ -70,6 +76,12 @@ const programsItems = [
 
 const impactItems = [
   {
+    title: "Impact Overview",
+    href: "/impact",
+    description: "See the numbers behind our work — KPIs, charts, and results.",
+    icon: TrendingUp,
+  },
+  {
     title: "Data Portal",
     href: "/impact/data-portal",
     description: "Explore our real-time data and measurable impact.",
@@ -80,6 +92,21 @@ const impactItems = [
     href: "/impact/reports",
     description: "Read our annual reports and success stories.",
     icon: TrendingUp,
+  },
+]
+
+const mediaItems = [
+  {
+    title: "In the News",
+    href: "/media/in-the-news",
+    description: "Press and media coverage of Masinyusane.",
+    icon: Newspaper,
+  },
+  {
+    title: "Media & Resources",
+    href: "/media/media-resources",
+    description: "Videos, photos, and downloadable resources.",
+    icon: PlayCircle,
   },
 ]
 
@@ -185,6 +212,25 @@ export function Navbar() {
                   <NavigationMenuContent>
                     <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
                       {impactItems.map((item) => (
+                        <ListItem
+                          key={item.title}
+                          title={item.title}
+                          href={item.href}
+                          icon={item.icon}
+                        >
+                          {item.description}
+                        </ListItem>
+                      ))}
+                    </ul>
+                  </NavigationMenuContent>
+                </NavigationMenuItem>
+
+                {/* Media Dropdown */}
+                <NavigationMenuItem>
+                  <NavigationMenuTrigger className={triggerClass}>Media</NavigationMenuTrigger>
+                  <NavigationMenuContent>
+                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
+                      {mediaItems.map((item) => (
                         <ListItem
                           key={item.title}
                           title={item.title}
@@ -314,6 +360,20 @@ export function Navbar() {
                     <h3 className="font-semibold text-sm mb-3 text-muted-foreground">Impact</h3>
                     <ul className="space-y-3">
                       {impactItems.map((item) => (
+                        <MobileMenuItem
+                          key={item.title}
+                          item={item}
+                          onClick={() => setIsOpen(false)}
+                        />
+                      ))}
+                    </ul>
+                  </div>
+
+                  {/* Media Section */}
+                  <div>
+                    <h3 className="font-semibold text-sm mb-3 text-muted-foreground">Media</h3>
+                    <ul className="space-y-3">
+                      {mediaItems.map((item) => (
                         <MobileMenuItem
                           key={item.title}
                           item={item}

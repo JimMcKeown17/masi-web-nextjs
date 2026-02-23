@@ -5,7 +5,7 @@ const founders = [
   {
     id: 1,
     name: 'Jim McKeown',
-    image: 'images/staff/Jim McKeown.jpg',
+    image: 'images/staff/Jim-McKeown.jpg',
     bio: [
       'Jim arrived in Gqeberha from New York in 2008 after leaving behind a promising career on Wall Street. He possesses an MA in Development Studies, a BSc in Operations & Research Engineering, and a BA in Computer Engineering.',
       'His journey to South Africa was driven by a desire to provide opportunities for others.'
@@ -14,7 +14,7 @@ const founders = [
   {
     id: 2,
     name: 'Fiks Mahola',
-    image: 'images/staff/Ta Fiks Mahola.jpg',
+    image: 'images/staff/Ta-Fiks-Mahola.jpg',
     bio: [
       'Fiks is the "heart and soul" of Masinyusane. Passionate about community development, he has been the guiding force in our initiatives.',
       'Leaving behind a promising career in entertainment, Fiks dedicated himself to uplifting others.'
@@ -53,6 +53,7 @@ export default function FoundersSection() {
                     src={getImageUrl(founder.image)}
                     alt={founder.name}
                     fill
+                    unoptimized
                     className="object-cover"
                   />
                 </div>

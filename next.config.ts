@@ -98,16 +98,6 @@ const nextConfig: NextConfig = {
         destination: '/about/our-team',
         permanent: true,
       },
-      {
-        source: '/impact',
-        destination: '/impact/reports',
-        permanent: true,
-      },
-      {
-        source: '/impact/',
-        destination: '/impact/reports',
-        permanent: true,
-      },
     ];
   },
 };
