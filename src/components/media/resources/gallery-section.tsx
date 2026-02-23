@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import Image from 'next/image';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
+import { getImageUrl } from '@/lib/imageUrl';
 import {
   Dialog,
   DialogContent,
@@ -11,39 +12,22 @@ import {
 } from '@/components/ui/dialog';
 
 const galleryImages = [
-  {
-    src: '/media/gallery/Gallery 1.jpg',
-    alt: 'Education Assistants working with learners in a classroom',
-  },
-  {
-    src: '/media/gallery/Gallery 2.jpg',
-    alt: 'Small group reading session with Foundation Phase learners',
-  },
-  {
-    src: '/media/gallery/Gallery 3.jpg',
-    alt: 'Children practising letter sounds during a Zazi iZandi lesson',
-  },
-  {
-    src: '/media/gallery/Gallery 4.jpg',
-    alt: 'Learners engaged in a structured phonics activity',
-  },
-  {
-    src: '/media/gallery/Gallery 5.jpg',
-    alt: 'Education Assistants receiving training on the programme methodology',
-  },
-  {
-    src: '/media/gallery/Gallery 7.png',
-    alt: 'Community event celebrating learner progress',
-  },
-  {
-    src: '/media/gallery/Gallery 8.png',
-    alt: 'Children reading independently during free reading time',
-  },
-  {
-    src: '/media/gallery/Gallery 9.jpg',
-    alt: 'A group of learners showing off their reading achievements',
-  },
-];
+  { file: 'images/Graduates/Mihle Vika (2).webp', name: 'Mihle Vika' },
+  { file: 'images/Graduates/Babalwa Otola (5).webp', name: 'Babalwa Otola' },
+  { file: 'images/Graduates/Pontso Lekeba (5).webp', name: 'Pontso Lekeba' },
+  { file: 'images/Graduates/Azama Zamani Graduation 2023 - edited (14).webp', name: 'Azama Zamani' },
+  { file: 'images/Graduates/Mekyle Solomon (6).webp', name: 'Mekyle Solomon' },
+  { file: 'images/Graduates/Amlindile Maneli.webp', name: 'Amlindile Maneli' },
+  { file: 'images/Graduates/Pilani Nama (2).webp', name: 'Pilani Nama' },
+  { file: 'images/Graduates/Sisipho Habane (12).webp', name: 'Sisipho Habane' },
+  { file: 'images/Graduates/Esethu Ndlungwane (5).webp', name: 'Esethu Ndlungwane' },
+  { file: 'images/Graduates/Nomaphelo IMG_2333-Enhanced-NR.webp', name: 'Nomaphelo' },
+  { file: 'images/Graduates/Agcobile Mkwakwi (2).webp', name: 'Agcobile Mkwakwi' },
+  { file: 'images/Graduates/Siphiwe Mabuya (6).webp', name: 'Siphiwe Mabuya' },
+].map((g) => ({
+  src: getImageUrl(g.file),
+  alt: g.name,
+}));
 
 export default function GallerySection() {
   const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
@@ -73,11 +57,10 @@ export default function GallerySection() {
             </span>
           </div>
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Moments from the Programme
+            Meet Our Graduates
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            A visual look at Masinyusane in action — from classroom sessions to
-            community celebrations.
+            The faces behind the numbers. Meet a few of the young superstars who are the future of our country.
           </p>
         </div>
 
@@ -87,16 +70,19 @@ export default function GallerySection() {
             <button
               key={index}
               onClick={() => setSelectedIndex(index)}
-              className="group relative aspect-square rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
+              className="group relative aspect-[3/4] rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
             >
               <Image
                 src={image.src}
                 alt={image.alt}
                 width={400}
                 height={400}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
               />
               <div className="absolute inset-0 bg-blue-900/0 group-hover:bg-blue-900/30 transition-colors duration-300" />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                <span className="text-white text-sm font-semibold">{image.alt}</span>
+              </div>
             </button>
           ))}
         </div>

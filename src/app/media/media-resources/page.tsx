@@ -10,12 +10,6 @@ import Footer from '@/components/layout/Footer';
 export default function MediaResourcesPage() {
   return (
     <div className="min-h-screen bg-white">
-      <MediaHeroSection
-        label="Media"
-        title="Media & Resources"
-        subtitle="Videos, photos, and resources showcasing Masinyusane's work in early literacy and youth employment."
-      />
-
       <FeaturedVideoSection />
 
       <VideosSection />
