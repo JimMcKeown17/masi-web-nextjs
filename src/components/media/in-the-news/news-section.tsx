@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 const newsItems = [
   {
     image: '/media/news/Ramaphosa SONA 2026.jpeg',
-    title: "Masinyusane Featured in President Ramaphosa's State of the Nation Address",
+    title: "Masinyusane Featured in President Ramaphosa's State of the Nation Report.",
     source: 'SONA 2025 Report',
     date: '2025',
     excerpt:

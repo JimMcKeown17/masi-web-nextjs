@@ -48,33 +48,87 @@ pnpm install          # Install dependencies (run from root or masi-website/)
 - **Auth Flow:** Clerk JWT tokens passed in `Authorization: Bearer <token>` headers
 - **Documentation:** See `/masi-website/documentation/` for comprehensive API docs
 
+### Routes
+
+**Public routes** (no auth required):
+- `/` — Homepage
+- `/about/our-team` — Team page
+- `/about/where-we-work` — Map and location info
+- `/about/apply` — Application page
+- `/programs/early-childhood-education` — ECD program
+- `/programs/community-jobs` — Youth employment program
+- `/programs/top-learners` — Top learners program
+- `/programs/zazi-izandi` — Zazi iZandi literacy program
+- `/impact/` — Impact overview page
+- `/impact/reports` — Impact reports
+- `/impact/data-portal` — Data visualization portal
+- `/impact/annual-report/[year]` — Dynamic annual report pages (e.g. `/impact/annual-report/2024`)
+- `/media/in-the-news` — News coverage
+- `/media/media-resources` — Media/gallery resources
+- `/donate` — Donation page
+- `/privacy` — Privacy policy
+
+**Protected routes** (Clerk auth required — configured in `src/middleware.ts`):
+- `/operations/mentors` — Mentor dashboard
+
+**Auth routes:**
+- `/auth/sign-in` — Clerk sign-in
+- `/auth/sign-up` — Clerk sign-up
+
+**Legacy redirects** (configured in `next.config.ts`):
+- `/children` → `/programs/early-childhood-education`
+- `/youth` → `/programs/community-jobs`
+- `/top-learner` → `/programs/top-learners`
+- `/data` → `/impact/data-portal`
+- `/where` → `/about/where-we-work`
+- `/apply` → `/about/apply`
+- `/about` → `/about/our-team`
+
 ### Directory Structure
 
 ```
 masi-website/src/
-├── app/                    # Next.js App Router pages
-│   ├── about/             # Public pages (our team, where we work, apply)
-│   ├── programs/          # Public pages (early childhood, community jobs, top learners)
-│   ├── impact/            # Public pages (reports, data portal, annual reports)
-│   ├── donate/            # Public donation page
-│   ├── operations/        # Protected pages (mentor dashboard, analytics)
-│   └── auth/              # Clerk authentication routes
+├── app/                    # Next.js App Router pages (see Routes above)
 ├── components/
 │   ├── home/              # Homepage sections
 │   ├── about/             # About page components
 │   ├── programs/          # Program-specific components
 │   ├── impact/            # Impact visualization components
+│   ├── media/             # News and media components
 │   ├── mentors/           # Mentor dashboard components (charts, filters, stats)
+│   ├── donate/            # Donation page components
+│   ├── animations/        # Shared animation components
 │   ├── layout/            # Navbar, Footer
+│   ├── pdf/               # PDF viewer components
 │   ├── providers/         # Context providers
 │   └── ui/                # shadcn/ui components (Button, Card, etc.)
 ├── lib/
 │   ├── api/mentors/       # API functions for backend integration
 │   ├── types/             # TypeScript type definitions
 │   ├── server/            # Server-side utilities
+│   ├── imageUrl.ts        # GCS image/asset URL helper (see Asset Storage below)
 │   └── utils.ts           # Shared utilities (cn, etc.)
 └── middleware.ts          # Clerk auth middleware
 ```
+
+### Asset Storage (Images, PDFs, Videos)
+
+Assets are split between two locations:
+
+**Google Cloud Storage (GCS)** — primary location for most site images:
+- Bucket: `masi-website` on `storage.googleapis.com`
+- Use `getImageUrl(path)` or `getAssetUrl(path)` from `src/lib/imageUrl.ts` to build URLs
+- Requires `NEXT_PUBLIC_GCS_BUCKET_NAME` env var; falls back to local `/public` path if unset
+- Remote patterns configured in `next.config.ts` for Next.js Image optimization
+
+**`/public` folder** — used for page-specific assets that were added directly:
+- `/public/impact/` — Impact page charts, result graphics, photos
+- `/public/impact/results/` — EGRA/literacy result charts (SVGs and PNGs)
+- `/public/media/gallery/` — Photo gallery images
+- `/public/media/news/` — News article screenshots/photos
+- `/public/reports/` — PDF reports (Annual Report, Graduates Magazine)
+- `/public/zazi-izandi/` — Zazi iZandi program assets (hero video, logos, sponsor logos, research PDF, images)
+- `/public/` root — Logos, favicon, misc SVGs
 
 ## Backend-First Philosophy
 
@@ -138,7 +192,7 @@ const { data, error, isLoading } = useSWR(
 
 ## Authentication Flow
 
-- **Public Routes:** `/`, `/about/*`, `/programs/*`, `/impact/*`, `/donate`
+- **Public Routes:** `/`, `/about/*`, `/programs/*`, `/impact/*`, `/donate`, `/media/*`, `/privacy`
 - **Protected Routes:** `/operations/*` (requires Clerk authentication)
 - **Middleware:** See `src/middleware.ts` for route protection configuration
 - **Backend Auth:** Clerk JWT tokens are validated on Django backend
