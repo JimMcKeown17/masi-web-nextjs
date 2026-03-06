@@ -200,13 +200,25 @@ export default function PrivacyPolicyPage() {
             <a className="underline" href="mailto:info@masinyusane.org">
               info@masinyusane.org
             </a>{" "}
-            with the subject line "Account Deletion Request". We will process your
-            request within 30 days, subject to any operational or legal retention
-            requirements. Note that program data entered on behalf of Masinyusane
-            (such as session records) may be retained for legitimate organizational
-            purposes even after account deletion.
+            with the subject line "Data Deletion Request". We may verify your
+            identity before processing. We will process deletion within 30 days,
+            except where we must retain limited records to comply with legal
+            obligations.
           </li>
         </ul>
+
+        <h2 className="mt-8 text-xl font-semibold">Data deletion requests</h2>
+        <p>
+          You can request deletion of your Masi app account and associated
+          personal data by emailing{" "}
+          <a className="underline" href="mailto:info@masinyusane.org">
+            info@masinyusane.org
+          </a>{" "}
+          with the subject line "Data Deletion Request". We may verify your
+          identity before processing. We will process deletion within 30 days,
+          except where we must retain limited records to comply with legal
+          obligations.
+        </p>
 
         <h2 className="mt-8 text-xl font-semibold">Contact us</h2>
         <p>
