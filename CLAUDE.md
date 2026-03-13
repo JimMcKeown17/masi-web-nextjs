@@ -6,6 +6,13 @@ Next.js 15 website for Masinyusane (MASI). Communicates with a Django REST Frame
 **Local path:** `/Users/jimmckeown/Development/Masi_Website_2026/frontend/masi-website/`
 Always run git commands from this directory — parent directories are NOT git repos.
 
+# Coding Standards
+
+1. Use latest versions of libraries and idiomatic approaches as of today
+2. Keep it simple - NEVER over-engineer, ALWAYS simplify, NO unnecessary defensive programming. No extra features - focus on simplicity.
+3. Be concise. Keep README minimal. IMPORTANT: no emojis ever
+4. When hitting issues, always identify root cause before trying a fix. Do not guess. Prove with evidence, then fix the root cause.
+
 ## Development
 
 ```bash
@@ -121,6 +128,7 @@ Pre-configured with path alias `@/components`. Common: Button, Card, Tabs, Selec
 4. Build component with loading/error/success states
 
 ## Key Documentation
+
 
 - `documentation/api-endpoints.md` — All backend API endpoints
 - `documentation/frontend-backend-integration.md` — Data fetching patterns, design system
