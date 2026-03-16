@@ -5,7 +5,7 @@ import { useAuth } from '@clerk/nextjs';
 import useSWR from 'swr';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Info } from 'lucide-react';
 
 import { YouthSessionsFilterBar } from '@/components/youth-sessions/YouthSessionsFilterBar';
 import { SummaryStats } from '@/components/youth-sessions/SummaryStats';
@@ -176,6 +176,12 @@ export default function YouthSessionsDashboardPage() {
           <p className="text-lg text-slate-600 dark:text-slate-400">
             Monitor session activity, spot inactive youth, and track school coverage
           </p>
+          <div className="flex items-start gap-2 mt-2 px-4 py-3 rounded-xl bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50 max-w-2xl">
+            <Info className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              Currently showing Literacy Coaches and Numeracy Coaches only. Zazi iZandi, ZZ ECD, 1000 Stories, EduTech, and other job titles will be added in the next version.
+            </p>
+          </div>
         </div>
 
         {/* Filter Bar */}

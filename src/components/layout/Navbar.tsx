@@ -5,7 +5,7 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog, BookOpen, Newspaper, PlayCircle } from "lucide-react"
+import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog, BookOpen, Newspaper, PlayCircle, Activity } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
@@ -116,6 +116,12 @@ const projectManagementItems = [
     href: "/operations/mentors",
     description: "Manage mentor assignments and oversight.",
     icon: UserCog,
+  },
+  {
+    title: "Youth Sessions",
+    href: "/operations/youth-sessions",
+    description: "Monitor youth session activity and school coverage.",
+    icon: Activity,
   },
 ]
 

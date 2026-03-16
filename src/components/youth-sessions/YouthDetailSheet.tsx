@@ -81,10 +81,28 @@ export function YouthDetailSheet({ open, onOpenChange, data, isLoading }: YouthD
   return (
     <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetHeader className="pb-4 border-b border-slate-200 dark:border-slate-700">
+          <SheetTitle className="text-xl">
+            {isLoading ? <Skeleton className="h-7 w-48" /> : data?.full_name || 'Youth Detail'}
+          </SheetTitle>
+          <SheetDescription className="space-y-1">
+            {isLoading ? (
+              <Skeleton className="h-4 w-64" />
+            ) : data ? (
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs">
+                  {data.youth_uid}
+                </Badge>
+                <span className="text-sm">{data.mentor_name}</span>
+                <span className="text-sm text-slate-400">at</span>
+                <span className="text-sm">{data.school_name}</span>
+              </div>
+            ) : null}
+          </SheetDescription>
+        </SheetHeader>
+
         {isLoading ? (
-          <div className="space-y-4 pt-6">
-            <Skeleton className="h-8 w-48" />
-            <Skeleton className="h-4 w-32" />
+          <div className="space-y-4 pt-5">
             <div className="grid grid-cols-2 gap-3">
               {[...Array(4)].map((_, i) => (
                 <Skeleton key={i} className="h-20 rounded-xl" />
@@ -93,22 +111,7 @@ export function YouthDetailSheet({ open, onOpenChange, data, isLoading }: YouthD
             <Skeleton className="h-48 rounded-xl" />
           </div>
         ) : data ? (
-          <>
-            <SheetHeader className="pb-4 border-b border-slate-200 dark:border-slate-700">
-              <SheetTitle className="text-xl">{data.full_name}</SheetTitle>
-              <SheetDescription className="space-y-1">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs">
-                    {data.youth_uid}
-                  </Badge>
-                  <span className="text-sm">{data.mentor_name}</span>
-                  <span className="text-sm text-slate-400">at</span>
-                  <span className="text-sm">{data.school_name}</span>
-                </div>
-              </SheetDescription>
-            </SheetHeader>
-
-            <div className="space-y-5 pt-5">
+          <div className="space-y-5 pt-5">
               {/* Mini stat cards */}
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
                 {miniStats.map((stat) => {
@@ -154,7 +157,6 @@ export function YouthDetailSheet({ open, onOpenChange, data, isLoading }: YouthD
                 </div>
               )}
             </div>
-          </>
         ) : null}
       </SheetContent>
     </Sheet>
