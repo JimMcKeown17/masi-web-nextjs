@@ -34,7 +34,7 @@ pnpm install  # from root or masi-website/
 
 **Public:** `/`, `/about/our-team`, `/about/where-we-work`, `/about/apply`, `/programs/early-childhood-education`, `/programs/community-jobs`, `/programs/top-learners`, `/programs/zazi-izandi`, `/impact/`, `/impact/reports`, `/impact/data-portal`, `/impact/annual-report/[year]`, `/media/in-the-news`, `/media/media-resources`, `/donate`, `/privacy`
 
-**Protected** (Clerk — `src/middleware.ts`): `/operations/mentors`
+**Protected** (Clerk — `src/middleware.ts`): `/operations/mentors`, `/operations/youth-sessions`, `/operations/preview`
 
 **Auth:** `/auth/sign-in`, `/auth/sign-up`
 
@@ -52,6 +52,7 @@ src/
 │   ├── impact/        # Impact visualization
 │   ├── media/
 │   ├── mentors/       # Mentor dashboard (charts, filters, stats)
+│   ├── youth-sessions/ # Youth sessions dashboard (heatmap, coverage, inactive alerts)
 │   ├── donate/
 │   ├── animations/
 │   ├── layout/        # Navbar, Footer
@@ -59,7 +60,9 @@ src/
 │   ├── providers/
 │   └── ui/            # shadcn/ui components
 └── lib/
-    ├── api/mentors/   # API functions for backend integration
+    ├── api/
+    │   ├── mentors/         # Mentor dashboard API functions
+    │   └── youth-sessions/  # Youth sessions API functions (7 endpoints)
     ├── types/         # TypeScript type definitions
     ├── server/        # Server-side utilities
     ├── imageUrl.ts    # GCS image/asset URL helper
@@ -92,7 +95,7 @@ See `documentation/backend-django-notes.md` for more.
 // 1. Types in /src/lib/types/
 export interface VisitStats { total_visits: number; ... }
 
-// 2. API function in /src/lib/api/mentors/
+// 2. API function in /src/lib/api/<domain>/
 export async function getVisitStats(token: string, filters?: { time_filter?: string }) {
   const params = new URLSearchParams();
   if (filters?.time_filter) params.append('time_filter', filters.time_filter);
@@ -124,7 +127,7 @@ Pre-configured with path alias `@/components`. Common: Button, Card, Tabs, Selec
 
 1. Check `documentation/api-endpoints.md` — does the endpoint exist?
 2. Define TypeScript types in `/src/lib/types/`
-3. Create API function in `/src/lib/api/mentors/`
+3. Create API function in `/src/lib/api/<domain>/`
 4. Build component with loading/error/success states
 
 ## Key Documentation
@@ -139,3 +142,5 @@ Pre-configured with path alias `@/components`. Common: Button, Card, Tabs, Selec
 - Visit frequency chart fetches all visits — should use backend aggregation
 - No pagination (needed as data grows)
 - No real-time updates (manual refresh required)
+- Youth sessions "today" stats show 0 after 10pm SAST — Render server runs UTC, not Africa/Johannesburg
+- Youth sessions dashboard currently filters to Literacy Coach + Numeracy Coach only — other job titles (Zazi iZandi, ZZ ECD, etc.) excluded pending next version

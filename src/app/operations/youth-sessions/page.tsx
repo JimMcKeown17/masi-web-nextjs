@@ -46,8 +46,14 @@ export default function YouthSessionsDashboardPage() {
     setSheetOpen(true);
   }, []);
 
-  // Build SWR key from filters
+  // Build SWR keys — summary uses non-date filters only (it computes its own time windows)
   const filterKey = JSON.stringify(filters);
+  const summaryFilterKey = JSON.stringify({
+    programme: filters.programme,
+    youth_uid: filters.youth_uid,
+    school_uid: filters.school_uid,
+    mentor_id: filters.mentor_id,
+  });
 
   // Lookups (no filters needed)
   const { data: lookups, error: lookupsError } = useSWR(
@@ -59,13 +65,19 @@ export default function YouthSessionsDashboardPage() {
     }
   );
 
-  // Summary
+  // Summary — exclude date filters so it always shows live operational status
+  const summaryFilters: YouthSessionsFilters = {
+    programme: filters.programme,
+    youth_uid: filters.youth_uid,
+    school_uid: filters.school_uid,
+    mentor_id: filters.mentor_id,
+  };
   const { data: summary, error: summaryError, isLoading: summaryLoading } = useSWR(
-    `youth-sessions-summary-${filterKey}`,
+    `youth-sessions-summary-${summaryFilterKey}`,
     async () => {
       const token = await getToken();
       if (!token) throw new Error('Not authenticated');
-      return getYouthSessionsSummary(token, filters);
+      return getYouthSessionsSummary(token, summaryFilters);
     }
   );
 
