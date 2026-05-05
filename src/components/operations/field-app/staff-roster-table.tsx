@@ -34,6 +34,12 @@ export function StaffRosterTable({ rows }: { rows: StaffRosterRow[] }) {
               <th className="text-right px-4 py-3 font-semibold">Children</th>
               <th className="text-right px-4 py-3 font-semibold">Sessions</th>
               <th className="text-right px-4 py-3 font-semibold">Assessments</th>
+              <th
+                className="text-right px-4 py-3 font-semibold"
+                title="Distinct days the user has clocked in"
+              >
+                Active days
+              </th>
               <th className="text-right px-4 py-3 font-semibold">Last activity</th>
             </tr>
           </thead>
@@ -53,6 +59,7 @@ export function StaffRosterTable({ rows }: { rows: StaffRosterRow[] }) {
                 <td className="px-4 py-3 text-right tabular-nums">{row.children_count}</td>
                 <td className="px-4 py-3 text-right tabular-nums">{row.sessions_count}</td>
                 <td className="px-4 py-3 text-right tabular-nums">{row.assessments_count}</td>
+                <td className="px-4 py-3 text-right tabular-nums">{row.active_days}</td>
                 <td className="px-4 py-3 text-right text-muted-foreground tabular-nums">
                   {formatRelative(row.last_activity)}
                 </td>

@@ -16,11 +16,30 @@ import {
   type CoachSession,
   type CoachAssessment,
   type FetchResult,
+  type LetterTallyEntry,
+  type ReadingLevelBreakdownEntry,
+  type SessionActivities,
+  READING_LEVELS,
   EMPTY_ROSTER,
   EMPTY_ASSESSMENT_RESULTS,
   EMPTY_SYNC_HEALTH,
   EMPTY_COACH_DETAIL,
 } from "./types";
+
+const ALPHABET = "abcdefghijklmnopqrstuvwxyz".split("");
+
+// Tally letter rows against the fixed a–z alphabet so the grid always has 26
+// entries (dim cells render for letters with zero rows).
+function tallyLetters(rows: { letter: string | null }[]): LetterTallyEntry[] {
+  const counts = new Map<string, number>();
+  for (const r of rows) {
+    if (!r.letter) continue;
+    const k = r.letter.toLowerCase();
+    if (!ALPHABET.includes(k)) continue;
+    counts.set(k, (counts.get(k) ?? 0) + 1);
+  }
+  return ALPHABET.map((letter) => ({ letter, count: counts.get(letter) ?? 0 }));
+}
 
 // Tables whose write-flow we surface on the dashboard.
 //
@@ -111,7 +130,7 @@ export async function getStaffRoster(): Promise<FetchResult<StaffRosterRow[]>> {
         supabase.from("staff_children").select("staff_id"),
         supabase.from("sessions").select("user_id, created_at"),
         supabase.from("assessments").select("user_id, created_at"),
-        supabase.from("time_entries").select("user_id, created_at"),
+        supabase.from("time_entries").select("user_id, created_at, sign_in_time"),
       ]);
 
     if (usersRes.error) throw usersRes.error;
@@ -149,12 +168,26 @@ export async function getStaffRoster(): Promise<FetchResult<StaffRosterRow[]>> {
     }
 
     const lastTimeEntry = new Map<string, string>();
+    // Distinct calendar dates per user; fall back to created_at when sign_in_time
+    // is null (auto_clocked_out rows can have it null).
+    const signInDays = new Map<string, Set<string>>();
     for (const row of timeEntriesRes.data ?? []) {
       const k = row.user_id as string;
-      const prev = lastTimeEntry.get(k);
-      if (!prev || (row.created_at as string) > prev) {
-        lastTimeEntry.set(k, row.created_at as string);
+      const createdAt = row.created_at as string | null;
+      const signIn = row.sign_in_time as string | null;
+      if (createdAt) {
+        const prev = lastTimeEntry.get(k);
+        if (!prev || createdAt > prev) lastTimeEntry.set(k, createdAt);
       }
+      const ts = signIn ?? createdAt;
+      if (!ts) continue;
+      const date = ts.slice(0, 10);
+      let set = signInDays.get(k);
+      if (!set) {
+        set = new Set();
+        signInDays.set(k, set);
+      }
+      set.add(date);
     }
 
     const rows: StaffRosterRow[] = (usersRes.data ?? []).map((u) => ({
@@ -166,6 +199,7 @@ export async function getStaffRoster(): Promise<FetchResult<StaffRosterRow[]>> {
       children_count: childrenCount.get(u.id as string) ?? 0,
       sessions_count: sessionsCount.get(u.id as string) ?? 0,
       assessments_count: assessmentsCount.get(u.id as string) ?? 0,
+      active_days: signInDays.get(u.id as string)?.size ?? 0,
       last_activity: laterOf(
         lastSession.get(u.id as string),
         lastAssessment.get(u.id as string),
@@ -395,7 +429,14 @@ export async function getCoachDetail(userId: string): Promise<FetchResult<CoachD
   try {
     const supabase = getMasiSupabase();
 
-    const [profileRes, staffChildrenRes, sessionsRes, assessmentsRes] = await Promise.all([
+    const [
+      profileRes,
+      staffChildrenRes,
+      sessionsRes,
+      assessmentsRes,
+      letterMasteryRes,
+      timeEntriesRes,
+    ] = await Promise.all([
       supabase
         .from("users")
         .select("id, first_name, last_name, job_title, assigned_school, created_at")
@@ -409,22 +450,31 @@ export async function getCoachDetail(userId: string): Promise<FetchResult<CoachD
         .eq("staff_id", userId),
       supabase
         .from("sessions")
-        .select("id, session_type, session_date, created_at, notes, children_ids")
+        .select("id, session_type, session_date, created_at, notes, children_ids, activities")
         .eq("user_id", userId)
         .order("created_at", { ascending: false })
         .limit(50),
       supabase
         .from("assessments")
-        .select("id, child_id, assessment_type, accuracy, correct_responses, date_assessed")
+        .select(
+          "id, child_id, assessment_type, accuracy, correct_responses, date_assessed, letter_set_id, letter_language, letters_attempted, completion_time",
+        )
         .eq("user_id", userId)
         .order("date_assessed", { ascending: false })
         .limit(50),
+      supabase.from("letter_mastery").select("letter, language").eq("user_id", userId),
+      supabase
+        .from("time_entries")
+        .select("sign_in_time, created_at")
+        .eq("user_id", userId),
     ]);
 
     if (profileRes.error) throw profileRes.error;
     if (staffChildrenRes.error) throw staffChildrenRes.error;
     if (sessionsRes.error) throw sessionsRes.error;
     if (assessmentsRes.error) throw assessmentsRes.error;
+    if (letterMasteryRes.error) throw letterMasteryRes.error;
+    if (timeEntriesRes.error) throw timeEntriesRes.error;
 
     type EmbeddedChild = {
       id: string;
@@ -456,14 +506,21 @@ export async function getCoachDetail(userId: string): Promise<FetchResult<CoachD
       });
     }
 
-    const sessions: CoachSession[] = (sessionsRes.data ?? []).map((s) => ({
-      id: s.id as string,
-      session_type: (s.session_type as string | null) ?? null,
-      session_date: (s.session_date as string | null) ?? null,
-      created_at: s.created_at as string,
-      notes: (s.notes as string | null) ?? null,
-      children_count: Array.isArray(s.children_ids) ? s.children_ids.length : 0,
-    }));
+    const sessions: CoachSession[] = (sessionsRes.data ?? []).map((s) => {
+      const activities = (s.activities as SessionActivities | null) ?? null;
+      return {
+        id: s.id as string,
+        session_type: (s.session_type as string | null) ?? null,
+        session_date: (s.session_date as string | null) ?? null,
+        created_at: s.created_at as string,
+        notes: (s.notes as string | null) ?? null,
+        children_count: Array.isArray(s.children_ids) ? s.children_ids.length : 0,
+        letters_focused: Array.isArray(activities?.letters_focused)
+          ? activities!.letters_focused
+          : null,
+        session_reading_level: activities?.session_reading_level ?? null,
+      };
+    });
 
     const assessmentRows = assessmentsRes.data ?? [];
     const assessmentChildIds = Array.from(
@@ -490,7 +547,51 @@ export async function getCoachDetail(userId: string): Promise<FetchResult<CoachD
       accuracy: (a.accuracy as number | null) ?? null,
       correct_responses: (a.correct_responses as number | null) ?? null,
       date_assessed: a.date_assessed as string,
+      letter_set_id: (a.letter_set_id as string | null) ?? null,
+      letter_language: (a.letter_language as string | null) ?? null,
+      letters_attempted: (a.letters_attempted as number | null) ?? null,
+      completion_time: (a.completion_time as number | null) ?? null,
     }));
+
+    // Letter-mastery aggregates: full a–z tally and per-language breakdown.
+    const letterMasteryRows = (letterMasteryRes.data ?? []) as {
+      letter: string | null;
+      language: string | null;
+    }[];
+    const letters_taught = tallyLetters(letterMasteryRows);
+    const byLanguage = new Map<string, { letter: string | null }[]>();
+    for (const r of letterMasteryRows) {
+      const lang = r.language?.trim() || "Unspecified";
+      const bucket = byLanguage.get(lang);
+      if (bucket) bucket.push(r);
+      else byLanguage.set(lang, [r]);
+    }
+    const letters_taught_by_language: Record<string, LetterTallyEntry[]> = {};
+    for (const [lang, rows] of byLanguage.entries()) {
+      letters_taught_by_language[lang] = tallyLetters(rows);
+    }
+
+    // Reading-level breakdown across the recent 50-session window. Unknown
+    // values not in the graded scale are dropped.
+    const levelCounts = new Map<string, number>();
+    for (const s of sessions) {
+      const level = s.session_reading_level;
+      if (!level) continue;
+      levelCounts.set(level, (levelCounts.get(level) ?? 0) + 1);
+    }
+    const reading_level_breakdown: ReadingLevelBreakdownEntry[] = READING_LEVELS.map(
+      (level) => ({ level, count: levelCounts.get(level) ?? 0 }),
+    );
+
+    // Active days from time_entries; fall back to created_at for rows with
+    // null sign_in_time.
+    const activeDays = new Set<string>();
+    for (const t of timeEntriesRes.data ?? []) {
+      const ts = (t.sign_in_time as string | null) ?? (t.created_at as string | null);
+      if (!ts) continue;
+      activeDays.add(ts.slice(0, 10));
+    }
+    const active_days = activeDays.size;
 
     const profile = profileRes.data
       ? {
@@ -504,7 +605,16 @@ export async function getCoachDetail(userId: string): Promise<FetchResult<CoachD
       : null;
 
     return {
-      data: { profile, children, sessions, assessments },
+      data: {
+        profile,
+        children,
+        sessions,
+        assessments,
+        active_days,
+        letters_taught,
+        letters_taught_by_language,
+        reading_level_breakdown,
+      },
       isLive: true,
     };
   } catch (err) {

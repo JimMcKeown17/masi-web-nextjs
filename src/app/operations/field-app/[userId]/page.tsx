@@ -7,6 +7,10 @@ import {
   FIELD_APP_UNAUTHENTICATED,
   FIELD_APP_FORBIDDEN,
 } from "@/lib/masi/auth-guard";
+import type {
+  LetterTallyEntry,
+  ReadingLevelBreakdownEntry,
+} from "@/lib/masi/types";
 
 export const metadata: Metadata = {
   title: "Coach Detail | Field App",
@@ -62,7 +66,18 @@ export default async function CoachDetailPage({ params }: Props) {
     throw err;
   }
 
-  const { profile, children, sessions, assessments } = result.data;
+  const {
+    profile,
+    children,
+    sessions,
+    assessments,
+    active_days,
+    letters_taught,
+    letters_taught_by_language,
+    reading_level_breakdown,
+  } = result.data;
+
+  const languageBuckets = Object.entries(letters_taught_by_language);
 
   if (!profile && result.isLive) {
     return (
@@ -114,10 +129,11 @@ export default async function CoachDetailPage({ params }: Props) {
               {formatDate(profile?.created_at ?? null)}
             </span>
           </div>
-          <div className="mt-4 grid grid-cols-3 gap-4 text-center">
+          <div className="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
             <StatCard label="Children" value={children.length} />
             <StatCard label="Recent sessions" value={sessions.length} sub="last 50" />
             <StatCard label="Recent assessments" value={assessments.length} sub="last 50" />
+            <StatCard label="Active days" value={active_days} sub="distinct sign-ins" />
           </div>
         </div>
 
@@ -164,6 +180,33 @@ export default async function CoachDetailPage({ params }: Props) {
           )}
         </section>
 
+        {/* Letters taught */}
+        <section className="bg-card rounded-lg shadow-sm border p-4">
+          <h2 className="text-sm font-semibold">Letters taught</h2>
+          <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+            Based on <code>letter_mastery</code> rows recorded by this coach.
+          </p>
+          {languageBuckets.length > 1 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {languageBuckets.map(([lang, entries]) => (
+                <LetterGrid key={lang} title={lang} entries={entries} />
+              ))}
+            </div>
+          ) : (
+            <LetterGrid entries={letters_taught} />
+          )}
+        </section>
+
+        {/* Reading levels */}
+        <section className="bg-card rounded-lg shadow-sm border p-4">
+          <h2 className="text-sm font-semibold">Reading levels seen</h2>
+          <p className="text-xs text-muted-foreground mt-0.5 mb-3">
+            Recorded across this coach&apos;s most recent 50 sessions
+            (<code>activities.session_reading_level</code>).
+          </p>
+          <ReadingLevelBars entries={reading_level_breakdown} />
+        </section>
+
         {/* Sessions */}
         <section className="bg-card rounded-lg shadow-sm overflow-hidden border">
           <div className="px-4 py-3 border-b">
@@ -182,26 +225,42 @@ export default async function CoachDetailPage({ params }: Props) {
                     <th className="text-left px-4 py-2 font-semibold">Date</th>
                     <th className="text-left px-4 py-2 font-semibold">Type</th>
                     <th className="text-right px-4 py-2 font-semibold">Children</th>
+                    <th className="text-left px-4 py-2 font-semibold">Letters</th>
+                    <th className="text-left px-4 py-2 font-semibold">Level</th>
                     <th className="text-left px-4 py-2 font-semibold">Notes</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-border">
-                  {sessions.map((s) => (
-                    <tr key={s.id}>
-                      <td className="px-4 py-2 tabular-nums whitespace-nowrap">
-                        {formatDate(s.session_date ?? s.created_at)}
-                      </td>
-                      <td className="px-4 py-2 text-muted-foreground">
-                        {s.session_type ?? "—"}
-                      </td>
-                      <td className="px-4 py-2 text-right tabular-nums">
-                        {s.children_count}
-                      </td>
-                      <td className="px-4 py-2 text-muted-foreground max-w-md truncate">
-                        {s.notes ?? ""}
-                      </td>
-                    </tr>
-                  ))}
+                  {sessions.map((s) => {
+                    const letters = s.letters_focused?.length
+                      ? s.letters_focused.join(", ")
+                      : null;
+                    return (
+                      <tr key={s.id}>
+                        <td className="px-4 py-2 tabular-nums whitespace-nowrap">
+                          {formatDate(s.session_date ?? s.created_at)}
+                        </td>
+                        <td className="px-4 py-2 text-muted-foreground">
+                          {s.session_type ?? "—"}
+                        </td>
+                        <td className="px-4 py-2 text-right tabular-nums">
+                          {s.children_count}
+                        </td>
+                        <td
+                          className="px-4 py-2 text-muted-foreground max-w-[16ch] truncate"
+                          title={letters ?? undefined}
+                        >
+                          {letters ?? "—"}
+                        </td>
+                        <td className="px-4 py-2 text-muted-foreground whitespace-nowrap">
+                          {s.session_reading_level ?? "—"}
+                        </td>
+                        <td className="px-4 py-2 text-muted-foreground max-w-[20ch] truncate">
+                          {s.notes ?? ""}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -228,6 +287,8 @@ export default async function CoachDetailPage({ params }: Props) {
                     <th className="text-left px-4 py-2 font-semibold">Date</th>
                     <th className="text-left px-4 py-2 font-semibold">Child</th>
                     <th className="text-left px-4 py-2 font-semibold">Type</th>
+                    <th className="text-left px-4 py-2 font-semibold">Set</th>
+                    <th className="text-left px-4 py-2 font-semibold">Language</th>
                     <th className="text-right px-4 py-2 font-semibold">Correct</th>
                     <th className="text-right px-4 py-2 font-semibold">Accuracy</th>
                   </tr>
@@ -253,6 +314,18 @@ export default async function CoachDetailPage({ params }: Props) {
                       </td>
                       <td className="px-4 py-2 text-muted-foreground">
                         {a.assessment_type ?? "—"}
+                      </td>
+                      <td className="px-4 py-2 text-muted-foreground tabular-nums text-xs">
+                        {a.letter_set_id ?? "—"}
+                      </td>
+                      <td className="px-4 py-2">
+                        {a.letter_language ? (
+                          <span className="text-[10px] uppercase tracking-wide bg-muted px-1.5 py-0.5 rounded">
+                            {a.letter_language}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground">—</span>
+                        )}
                       </td>
                       <td className="px-4 py-2 text-right tabular-nums">
                         {a.correct_responses ?? "—"}
@@ -300,6 +373,72 @@ function StatCard({
         {label}
         {sub && <span className="opacity-70"> · {sub}</span>}
       </p>
+    </div>
+  );
+}
+
+function LetterGrid({
+  entries,
+  title,
+}: {
+  entries: LetterTallyEntry[];
+  title?: string;
+}) {
+  const max = Math.max(...entries.map((e) => e.count), 1);
+  const hasAny = entries.some((e) => e.count > 0);
+  return (
+    <div>
+      {title && (
+        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground mb-2">
+          {title}
+        </p>
+      )}
+      <div className="grid grid-cols-[repeat(13,minmax(0,1fr))] gap-1">
+        {entries.map((e) => {
+          const isMax = hasAny && e.count === max;
+          return (
+            <div
+              key={e.letter}
+              className={`flex flex-col items-center justify-center rounded border py-1.5 ${
+                e.count === 0
+                  ? "opacity-30"
+                  : isMax
+                    ? "bg-primary/10 border-primary/40"
+                    : ""
+              }`}
+            >
+              <span className="text-xs font-semibold">{e.letter.toUpperCase()}</span>
+              <span className="text-[10px] tabular-nums text-muted-foreground">
+                {e.count}
+              </span>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function ReadingLevelBars({
+  entries,
+}: {
+  entries: ReadingLevelBreakdownEntry[];
+}) {
+  const max = Math.max(...entries.map((e) => e.count), 1);
+  return (
+    <div className="space-y-1.5">
+      {entries.map((e) => (
+        <div key={e.level} className="flex items-center gap-3 text-sm">
+          <div className="w-32 shrink-0 text-muted-foreground">{e.level}</div>
+          <div className="flex-1 h-2 bg-muted rounded overflow-hidden">
+            <div
+              className="h-full bg-primary rounded"
+              style={{ width: `${(e.count / max) * 100}%` }}
+            />
+          </div>
+          <div className="w-8 text-right tabular-nums text-xs">{e.count}</div>
+        </div>
+      ))}
     </div>
   );
 }

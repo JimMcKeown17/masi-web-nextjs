@@ -1,5 +1,35 @@
 export type AssessmentType = "letters" | "words" | string;
 
+// Graded literacy progression captured in `sessions.activities.session_reading_level`.
+// Listed in ascending difficulty so the breakdown bar list reads bottom-up.
+export const READING_LEVELS = [
+  "Cannot blend",
+  "2 Letter Blends",
+  "3 Letter Blends",
+  "4 Letter Blends",
+  "Word Reading",
+  "Sentence Reading",
+] as const;
+export type ReadingLevel = (typeof READING_LEVELS)[number];
+
+// Shape of `sessions.activities` jsonb in the Masi Supabase project.
+export interface SessionActivities {
+  comments: string | null;
+  letters_focused: string[] | null;
+  child_reading_levels: Record<string, string> | null;
+  session_reading_level: string | null;
+}
+
+export interface LetterTallyEntry {
+  letter: string;
+  count: number;
+}
+
+export interface ReadingLevelBreakdownEntry {
+  level: string;
+  count: number;
+}
+
 export interface StaffRosterRow {
   id: string;
   first_name: string;
@@ -9,6 +39,8 @@ export interface StaffRosterRow {
   children_count: number;
   sessions_count: number;
   assessments_count: number;
+  // Distinct calendar days the user has clocked in (`time_entries.sign_in_time`).
+  active_days: number;
   last_activity: string | null;
 }
 
@@ -80,6 +112,8 @@ export interface CoachSession {
   created_at: string;
   notes: string | null;
   children_count: number;
+  letters_focused: string[] | null;
+  session_reading_level: string | null;
 }
 
 export interface CoachAssessment {
@@ -90,6 +124,10 @@ export interface CoachAssessment {
   accuracy: number | null;
   correct_responses: number | null;
   date_assessed: string;
+  letter_set_id: string | null;
+  letter_language: string | null;
+  letters_attempted: number | null;
+  completion_time: number | null;
 }
 
 export interface CoachDetail {
@@ -97,6 +135,10 @@ export interface CoachDetail {
   children: CoachChild[];
   sessions: CoachSession[];
   assessments: CoachAssessment[];
+  active_days: number;
+  letters_taught: LetterTallyEntry[];
+  letters_taught_by_language: Record<string, LetterTallyEntry[]>;
+  reading_level_breakdown: ReadingLevelBreakdownEntry[];
 }
 
 export interface FetchResult<T> {
@@ -119,4 +161,8 @@ export const EMPTY_COACH_DETAIL: CoachDetail = {
   children: [],
   sessions: [],
   assessments: [],
+  active_days: 0,
+  letters_taught: [],
+  letters_taught_by_language: {},
+  reading_level_breakdown: [],
 };
