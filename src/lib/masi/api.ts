@@ -278,6 +278,9 @@ export async function getSyncHealth(): Promise<FetchResult<SyncHealthSnapshot>> 
   try {
     const supabase = getMasiSupabase();
 
+    const sevenDaysAgoIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const oneDayAgoIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+
     // Per-table resilience: one failing table must not take down the whole
     // sync-health panel. Each table's error is captured on its own row so the
     // dashboard still shows what it can and the user sees what's broken.
@@ -316,9 +319,6 @@ export async function getSyncHealth(): Promise<FetchResult<SyncHealthSnapshot>> 
         return { table: t, total: 0, last_7d: 0, error: describeError(e) };
       }
     });
-
-    const sevenDaysAgoIso = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
-    const oneDayAgoIso = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
 
     const [tableRows, sessionsRecent, assessmentsRecent, timeRecent, usersRes] =
       await Promise.all([
