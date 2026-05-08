@@ -40,7 +40,7 @@ function getDateRange(preset: string): { date_from: string; date_to: string } {
     }
     case 'last_7': {
       const d = new Date(today);
-      d.setDate(today.getDate() - 7);
+      d.setDate(today.getDate() - 6);
       return { date_from: fmt(d), date_to: to };
     }
     case 'this_month': {

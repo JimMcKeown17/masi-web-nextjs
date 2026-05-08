@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -13,11 +12,11 @@ interface InactiveYouthPanelProps {
   activeDays: number;
 }
 
-function getSeverity(daysInactive: number | null): { color: string; badgeVariant: string } {
-  if (daysInactive === null || daysInactive >= 3) {
+function getSeverity(workingDaysInactive: number | null): { color: string; badgeVariant: string } {
+  if (workingDaysInactive === null || workingDaysInactive >= 3) {
     return { color: 'text-red-700 dark:text-red-400', badgeVariant: 'bg-red-100 dark:bg-red-950/40 text-red-700 dark:text-red-400' };
   }
-  if (daysInactive >= 2) {
+  if (workingDaysInactive >= 2) {
     return { color: 'text-amber-700 dark:text-amber-400', badgeVariant: 'bg-amber-100 dark:bg-amber-950/40 text-amber-700 dark:text-amber-400' };
   }
   return { color: 'text-yellow-700 dark:text-yellow-400', badgeVariant: 'bg-yellow-100 dark:bg-yellow-950/40 text-yellow-700 dark:text-yellow-400' };
@@ -64,7 +63,13 @@ export function InactiveYouthPanel({ data, onYouthClick, onDaysChange, activeDay
         ) : (
           <div className="divide-y divide-red-100 dark:divide-red-900/20">
             {data.inactive_youth.map((youth) => {
-              const severity = getSeverity(youth.days_inactive);
+              const severity = getSeverity(youth.working_days_inactive);
+              const badgeText = youth.working_days_inactive === null
+                ? 'Never'
+                : `${youth.working_days_inactive}wd`;
+              const badgeTitle = youth.calendar_days_inactive !== null
+                ? `${youth.calendar_days_inactive} calendar days since last session`
+                : 'No session ever recorded';
               return (
                 <div
                   key={youth.youth_uid}
@@ -90,8 +95,11 @@ export function InactiveYouthPanel({ data, onYouthClick, onDaysChange, activeDay
                         {youth.last_session_date || 'Never'}
                       </div>
                     </div>
-                    <Badge className={`${severity.badgeVariant} text-xs font-medium rounded-lg px-2.5 py-1`}>
-                      {youth.days_inactive !== null ? `${youth.days_inactive}d` : 'N/A'}
+                    <Badge
+                      title={badgeTitle}
+                      className={`${severity.badgeVariant} text-xs font-medium rounded-lg px-2.5 py-1`}
+                    >
+                      {badgeText}
                     </Badge>
                   </div>
                 </div>

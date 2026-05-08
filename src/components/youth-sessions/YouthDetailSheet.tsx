@@ -85,35 +85,37 @@ export function YouthDetailSheet({ open, onOpenChange, data, isLoading }: YouthD
           <SheetTitle className="text-xl">
             {isLoading ? <Skeleton className="h-7 w-48" /> : data?.full_name || 'Youth Detail'}
           </SheetTitle>
-          <SheetDescription className="space-y-1">
-            {isLoading ? (
-              <Skeleton className="h-4 w-64" />
-            ) : data ? (
-              <>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs">
-                    {data.youth_uid}
-                  </Badge>
-                  <span className="text-sm">{data.mentor_name}</span>
-                  <span className="text-sm text-slate-400">at</span>
-                  <span className="text-sm">{data.school_name}</span>
-                </div>
-                {data.start_date && (
-                  <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
-                    <Calendar className="w-3 h-3" />
-                    <span>
-                      Started{' '}
-                      {new Date(data.start_date + 'T00:00:00').toLocaleDateString(undefined, {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                      })}
-                    </span>
-                  </div>
-                )}
-              </>
-            ) : null}
+          {/* SheetDescription renders a <p>; keep it textual to avoid <p><div> nesting. */}
+          <SheetDescription className="sr-only">
+            {data ? `${data.full_name} — ${data.youth_uid} — ${data.mentor_name} at ${data.school_name}` : 'Youth detail'}
           </SheetDescription>
+          {isLoading ? (
+            <Skeleton className="h-4 w-64" />
+          ) : data ? (
+            <div className="space-y-1">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs">
+                  {data.youth_uid}
+                </Badge>
+                <span className="text-sm">{data.mentor_name}</span>
+                <span className="text-sm text-slate-400">at</span>
+                <span className="text-sm">{data.school_name}</span>
+              </div>
+              {data.start_date && (
+                <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                  <Calendar className="w-3 h-3" />
+                  <span>
+                    Started{' '}
+                    {new Date(data.start_date + 'T00:00:00').toLocaleDateString(undefined, {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric',
+                    })}
+                  </span>
+                </div>
+              )}
+            </div>
+          ) : null}
         </SheetHeader>
 
         {isLoading ? (

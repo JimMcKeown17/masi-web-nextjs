@@ -156,11 +156,11 @@ export function YouthActivityHeatmap({ data, onYouthClick }: YouthActivityHeatma
                       <div className="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
                         <div
                           className="h-full rounded-full bg-emerald-500 dark:bg-emerald-400 transition-all duration-500"
-                          style={{ width: `${data.dates.length > 0 ? (youth.total_active_days / data.dates.length) * 100 : 0}%` }}
+                          style={{ width: `${youth.eligible_days > 0 ? (youth.total_active_days / youth.eligible_days) * 100 : 0}%` }}
                         />
                       </div>
                       <span className="text-xs font-medium text-slate-700 dark:text-slate-300 tabular-nums">
-                        {youth.total_active_days}/{data.dates.length}
+                        {youth.total_active_days}/{youth.eligible_days}
                       </span>
                     </div>
                   </td>

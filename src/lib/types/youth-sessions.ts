@@ -42,6 +42,7 @@ export interface YouthHeatmapEntry {
   daily_counts: number[];
   total_active_days: number;
   total_sessions: number;
+  eligible_days: number;
 }
 
 export interface YouthHeatmapResponse {
@@ -55,7 +56,8 @@ export interface InactiveYouthEntry {
   mentor_name: string;
   school_name: string;
   last_session_date: string | null;
-  days_inactive: number | null;
+  calendar_days_inactive: number | null;
+  working_days_inactive: number | null;
   total_sessions_this_month: number;
 }
 

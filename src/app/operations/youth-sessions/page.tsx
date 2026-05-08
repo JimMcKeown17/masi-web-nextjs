@@ -121,15 +121,48 @@ export default function YouthSessionsDashboardPage() {
     }
   );
 
-  // Youth detail (only when sheet is open)
+  // Youth detail (only when sheet is open) — include date filters in the SWR key
+  // and forward them to the API so the sheet reflects the selected window.
+  const detailKey = selectedYouthUid && sheetOpen
+    ? `youth-detail-${selectedYouthUid}-${filters.date_from ?? ''}-${filters.date_to ?? ''}`
+    : null;
   const { data: youthDetail, isLoading: detailLoading } = useSWR(
-    selectedYouthUid && sheetOpen ? `youth-detail-${selectedYouthUid}` : null,
+    detailKey,
     async () => {
       const token = await getToken();
       if (!token || !selectedYouthUid) throw new Error('Not authenticated');
-      return getYouthDetail(token, selectedYouthUid);
+      return getYouthDetail(token, selectedYouthUid, {
+        date_from: filters.date_from,
+        date_to: filters.date_to,
+      });
     }
   );
+
+  // Error state — check lookupsError before the !lookups skeleton so a lookups
+  // failure doesn't leave the page stuck on the loading state forever.
+  const anyError = lookupsError || summaryError || dailyError || heatmapError || inactiveError || coverageError;
+  if (lookupsError) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
+        <div className="max-w-[1400px] mx-auto px-6 lg:px-8 py-12 lg:py-16">
+          <div className="space-y-4 mb-12">
+            <h1 className="text-4xl lg:text-5xl font-semibold tracking-tight text-slate-900 dark:text-white">
+              Youth Sessions Dashboard
+            </h1>
+          </div>
+          <Alert variant="destructive" className="max-w-2xl border-red-200/50 dark:border-red-900/50 bg-red-50/50 dark:bg-red-950/20 backdrop-blur-sm rounded-2xl">
+            <AlertCircle className="h-5 w-5" />
+            <AlertDescription className="text-base">
+              Failed to load dashboard data. Please try again.
+              <div className="mt-3 text-sm font-mono text-red-800 dark:text-red-300 bg-red-100/50 dark:bg-red-900/20 p-3 rounded-lg">
+                {lookupsError?.message}
+              </div>
+            </AlertDescription>
+          </Alert>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state (waiting for lookups)
   if (!lookups) {
@@ -152,8 +185,6 @@ export default function YouthSessionsDashboardPage() {
     );
   }
 
-  // Error state
-  const anyError = lookupsError || summaryError || dailyError || heatmapError || inactiveError || coverageError;
   if (anyError) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-slate-50 dark:from-slate-950 dark:via-slate-900 dark:to-slate-950">
