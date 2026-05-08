@@ -38,12 +38,16 @@ export function YouthActivityHeatmap({ data, onYouthClick }: YouthActivityHeatma
     }
   };
 
+  const reversedDates = useMemo(() => [...data.dates].reverse(), [data.dates]);
+
   const sorted = useMemo(() => {
-    return [...data.youth].sort((a, b) => {
-      const mul = sortDir === 'asc' ? 1 : -1;
-      if (sortField === 'full_name') return mul * a.full_name.localeCompare(b.full_name);
-      return mul * ((a[sortField] as number) - (b[sortField] as number));
-    });
+    return [...data.youth]
+      .sort((a, b) => {
+        const mul = sortDir === 'asc' ? 1 : -1;
+        if (sortField === 'full_name') return mul * a.full_name.localeCompare(b.full_name);
+        return mul * ((a[sortField] as number) - (b[sortField] as number));
+      })
+      .map(y => ({ ...y, daily_counts: [...y.daily_counts].reverse() }));
   }, [data.youth, sortField, sortDir]);
 
   if (data.youth.length === 0) {
@@ -82,7 +86,7 @@ export function YouthActivityHeatmap({ data, onYouthClick }: YouthActivityHeatma
                 <th className="px-3 py-3 text-left font-medium text-slate-500 dark:text-slate-400 text-xs min-w-[100px]">
                   Mentor
                 </th>
-                {data.dates.map(d => (
+                {reversedDates.map(d => (
                   <th key={d} className="px-2 py-3 text-center font-medium text-slate-500 dark:text-slate-400 text-xs min-w-[55px]">
                     {formatDateHeader(d)}
                   </th>
