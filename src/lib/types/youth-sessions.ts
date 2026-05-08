@@ -93,6 +93,7 @@ export interface YouthDetailResponse {
   full_name: string;
   mentor_name: string;
   school_name: string;
+  start_date: string | null;
   total_sessions: number;
   total_sessions_this_month: number;
   avg_sessions_per_day: number;

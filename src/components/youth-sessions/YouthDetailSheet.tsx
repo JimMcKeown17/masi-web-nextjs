@@ -89,14 +89,29 @@ export function YouthDetailSheet({ open, onOpenChange, data, isLoading }: YouthD
             {isLoading ? (
               <Skeleton className="h-4 w-64" />
             ) : data ? (
-              <div className="flex items-center gap-2 flex-wrap">
-                <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs">
-                  {data.youth_uid}
-                </Badge>
-                <span className="text-sm">{data.mentor_name}</span>
-                <span className="text-sm text-slate-400">at</span>
-                <span className="text-sm">{data.school_name}</span>
-              </div>
+              <>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <Badge className="bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 text-xs">
+                    {data.youth_uid}
+                  </Badge>
+                  <span className="text-sm">{data.mentor_name}</span>
+                  <span className="text-sm text-slate-400">at</span>
+                  <span className="text-sm">{data.school_name}</span>
+                </div>
+                {data.start_date && (
+                  <div className="flex items-center gap-1.5 text-xs text-slate-500 dark:text-slate-400">
+                    <Calendar className="w-3 h-3" />
+                    <span>
+                      Started{' '}
+                      {new Date(data.start_date + 'T00:00:00').toLocaleDateString(undefined, {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </span>
+                  </div>
+                )}
+              </>
             ) : null}
           </SheetDescription>
         </SheetHeader>
