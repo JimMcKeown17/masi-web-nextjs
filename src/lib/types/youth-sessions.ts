@@ -38,6 +38,7 @@ export interface YouthHeatmapEntry {
   youth_uid: string;
   full_name: string;
   mentor_name: string;
+  start_date: string | null;
   daily_counts: number[];
   total_active_days: number;
   total_sessions: number;

@@ -130,17 +130,27 @@ export function YouthActivityHeatmap({ data, onYouthClick }: YouthActivityHeatma
                   <td className="px-3 py-2 text-xs text-slate-500 dark:text-slate-400 truncate max-w-[100px]">
                     {youth.mentor_name}
                   </td>
-                  {youth.daily_counts.map((count, ci) => (
-                    <td key={ci} className="px-1 py-1.5 text-center">
-                      <div className={`
-                        inline-flex items-center justify-center w-10 h-7 rounded-md text-xs font-medium
-                        ${getCellStyle(count)}
-                        transition-all duration-200
-                      `}>
-                        {count === 0 ? 'None' : count}
-                      </div>
-                    </td>
-                  ))}
+                  {youth.daily_counts.map((count, ci) => {
+                    const cellDate = reversedDates[ci];
+                    const beforeStart = youth.start_date && cellDate < youth.start_date;
+                    return (
+                      <td key={ci} className="px-1 py-1.5 text-center">
+                        {beforeStart ? (
+                          <div className="inline-flex items-center justify-center w-10 h-7 rounded-md text-xs font-medium bg-slate-50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-600">
+                            N/A
+                          </div>
+                        ) : (
+                          <div className={`
+                            inline-flex items-center justify-center w-10 h-7 rounded-md text-xs font-medium
+                            ${getCellStyle(count)}
+                            transition-all duration-200
+                          `}>
+                            {count === 0 ? 'None' : count}
+                          </div>
+                        )}
+                      </td>
+                    );
+                  })}
                   <td className="px-3 py-2 text-center">
                     <div className="flex items-center gap-2 justify-center">
                       <div className="w-12 h-1.5 rounded-full bg-slate-200 dark:bg-slate-700 overflow-hidden">
