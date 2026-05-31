@@ -133,6 +133,7 @@ Pre-configured with path alias `@/components`. Common: Button, Card, Tabs, Selec
 ## Key Documentation
 
 
+- `documentation/data-architecture.md` — THREE backends/data sources (Zazi iZandi backend via Teampact, Main Masi backend, Airtable) + sync topology + the Airtable→PG audit gap. Read this before assuming where data lives.
 - `documentation/api-endpoints.md` — All backend API endpoints
 - `documentation/frontend-backend-integration.md` — Data fetching patterns, design system
 - `documentation/recommended-backend-endpoints.md` — Endpoints to add
