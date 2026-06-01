@@ -3,7 +3,7 @@ import { auth } from '@clerk/nextjs/server';
 
 export async function getUserProfile() {
   const { userId } = await auth();
-  
+
   if (!userId) return null;
 
   try {
@@ -21,7 +21,7 @@ export async function getUserProfile() {
   } catch (error) {
     console.error("Error fetching user profile:", error);
   }
-  
+
   return null;
 }
 

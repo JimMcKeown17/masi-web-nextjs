@@ -308,3 +308,13 @@ export const PROGRAMMES: ProgrammeConfig[] = [
     ],
   },
 ];
+
+// URL slug <-> programme key. Keys use underscores; slugs use hyphens, so the
+// route `/operations/wig/core-literacy` maps to the `core_literacy` programme.
+export function programmeSlug(key: string): string {
+  return key.replace(/_/g, "-");
+}
+
+export function programmeBySlug(slug: string): ProgrammeConfig | undefined {
+  return PROGRAMMES.find((p) => programmeSlug(p.key) === slug);
+}

@@ -1,5 +1,4 @@
 "use client";
-import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { PROGRAMMES } from "@/lib/wig/config";
 import { formatTarget } from "@/lib/wig/rag";
@@ -20,22 +19,13 @@ const ENTRIES: MeasureConfig[] = (() => {
   return out;
 })();
 
-export function MetricsGuide() {
-  const [open, setOpen] = useState(false);
-
+export function MetricsGuide({ open, onClose }: { open: boolean; onClose: () => void }) {
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="fixed right-5 bottom-5 z-30 rounded-full bg-[#1c1c1e]/90 backdrop-blur px-5 py-3 text-[13.5px] font-semibold text-white shadow-xl hover:bg-[#1c1c1e] transition-colors"
-      >
-        Metrics guide
-      </button>
-
       {open && (
         <div
           className="fixed inset-0 z-40 bg-black/20"
-          onClick={() => setOpen(false)}
+          onClick={onClose}
           aria-hidden
         />
       )}
@@ -49,7 +39,7 @@ export function MetricsGuide() {
       >
         <div className="sticky top-0 bg-white/70 backdrop-blur px-6 pt-6 pb-3.5 border-b border-black/5">
           <button
-            onClick={() => setOpen(false)}
+            onClick={onClose}
             className="absolute top-5 right-5 w-7 h-7 rounded-full bg-[#ececed] grid place-items-center text-muted-foreground hover:bg-[#e0e0e2]"
             aria-label="Close metrics guide"
           >

@@ -1,48 +1,38 @@
-import type { Metadata } from "next";
-import { redirect } from "next/navigation";
-import {
-  assertFieldAppAccess,
-  FIELD_APP_UNAUTHENTICATED,
-  FIELD_APP_FORBIDDEN,
-} from "@/lib/masi/auth-guard";
-import { WigScoreboardClient } from "@/components/wig/WigScoreboardClient";
+"use client";
+import { PROGRAMMES } from "@/lib/wig/config";
+import { formatWeekRange } from "@/lib/wig/rag";
+import { useWigData } from "@/components/wig/WigDataProvider";
+import { ProgrammeRollupCard } from "@/components/wig/ProgrammeRollupCard";
+import { WigSkeleton, WigError } from "@/components/wig/states";
 
-export const metadata: Metadata = {
-  title: "WIG | Operations",
-};
+export default function WigOverviewPage() {
+  const { data, isLoading, error } = useWigData();
 
-export const dynamic = "force-dynamic";
-
-// ADMIN / PROJECT MANAGER only — same server-side role policy as the field app.
-export default async function WigPage() {
-  try {
-    await assertFieldAppAccess();
-  } catch (err) {
-    if (err instanceof Error && err.message === FIELD_APP_UNAUTHENTICATED) {
-      redirect("/auth/sign-in?redirect_url=/operations/wig");
-    }
-    if (err instanceof Error && err.message === FIELD_APP_FORBIDDEN) {
-      return (
-        <div className="min-h-screen pt-24 pb-12">
-          <div className="container mx-auto px-4 max-w-xl">
-            <div className="bg-card rounded-lg shadow-sm p-6 border">
-              <h1 className="text-lg font-semibold mb-2">Access denied</h1>
-              <p className="text-sm text-muted-foreground">
-                The WIG dashboard is restricted to Admins and Project Managers. Contact a
-                project lead if you think you should have access.
-              </p>
-            </div>
-          </div>
-        </div>
-      );
-    }
-    throw err;
-  }
+  if (isLoading) return <WigSkeleton />;
+  if (error || !data) return <WigError message={(error as Error)?.message} />;
 
   return (
-    <div className="min-h-screen pt-24 pb-16 bg-[#fafafa]">
-      <div className="container mx-auto px-4 max-w-6xl">
-        <WigScoreboardClient />
+    <div className="max-w-5xl">
+      <div className="flex items-baseline justify-between flex-wrap gap-2 mb-2">
+        <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
+        <span className="text-sm text-muted-foreground">
+          {formatWeekRange(data.window.date_from, data.window.date_to)}
+        </span>
+      </div>
+
+      <div className="rounded-xl border border-dashed border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-2.5 text-[13px] text-indigo-700 mb-6">
+        <b>Org WIG</b> — to be defined · placeholder until the team sets the single north-star goal
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        {PROGRAMMES.map((p) => (
+          <ProgrammeRollupCard
+            key={p.key}
+            programme={p}
+            measures={data.measures}
+            zaziAvailable={data.zaziAvailable}
+          />
+        ))}
       </div>
     </div>
   );

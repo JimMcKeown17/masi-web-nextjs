@@ -57,6 +57,15 @@ export function formatTarget(target: number, scale: ValueScale): string {
   }
 }
 
+// "Week of 25–31 May 2026" from the window's date_from / date_to.
+export function formatWeekRange(from: string, to: string): string {
+  const f = new Date(`${from}T00:00:00`);
+  const t = new Date(`${to}T00:00:00`);
+  const day = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric" });
+  const monthYear = t.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+  return `Week of ${day(f)}–${day(t)} ${monthYear}`;
+}
+
 export const RAG_HEX: Record<RagStatus, string> = {
   green: "#34c759",
   amber: "#ff9f0a",
