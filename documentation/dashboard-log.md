@@ -48,8 +48,12 @@ A running, human-readable log of the big steps (endpoints, calculations, decisio
 ### Backend status: COMPLETE
 Masi-PG programmes (Core Literacy, Numeracy, ECD) + Data team + the Zazi tile (via Zazi API) are all built, tested (42 tests), and prod-smoke-verified. Needs `ZAZI_API_BASE_URL` + `ZAZI_INTERNAL_API_SECRET` env vars on the Masi backend (set on Render).
 
-### Frontend
-- Not started. Route `/operations/wig`; config-driven; sub-gauge + roll-up tiles. To build together.
+### Frontend: BUILT (route `/operations/wig`)
+- Server page guards ADMIN/PROJECT MANAGER (reuses `assertFieldAppAccess`); renders a client SWR board that calls all three `/api/wig/*` endpoints.
+- Config-driven: `src/lib/wig/config.ts` defines programmes -> WIG + leading measures (target, direction, scale, glossary). `src/lib/wig/rag.ts` = RAG + formatting. `src/lib/api/wig.ts` = fetch. `src/lib/types/wig.ts` = types.
+- Components (`src/components/wig/`): `primitives.tsx` (SVG ring + info tooltip), `ProgrammeTile.tsx` (hero WIG ring + leading-indicator rings + roll-up), `MetricsGuide.tsx` (slide-out glossary, closed by default), `WigScoreboardClient.tsx`.
+- Design (approved in a visual-companion pass): big greyed hero WIG ring (fills at assessment), large SVG indicator rings, Apple-ish palette/type, tap/hover info icons, Metrics Guide drawer. Zazi is the featured wide tile. Nav entry added (ADMIN/PM only).
+- `pnpm build` passes. Live data needs the backend WIG endpoints deployed (or run the Masi backend locally and point `NEXT_PUBLIC_API_URL` at it).
 
 ---
 
@@ -58,3 +62,4 @@ Masi-PG programmes (Core Literacy, Numeracy, ECD) + Data team + the Zazi tile (v
 - **2026-05-31** — Backend Track A core. Built (TDD): SAST window, site-type-first cohorts + eligibility (proves Zazi/ECD not dropped), sessions/day + sessions/week, active coaches, school coverage, 3 data-quality gauges, `IsAdminOrProjectManager`, and the two `/api/wig/*` endpoints. 33 tests green, no regressions, prod smoke verified.
 - **2026-05-31** — Added visit-based measures (tracker compliance + school visits per programme, attributed by site type) and `dq.child_fk_resolution` (both child slots). Now 38 tests green. Prod smoke: child-FK resolution 38.4%. Masi-PG backend complete.
 - **2026-05-31** — Track B: Zazi tile. `api/zazi_client.py` calls the Zazi backend's `programme-overview/` and maps KPIs/targets into WIG measures; `GET /api/wig/zazi/` (role-gated, graceful degradation). 42 tests green; live smoke verified (pct_eas_on_track 76.3/80, sessions/day 3.2/2.5). **Backend complete.**
+- **2026-05-31** — Frontend built at `/operations/wig` after a visual-companion design pass (hero WIG ring, big SVG rings, Metrics Guide drawer, Apple-ish styling). Config-driven, role-gated, SWR-fed. `pnpm build` passes. **Frontend complete** (pending live data once the backend endpoints deploy).

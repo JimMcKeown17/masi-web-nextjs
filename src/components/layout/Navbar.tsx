@@ -160,6 +160,20 @@ export function Navbar() {
   // Check if user has access to Project Management dropdown (using Django stored values)
   const hasProjectManagementAccess = user?.role === 'ADMIN' || user?.role === 'PROJECT MANAGER' || user?.role === 'MENTOR'
 
+  // WIG is leadership-only: append it for ADMIN / PROJECT MANAGER (not Mentors).
+  const isAdminOrPm = user?.role === 'ADMIN' || user?.role === 'PROJECT MANAGER'
+  const pmItems = isAdminOrPm
+    ? [
+        ...projectManagementItems,
+        {
+          title: "WIG",
+          href: "/operations/wig",
+          description: "Wildly Important Goals scoreboard.",
+          icon: TrendingUp,
+        },
+      ]
+    : projectManagementItems
+
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${isTransparent ? 'bg-transparent' : 'bg-background/95 backdrop-blur-sm shadow-sm border-b'}`}>
       <div className="container mx-auto px-4">
@@ -262,7 +276,7 @@ export function Navbar() {
                     <NavigationMenuTrigger className={triggerClass}>Project Management</NavigationMenuTrigger>
                     <NavigationMenuContent>
                       <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
-                        {projectManagementItems.map((item) => (
+                        {pmItems.map((item) => (
                           <ListItem
                             key={item.title}
                             title={item.title}
@@ -400,7 +414,7 @@ export function Navbar() {
                     <div>
                       <h3 className="font-semibold text-sm mb-3 text-muted-foreground">Project Management</h3>
                       <ul className="space-y-3">
-                        {projectManagementItems.map((item) => (
+                        {pmItems.map((item) => (
                           <MobileMenuItem
                             key={item.title}
                             item={item}
