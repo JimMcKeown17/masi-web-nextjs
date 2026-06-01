@@ -3,6 +3,7 @@ import type {
   LeadMeasuresPayload,
   DataQualityPayload,
   ZaziPayload,
+  WigDetail,
 } from "@/lib/types/wig";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -25,4 +26,9 @@ export function getWigDataQuality(token: string) {
 
 export function getWigZazi(token: string) {
   return getJson<ZaziPayload>("/wig/zazi/", token);
+}
+
+export function getWigDetail(token: string, programme: string, measure: string) {
+  const q = new URLSearchParams({ programme, measure }).toString();
+  return getJson<WigDetail>(`/wig/detail/?${q}`, token);
 }

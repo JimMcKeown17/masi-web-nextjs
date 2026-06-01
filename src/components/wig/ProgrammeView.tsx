@@ -1,6 +1,10 @@
+"use client";
+import { useState } from "react";
+import { cn } from "@/lib/utils";
 import type { MeasureConfig, MeasureValue, ProgrammeConfig } from "@/lib/types/wig";
 import { ragStatus, ringFill, formatValue, formatTarget, RAG_HEX } from "@/lib/wig/rag";
 import { Ring, InfoTip } from "./primitives";
+import { MetricDetailPanel } from "./MetricDetailPanel";
 
 export function targetFor(cfg: MeasureConfig, measure?: MeasureValue): number {
   return measure?.target ?? cfg.target;
@@ -16,12 +20,30 @@ export function onTrackCount(
   ).length;
 }
 
-function LeadingIndicator({ cfg, measure }: { cfg: MeasureConfig; measure?: MeasureValue }) {
+function LeadingIndicator({
+  cfg,
+  measure,
+  selected,
+  onSelect,
+}: {
+  cfg: MeasureConfig;
+  measure?: MeasureValue;
+  selected: boolean;
+  onSelect: () => void;
+}) {
   const value = measure?.value ?? null;
   const target = targetFor(cfg, measure);
   const status = ragStatus(value, target, cfg.direction);
   return (
-    <div className="flex flex-col items-center text-center w-[150px]">
+    <button
+      type="button"
+      onClick={onSelect}
+      aria-pressed={selected}
+      className={cn(
+        "flex flex-col items-center text-center w-[150px] rounded-2xl px-2 py-3 transition-all cursor-pointer",
+        selected ? "bg-[#f4f7fc] ring-1 ring-[#d6deea] shadow-sm" : "hover:bg-[#fafafa]"
+      )}
+    >
       <Ring size={150} fill={ringFill(value, target)} color={RAG_HEX[status]}>
         <span
           className="text-[38px] font-semibold tracking-tight leading-none"
@@ -38,7 +60,7 @@ function LeadingIndicator({ cfg, measure }: { cfg: MeasureConfig; measure?: Meas
       <div className="text-[11px] text-muted-foreground mt-0.5">
         target {formatTarget(target, cfg.scale)}
       </div>
-    </div>
+    </button>
   );
 }
 
@@ -99,6 +121,11 @@ export function ProgrammeView({
   const allGood = onTrack === total;
   const zaziDown = programme.key === "zazi_izandi" && zaziAvailable === false;
 
+  const [selectedKey, setSelectedKey] = useState<string | null>(
+    programme.measures[0]?.key ?? null
+  );
+  const selected = programme.measures.find((m) => m.key === selectedKey) ?? null;
+
   return (
     <div className="max-w-5xl">
       <div className="flex items-baseline justify-between flex-wrap gap-2 mb-1">
@@ -129,12 +156,20 @@ export function ProgrammeView({
             </div>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-9 justify-items-center">
               {programme.measures.map((m) => (
-                <LeadingIndicator key={m.key} cfg={m} measure={measures[m.key]} />
+                <LeadingIndicator
+                  key={m.key}
+                  cfg={m}
+                  measure={measures[m.key]}
+                  selected={m.key === selectedKey}
+                  onSelect={() => setSelectedKey(m.key)}
+                />
               ))}
             </div>
           </div>
         </div>
       </div>
+
+      {selected && <MetricDetailPanel programmeKey={programme.key} measure={selected} />}
     </div>
   );
 }

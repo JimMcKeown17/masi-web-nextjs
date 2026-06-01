@@ -61,3 +61,85 @@ export interface ProgrammeConfig {
   wig: { statement: string; awaitingLabel: string };
   measures: MeasureConfig[];
 }
+
+// --- Drill-down detail payloads (GET /api/wig/detail/), discriminated by `kind` ---
+
+export interface HeatmapWeek {
+  start: string;
+  label: string;
+}
+
+export interface HeatmapRow {
+  youth_uid: string;
+  full_name: string;
+  mentor_name: string;
+  weekly_counts: number[];
+  total: number;
+}
+
+export interface SessionHeatmapDetail {
+  kind: "session_heatmap";
+  weeks: HeatmapWeek[];
+  rows: HeatmapRow[];
+}
+
+export interface CoveredSchoolDetail {
+  school_uid: string;
+  name: string;
+  type: string;
+  session_count: number;
+  youth_count: number;
+}
+
+export interface UncoveredSchoolDetail {
+  school_uid: string;
+  name: string;
+  type: string;
+  last_session_date: string | null;
+}
+
+export interface CoverageDetail {
+  kind: "coverage";
+  covered: CoveredSchoolDetail[];
+  uncovered: UncoveredSchoolDetail[];
+}
+
+export interface DetailColumn {
+  key: string;
+  label: string;
+}
+
+export interface VisitRow {
+  visit_date: string;
+  mentor_name: string;
+  school_name: string;
+  school_type: string;
+  flags: Record<string, boolean | null>;
+  compliant: boolean;
+}
+
+export interface VisitTableDetail {
+  kind: "visit_table";
+  columns: DetailColumn[];
+  visits: VisitRow[];
+}
+
+export interface DqRecordsDetail {
+  kind: "dq_records";
+  title: string;
+  columns: DetailColumn[];
+  rows: Record<string, string | number | null>[];
+  total_flagged: number;
+  note: string;
+}
+
+export interface NoneDetail {
+  kind: "none";
+}
+
+export type WigDetail =
+  | SessionHeatmapDetail
+  | CoverageDetail
+  | VisitTableDetail
+  | DqRecordsDetail
+  | NoneDetail;

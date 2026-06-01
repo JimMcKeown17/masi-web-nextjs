@@ -18,6 +18,7 @@ export default function ProgrammePage() {
 
   return (
     <ProgrammeView
+      key={programme.key}
       programme={programme}
       measures={data.measures}
       zaziAvailable={data.zaziAvailable}
