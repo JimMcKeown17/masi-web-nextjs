@@ -35,15 +35,17 @@ A running, human-readable log of the big steps (endpoints, calculations, decisio
 | `dq.capture_on_time` | sessions with 0<=capture_delay<=2 / all literacy sessions | literacy_sessions_2026 |
 | `dq.duplicate_rate` | duplicate_status='Duplicate' / all literacy sessions | literacy_sessions_2026 |
 | `dq.site_job_mismatch` | active youth with an ECD title at a primary site / all active youth | Youth + School |
+| `{core,ecd}.tracker_compliance` | observation visits with all tracker booleans true / observation visits (by site type) | MentorVisit |
+| `{core,ecd}.school_visits` | observation visits / distinct mentors (avg per mentor) | MentorVisit |
+| `numeracy.admin_compliance` | observation visits with numeracy_tracker_correct / observation visits | NumeracyVisit |
+| `dq.child_fk_resolution` | resolved child_1 + child_2 slots / (2 x literacy sessions) | literacy_sessions_2026 + CanonicalChild |
 
 **Tests:** `api/tests_wig.py` — run with `DATABASE_URL="" venv/bin/python manage.py test api.tests_wig` (forces SQLite test DB; no Postgres perms needed). 33 WIG tests, 41 total, all green.
 
 **Prod smoke (2026-05-31, read-only):** window 2026-05-25..31; core_literacy sessions/day 2.29 (92 coaches), active 0.91, coverage 1.00; ecd sessions/day 1.47; numeracy/week 13.33; capture_on_time 0.876; duplicate_rate 0.003; site_job_mismatch 0.
 
 ### Remaining backend
-- Visit-based lead measures (school-visits/week + tracker compliance, attributed by visited school's site type; counted per submitting user). Needs `MentorVisit`.
-- `dq.child_fk_resolution` (both `child_1` + `child_2` slots). Needs `CanonicalChild`.
-- Track B: Zazi API client (Masi backend -> Zazi `/api/*` with `X-Internal-Auth`).
+- Track B: Zazi API client (Masi backend -> Zazi `/api/*` with `X-Internal-Auth`), normalised into the same measure shape.
 
 ### Frontend
 - Not started. Route `/operations/wig`; config-driven; sub-gauge + roll-up tiles. To build together.
@@ -53,3 +55,4 @@ A running, human-readable log of the big steps (endpoints, calculations, decisio
 ## Changelog
 
 - **2026-05-31** — Backend Track A core. Built (TDD): SAST window, site-type-first cohorts + eligibility (proves Zazi/ECD not dropped), sessions/day + sessions/week, active coaches, school coverage, 3 data-quality gauges, `IsAdminOrProjectManager`, and the two `/api/wig/*` endpoints. 33 tests green, no regressions, prod smoke verified.
+- **2026-05-31** — Added visit-based measures (tracker compliance + school visits per programme, attributed by site type) and `dq.child_fk_resolution` (both child slots). Now 38 tests green. Prod smoke: child-FK resolution 38.4%. Masi-PG backend complete.
