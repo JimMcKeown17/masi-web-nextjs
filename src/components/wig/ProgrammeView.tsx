@@ -113,13 +113,14 @@ export function ProgrammeView({
 }: {
   programme: ProgrammeConfig;
   measures: Record<string, MeasureValue>;
-  zaziAvailable: boolean;
+  zaziAvailable: Record<string, boolean>;
   weekLabel: string;
 }) {
   const onTrack = onTrackCount(programme, measures);
   const total = programme.measures.length;
   const allGood = onTrack === total;
-  const zaziDown = programme.key === "zazi_izandi" && zaziAvailable === false;
+  const zaziDown =
+    programme.key.startsWith("zazi_izandi") && zaziAvailable[programme.key] === false;
 
   const [selectedKey, setSelectedKey] = useState<string | null>(
     programme.measures[0]?.key ?? null

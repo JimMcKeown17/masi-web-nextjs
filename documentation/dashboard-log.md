@@ -4,6 +4,30 @@ A running, human-readable log of the big steps (endpoints, calculations, decisio
 
 ---
 
+## 2026-06-02 — ECD Literacy cohort fix + Zazi Primary/ECD split
+
+**ECD Literacy cohort corrected (Masi backend, deployed).** The `ecd_literacy`
+cohort wrongly spanned 4 job titles (`Literacy Coach`, `ZZ ECD Coach`,
+`ECD Practitioner`, `Practitioner`) across `{ECD, ECDC}`. The 32 non-Literacy-Coach
+youth have no PG sessions, so they only inflated the denominator: active-coaches
+read 23/60 = 38% vs the true 23/28 = 82% (coverage deflated the same way). Now
+`{'Literacy Coach'}` x `{'ECDC'}`; bare `ECD` is reserved for the Zazi ECD tab.
+Evidence proven against prod before the fix.
+
+**Zazi tile split into Primary + ECD (3 repos).** The tile fetched the Zazi
+backend's default `cohort=all`, so it showed Primary + ECD combined. Now:
+- Zazi backend (`Zazi_iZandi_Website_2025`): added `?cohort=primary` (mirrors the
+  existing `?cohort=ecd`) to `programme-overview`.
+- Masi backend: `ZaziOverviewSnapshot` gains a unique `cohort` field (one cached
+  row per cohort); `fetch`/`refresh` are cohort-aware; `build_zazi_measures(prefix)`
+  namespaces keys (`zazi.*` Primary, `zazi_ecd.*` ECD). `/api/wig/zazi/` now returns
+  `{ available, measures, fetched_at }` keyed per segment; the `refresh_zazi_overview`
+  cron refreshes both cohorts. Verified ECD cohort has real data (24 schools, 31 EAs).
+- Frontend: `zazi_izandi` relabelled "Zazi iZandi - Primary"; new `zazi_izandi_ecd`
+  ("Zazi iZandi - ECD") programme + sidebar entry; per-segment availability.
+
+---
+
 ## Current state (2026-05-31)
 
 ### Backend — Masi PG (repo: `backend/Masi Web Main`, branch `feature/wig-dashboard`)

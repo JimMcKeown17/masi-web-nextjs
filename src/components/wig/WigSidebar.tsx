@@ -6,6 +6,7 @@ import {
   BookOpen,
   BookText,
   Baby,
+  Blocks,
   Calculator,
   Database,
   BookMarked,
@@ -18,6 +19,7 @@ import { onTrackCount } from "./ProgrammeView";
 
 const ICONS: Record<string, React.ComponentType<{ className?: string }>> = {
   zazi_izandi: BookOpen,
+  zazi_izandi_ecd: Blocks,
   core_literacy: BookText,
   ecd_literacy: Baby,
   numeracy: Calculator,

@@ -11,7 +11,7 @@ import type { MeasureValue, WigWindow, ZaziPayload } from "@/lib/types/wig";
 interface WigData {
   measures: Record<string, MeasureValue>;
   window: WigWindow;
-  zaziAvailable: boolean;
+  zaziAvailable: Record<string, boolean>; // keyed by programme key
 }
 
 interface WigContextValue {
@@ -27,7 +27,7 @@ export function WigDataProvider({ children }: { children: ReactNode }) {
   const { data, error, isLoading } = useSWR<WigData>("wig-board", async () => {
     const token = await getToken();
     if (!token) throw new Error("Not authenticated");
-    const emptyZazi: ZaziPayload = { available: false, measures: {} };
+    const emptyZazi: ZaziPayload = { available: {}, measures: {} };
     const [lead, dq, zazi] = await Promise.all([
       getWigLeadMeasures(token),
       getWigDataQuality(token),

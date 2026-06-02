@@ -19,7 +19,7 @@ const ratioGlossary = {
 export const PROGRAMMES: ProgrammeConfig[] = [
   {
     key: "zazi_izandi",
-    label: "Zazi iZandi",
+    label: "Zazi iZandi · Primary",
     featured: true,
     accent: "#7c3aed",
     wig: {
@@ -37,7 +37,7 @@ export const PROGRAMMES: ProgrammeConfig[] = [
         direction: "gte",
         glossary: {
           intent: "Share of Education Assistants hitting the daily dosage bar.",
-          source: "Zazi backend · programme-overview API",
+          source: "Zazi backend · programme-overview API (Primary cohort)",
           formula: "pre-computed by Zazi vs target_on_track_pct",
         },
       },
@@ -50,7 +50,7 @@ export const PROGRAMMES: ProgrammeConfig[] = [
         direction: "gte",
         glossary: {
           intent: "Average sessions per day worked, across all EAs.",
-          source: "Zazi backend",
+          source: "Zazi backend (Primary cohort)",
           formula: "avg_sessions_per_day_worked",
         },
       },
@@ -63,7 +63,58 @@ export const PROGRAMMES: ProgrammeConfig[] = [
         direction: "gte",
         glossary: {
           intent: "Enrolment-weighted sessions per child per week.",
-          source: "Zazi backend",
+          source: "Zazi backend (Primary cohort)",
+          formula: "Σ(group sessions × size) / children",
+        },
+      },
+    ],
+  },
+  {
+    key: "zazi_izandi_ecd",
+    label: "Zazi iZandi · ECD",
+    featured: true,
+    accent: "#9333ea",
+    wig: {
+      statement: "ECD children master 20+ letter sounds before Grade R",
+      awaitingLabel: "Awaiting midline assessment",
+    },
+    measures: [
+      {
+        key: "zazi_ecd.pct_eas_on_track",
+        label: "EAs on track",
+        unit: "%",
+        scale: "percent",
+        target: 80,
+        direction: "gte",
+        glossary: {
+          intent: "Share of ECD Education Assistants hitting the daily dosage bar.",
+          source: "Zazi backend · programme-overview API (ECD cohort)",
+          formula: "pre-computed by Zazi vs target_on_track_pct",
+        },
+      },
+      {
+        key: "zazi_ecd.sessions_per_day",
+        label: "Sessions/day",
+        unit: "/ day",
+        scale: "per_day",
+        target: 2.5,
+        direction: "gte",
+        glossary: {
+          intent: "Average sessions per day worked, across ECD EAs.",
+          source: "Zazi backend (ECD cohort)",
+          formula: "avg_sessions_per_day_worked",
+        },
+      },
+      {
+        key: "zazi_ecd.weighted_dosage",
+        label: "Weighted dosage",
+        unit: "dose",
+        scale: "per_day",
+        target: 2.5,
+        direction: "gte",
+        glossary: {
+          intent: "Enrolment-weighted sessions per child per week (ECD).",
+          source: "Zazi backend (ECD cohort)",
           formula: "Σ(group sessions × size) / children",
         },
       },

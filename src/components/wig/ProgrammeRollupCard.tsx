@@ -13,13 +13,14 @@ export function ProgrammeRollupCard({
 }: {
   programme: ProgrammeConfig;
   measures: Record<string, MeasureValue>;
-  zaziAvailable: boolean;
+  zaziAvailable: Record<string, boolean>;
 }) {
   const onTrack = onTrackCount(programme, measures);
   const total = programme.measures.length;
   const allGood = onTrack === total;
   const accent = programme.accent ?? "#0a84ff";
-  const zaziDown = programme.key === "zazi_izandi" && zaziAvailable === false;
+  const zaziDown =
+    programme.key.startsWith("zazi_izandi") && zaziAvailable[programme.key] === false;
 
   return (
     <Link

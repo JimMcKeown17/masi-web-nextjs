@@ -35,9 +35,12 @@ export interface DataQualityPayload {
 }
 
 export interface ZaziPayload {
-  available: boolean;
+  // Availability is per programme key (e.g. "zazi_izandi", "zazi_izandi_ecd")
+  // since each Zazi segment is fetched/cached independently.
+  available: Record<string, boolean>;
   source?: string;
   generated_at?: string;
+  fetched_at?: Record<string, string | null>;
   measures: Record<string, MeasureValue>;
 }
 
