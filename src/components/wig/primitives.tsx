@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { cn } from "@/lib/utils";
 
 // A thin SVG progress ring with rounded caps and centred content.
 export function Ring({
@@ -41,12 +42,16 @@ export function Ring({
   );
 }
 
-// Small "i" icon with a hover/tap tooltip (CSS only).
-export function InfoTip({ text }: { text: string }) {
+// Small "i" icon with a hover/tap tooltip (CSS only). Pass interactive={false}
+// when rendering inside a <button> (a focusable element can't nest in a button).
+export function InfoTip({ text, interactive = true }: { text: string; interactive?: boolean }) {
   return (
     <span
-      tabIndex={0}
-      className="group relative inline-grid place-items-center w-4 h-4 rounded-full bg-[#ececed] text-[#9a9aa0] text-[10px] font-bold italic cursor-help align-middle"
+      tabIndex={interactive ? 0 : undefined}
+      className={cn(
+        "group relative inline-grid place-items-center w-4 h-4 rounded-full bg-[#ececed] text-[#9a9aa0] text-[10px] font-bold italic align-middle",
+        interactive ? "cursor-help" : "cursor-default"
+      )}
     >
       i
       <span className="pointer-events-none absolute bottom-[140%] left-1/2 -translate-x-1/2 w-[185px] rounded-[10px] bg-[#1c1c1e]/95 px-2.5 py-2 text-[11.5px] font-normal not-italic leading-[1.5] text-white opacity-0 invisible transition group-hover:opacity-100 group-hover:visible group-focus:opacity-100 group-focus:visible z-30 shadow-xl">

@@ -55,7 +55,7 @@ function LeadingIndicator({
       </Ring>
       <div className="flex items-center gap-1.5 text-[14px] font-medium mt-4">
         {cfg.label}
-        <InfoTip text={cfg.glossary.intent} />
+        <InfoTip text={cfg.glossary.intent} interactive={false} />
       </div>
       <div className="text-[11px] text-muted-foreground mt-0.5">
         target {formatTarget(target, cfg.scale)}
