@@ -20,6 +20,15 @@ function DetailBody({ detail, measure }: { detail: WigDetail; measure: MeasureCo
     case "session_heatmap":
       return <SessionHeatmapTable detail={detail} weeklyTarget={weeklyTargetFor(measure)} />;
     case "coverage":
+      // Both empty (e.g. a cohort with no assigned schools) -> one neutral
+      // message, not the grid's contradictory "none covered / all covered".
+      if (!detail.covered.length && !detail.uncovered.length) {
+        return (
+          <p className="text-sm text-muted-foreground text-center py-8">
+            No assigned schools for this programme this week.
+          </p>
+        );
+      }
       return <SchoolCoverageGrid data={{ covered: detail.covered, uncovered: detail.uncovered }} />;
     case "visit_table":
       return <VisitTable detail={detail} />;
@@ -42,7 +51,7 @@ export function MetricDetailPanel({
   measure: MeasureConfig;
 }) {
   const { getToken } = useAuth();
-  const { data, error, isLoading } = useSWR(
+  const { data, error } = useSWR(
     ["wig-detail", programmeKey, measure.key],
     async () => {
       const token = await getToken();
@@ -58,13 +67,17 @@ export function MetricDetailPanel({
         <div className="text-[12px] text-muted-foreground mt-0.5">{measure.glossary.intent}</div>
       </div>
       <div className="p-4 sm:p-5">
-        {isLoading && <div className="h-40 rounded-xl bg-[#f6f6f8] animate-pulse" />}
-        {error && (
+        {/* Mutually exclusive: prefer data (even while revalidating), then error,
+            then the first-load skeleton — never a stale table beside an error. */}
+        {data ? (
+          <DetailBody detail={data} measure={measure} />
+        ) : error ? (
           <p className="text-sm text-amber-700 py-6 text-center">
             Couldn&apos;t load the detail. {(error as Error).message}
           </p>
+        ) : (
+          <div className="h-40 rounded-xl bg-[#f6f6f8] animate-pulse" />
         )}
-        {data && <DetailBody detail={data} measure={measure} />}
       </div>
     </div>
   );

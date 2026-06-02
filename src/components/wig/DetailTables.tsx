@@ -94,7 +94,7 @@ export function VisitTable({ detail }: { detail: VisitTableDetail }) {
         </thead>
         <tbody>
           {detail.visits.map((v, idx) => (
-            <tr key={idx} className="border-t border-[#f1f1f1]">
+            <tr key={`${v.visit_date}-${v.school_name}-${v.mentor_name}#${idx}`} className="border-t border-[#f1f1f1]">
               <td className="px-3 py-1.5 whitespace-nowrap tabular-nums">{v.visit_date}</td>
               <td className="px-3 py-1.5 whitespace-nowrap">{v.mentor_name}</td>
               <td className="px-3 py-1.5 whitespace-nowrap">{v.school_name}</td>
@@ -147,7 +147,10 @@ export function RecordsTable({ detail }: { detail: DqRecordsDetail }) {
               </thead>
               <tbody>
                 {detail.rows.map((row, idx) => (
-                  <tr key={idx} className="border-t border-[#f1f1f1]">
+                  <tr
+                    key={`${detail.columns.map((c) => String(row[c.key])).join("|")}#${idx}`}
+                    className="border-t border-[#f1f1f1]"
+                  >
                     {detail.columns.map((c) => (
                       <td key={c.key} className="px-3 py-1.5 whitespace-nowrap">{row[c.key] ?? "—"}</td>
                     ))}
@@ -156,9 +159,11 @@ export function RecordsTable({ detail }: { detail: DqRecordsDetail }) {
               </tbody>
             </table>
           </div>
-          {detail.total_flagged > detail.rows.length && (
+          {/* The backend caps rows at 100; total_flagged is a semantic count
+              (e.g. child-FK counts slots, not rows), so only flag a true cap. */}
+          {detail.rows.length >= 100 && (
             <p className="text-[11px] text-muted-foreground px-1 pt-2">
-              Showing first {detail.rows.length} of {detail.total_flagged}.
+              Showing the first 100 records.
             </p>
           )}
         </>
