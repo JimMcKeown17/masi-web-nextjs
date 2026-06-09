@@ -40,6 +40,9 @@ export interface YouthHeatmapEntry {
   mentor_name: string;
   start_date: string | null;
   daily_counts: number[];
+  // Parallel to daily_counts: was the youth expected to work that day (not a
+  // weekend, closure, or personal absence, and on/after their start date)?
+  expected?: boolean[];
   total_active_days: number;
   total_sessions: number;
   eligible_days: number;

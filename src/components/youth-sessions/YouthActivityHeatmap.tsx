@@ -47,7 +47,11 @@ export function YouthActivityHeatmap({ data, onYouthClick }: YouthActivityHeatma
         if (sortField === 'full_name') return mul * a.full_name.localeCompare(b.full_name);
         return mul * ((a[sortField] as number) - (b[sortField] as number));
       })
-      .map(y => ({ ...y, daily_counts: [...y.daily_counts].reverse() }));
+      .map(y => ({
+        ...y,
+        daily_counts: [...y.daily_counts].reverse(),
+        expected: y.expected ? [...y.expected].reverse() : undefined,
+      }));
   }, [data.youth, sortField, sortDir]);
 
   if (data.youth.length === 0) {
@@ -133,11 +137,19 @@ export function YouthActivityHeatmap({ data, onYouthClick }: YouthActivityHeatma
                   {youth.daily_counts.map((count, ci) => {
                     const cellDate = reversedDates[ci];
                     const beforeStart = youth.start_date && cellDate < youth.start_date;
+                    const notExpected = youth.expected ? !youth.expected[ci] : false;
                     return (
                       <td key={ci} className="px-1 py-1.5 text-center">
                         {beforeStart ? (
                           <div className="inline-flex items-center justify-center w-10 h-7 rounded-md text-xs font-medium bg-slate-50 dark:bg-slate-800/40 text-slate-400 dark:text-slate-600">
                             N/A
+                          </div>
+                        ) : notExpected ? (
+                          <div
+                            title="Closed or on leave -- not expected"
+                            className="inline-flex items-center justify-center w-10 h-7 rounded-md text-xs font-medium bg-slate-100 dark:bg-slate-800/60 text-slate-400 dark:text-slate-500"
+                          >
+                            Off
                           </div>
                         ) : (
                           <div className={`
