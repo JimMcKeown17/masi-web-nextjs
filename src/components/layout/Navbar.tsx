@@ -5,7 +5,7 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog, BookOpen, Newspaper, PlayCircle, Activity, Radio } from "lucide-react"
+import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog, BookOpen, Newspaper, PlayCircle, Activity, Radio, CalendarOff } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
@@ -170,6 +170,12 @@ export function Navbar() {
           href: "/operations/wig",
           description: "Wildly Important Goals scoreboard.",
           icon: TrendingUp,
+        },
+        {
+          title: "Closure Calendar",
+          href: "/operations/closures",
+          description: "Manage school closures and staff absences.",
+          icon: CalendarOff,
         },
       ]
     : projectManagementItems
