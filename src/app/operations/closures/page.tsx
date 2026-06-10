@@ -48,11 +48,19 @@ import type {
   ClosureLookups,
 } from "@/lib/types/closures";
 
-const isoToday = () => new Date().toISOString().slice(0, 10);
+function isoDate(d: Date): string {
+  // Local calendar date (YYYY-MM-DD), not UTC -- toISOString() would shift the
+  // date back a day in SAST (UTC+2) during the early-morning hours.
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${y}-${m}-${day}`;
+}
+const isoToday = () => isoDate(new Date());
 const isoPlusDays = (days: number) => {
   const d = new Date();
   d.setDate(d.getDate() + days);
-  return d.toISOString().slice(0, 10);
+  return isoDate(d);
 };
 
 // Window the tables show: a month back through the rest of the year.
