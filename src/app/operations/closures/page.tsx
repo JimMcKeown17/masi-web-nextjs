@@ -63,9 +63,9 @@ const isoPlusDays = (days: number) => {
   return isoDate(d);
 };
 
-// Window the tables show: a month back through the rest of the year.
-const WINDOW_FROM = isoPlusDays(-30);
-const WINDOW_TO = isoPlusDays(180);
+// Default table window: a month back through the rest of the year (adjustable in the UI).
+const DEFAULT_WINDOW_FROM = isoPlusDays(-30);
+const DEFAULT_WINDOW_TO = isoPlusDays(180);
 
 const ABSENCE_REASONS: { value: AbsenceReason; label: string }[] = [
   { value: "vacation", label: "Vacation" },
@@ -145,16 +145,17 @@ export default function ClosureCalendarPage() {
     async () => getClosureLookups(await authToken())
   );
 
-  const closuresKey = `closures-${WINDOW_FROM}-${WINDOW_TO}`;
+  const [windowFrom, setWindowFrom] = useState(DEFAULT_WINDOW_FROM);
+  const [windowTo, setWindowTo] = useState(DEFAULT_WINDOW_TO);
+
   const { data: closures, mutate: mutateClosures } = useSWR<SchoolClosure[]>(
-    closuresKey,
-    async () => listClosures(await authToken(), WINDOW_FROM, WINDOW_TO)
+    `closures-${windowFrom}-${windowTo}`,
+    async () => listClosures(await authToken(), windowFrom, windowTo)
   );
 
-  const absencesKey = `absences-${WINDOW_FROM}-${WINDOW_TO}`;
   const { data: absences, mutate: mutateAbsences } = useSWR<StaffAbsence[]>(
-    absencesKey,
-    async () => listAbsences(await authToken(), WINDOW_FROM, WINDOW_TO)
+    `absences-${windowFrom}-${windowTo}`,
+    async () => listAbsences(await authToken(), windowFrom, windowTo)
   );
 
   return (
@@ -179,6 +180,22 @@ export default function ClosureCalendarPage() {
         </Alert>
       )}
 
+      <div className="mb-4 flex flex-wrap items-end gap-3 rounded-lg border bg-muted/30 px-4 py-3">
+        <div className="space-y-1">
+          <Label htmlFor="window-from" className="text-xs text-muted-foreground">Showing from</Label>
+          <Input id="window-from" type="date" value={windowFrom}
+            onChange={(e) => setWindowFrom(e.target.value)} className="h-9" />
+        </div>
+        <div className="space-y-1">
+          <Label htmlFor="window-to" className="text-xs text-muted-foreground">to</Label>
+          <Input id="window-to" type="date" value={windowTo}
+            onChange={(e) => setWindowTo(e.target.value)} className="h-9" />
+        </div>
+        <p className="pb-2 text-xs text-muted-foreground">
+          Widen the range to see or delete closures/absences outside the default window.
+        </p>
+      </div>
+
       <Tabs defaultValue="closures">
         <TabsList className="mb-4">
           <TabsTrigger value="closures">School closures</TabsTrigger>
@@ -189,6 +206,8 @@ export default function ClosureCalendarPage() {
           <ClosureForm lookups={lookups} authToken={authToken} onDone={() => mutateClosures()} />
           <ClosureTable
             closures={closures}
+            from={windowFrom}
+            to={windowTo}
             authToken={authToken}
             onChanged={() => mutateClosures()}
           />
@@ -198,6 +217,8 @@ export default function ClosureCalendarPage() {
           <AbsenceForm lookups={lookups} authToken={authToken} onDone={() => mutateAbsences()} />
           <AbsenceTable
             absences={absences}
+            from={windowFrom}
+            to={windowTo}
             authToken={authToken}
             onChanged={() => mutateAbsences()}
           />
@@ -389,10 +410,14 @@ function ClosureForm({
 
 function ClosureTable({
   closures,
+  from,
+  to,
   authToken,
   onChanged,
 }: {
   closures: SchoolClosure[] | undefined;
+  from: string;
+  to: string;
   authToken: AuthToken;
   onChanged: () => void;
 }) {
@@ -414,7 +439,7 @@ function ClosureTable({
     <Card>
       <CardHeader>
         <CardTitle className="text-base">Closures ({closures.length})</CardTitle>
-        <CardDescription>{WINDOW_FROM} to {WINDOW_TO}</CardDescription>
+        <CardDescription>{from} to {to}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
@@ -592,10 +617,14 @@ function AbsenceForm({
 
 function AbsenceTable({
   absences,
+  from,
+  to,
   authToken,
   onChanged,
 }: {
   absences: StaffAbsence[] | undefined;
+  from: string;
+  to: string;
   authToken: AuthToken;
   onChanged: () => void;
 }) {
@@ -617,7 +646,7 @@ function AbsenceTable({
     <Card>
       <CardHeader>
         <CardTitle className="text-base">Absences ({absences.length})</CardTitle>
-        <CardDescription>{WINDOW_FROM} to {WINDOW_TO}</CardDescription>
+        <CardDescription>{from} to {to}</CardDescription>
       </CardHeader>
       <CardContent>
         <Table>
