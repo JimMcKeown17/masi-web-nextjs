@@ -50,7 +50,7 @@ Expected: prints `feature/youth-days-off-widget`.
 
 - [ ] **Step 1: Write the failing test**
 
-Add to the imports at the top of `api/tests.py` — change the existing `from api.models import (...)` block to include `StaffAbsence`:
+Add to the imports at the top of `api/tests.py` — change the existing `from api.models import (...)` block to include `StaffAbsence`, and add the `UserProfile` import (role lives in `core.models`):
 
 ```python
 from api.models import (
@@ -58,16 +58,21 @@ from api.models import (
     LiteracySession2026, NumeracySession2026,
     AirtableSyncLog, StaffAbsence,
 )
+from core.models import UserProfile
 ```
 
-Append this test class to the end of `api/tests.py`:
+Append this test class to the end of `api/tests.py`. Note the absences list is
+authorization-gated (ADMIN / PROJECT MANAGER only), so the positive test gives its
+user an ADMIN `UserProfile`, and a third test proves a MENTOR is denied the data:
 
 ```python
 class TestYouthDetailAbsences(TestCase):
-    """youth_sessions_detail surfaces the youth's in-window StaffAbsence rows."""
+    """youth_sessions_detail surfaces the youth's in-window StaffAbsence rows,
+    but only to ADMIN / PROJECT MANAGER (absence reason/note is HR-sensitive)."""
 
     def setUp(self):
         self.user = User.objects.create_user(username='pm', password='x')
+        UserProfile.objects.create(user=self.user, role='ADMIN')
         self.client = APIClient()
         self.client.force_authenticate(user=self.user)
         self.youth = Youth.objects.create(
@@ -104,6 +109,23 @@ class TestYouthDetailAbsences(TestCase):
         )
         self.assertEqual(resp.status_code, 200)
         self.assertEqual(resp.json()['absences'], [])
+
+    def test_detail_absences_hidden_from_mentor(self):
+        # A MENTOR can reach this endpoint (IsAuthenticated) but must NOT see
+        # absence reasons/notes -- the field returns empty for non-leadership.
+        mentor = User.objects.create_user(username='mentor', password='x')
+        UserProfile.objects.create(user=mentor, role='MENTOR')
+        mentor_client = APIClient()
+        mentor_client.force_authenticate(user=mentor)
+        StaffAbsence.objects.create(
+            youth_uid='YTH-0001', date=date(2026, 3, 3), reason='funeral', note='Family',
+        )
+        resp = mentor_client.get(
+            '/api/youth-sessions/youth-detail/YTH-0001/'
+            '?date_from=2026-03-02&date_to=2026-03-06'
+        )
+        self.assertEqual(resp.status_code, 200)
+        self.assertEqual(resp.json()['absences'], [])
 ```
 
 - [ ] **Step 2: Run the test to verify it fails**
@@ -114,9 +136,9 @@ cd "backend/Masi Web Main" && source venv/bin/activate && python manage.py test 
 ```
 Expected: FAIL — `KeyError: 'absences'` / `self.assertIn('absences', data)` fails (the field isn't in the response yet).
 
-- [ ] **Step 3: Add the `StaffAbsence` import**
+- [ ] **Step 3: Add the `StaffAbsence` and `WIG_ALLOWED_ROLES` imports**
 
-In `api/views/youth_sessions.py`, change the models import block (lines 11-14) to:
+In `api/views/youth_sessions.py`, change the models import block (lines 11-14) to add `StaffAbsence`:
 
 ```python
 from ..models import (
@@ -126,7 +148,14 @@ from ..models import (
 )
 ```
 
-- [ ] **Step 4: Build the absences list and add it to the response**
+Then add the role-set import directly below the existing `from ..closures import ...`
+line (line 16), so the gate reuses the single source of truth for "leadership":
+
+```python
+from ..permissions import WIG_ALLOWED_ROLES
+```
+
+- [ ] **Step 4: Build the absences list (role-gated) and add it to the response**
 
 In `api/views/youth_sessions.py`, in `youth_sessions_detail`, immediately after the line:
 
@@ -134,19 +163,26 @@ In `api/views/youth_sessions.py`, in `youth_sessions_detail`, immediately after 
     total_working_days = len(open_days)
 ```
 
-insert:
+insert (absence reason/note is HR-sensitive — only ADMIN / PROJECT MANAGER may see
+it; `getattr(..., 'profile', None)` returns `None` for profile-less users because
+Django's reverse-OneToOne `RelatedObjectDoesNotExist` subclasses `AttributeError`):
 
 ```python
-    absence_rows = (
-        StaffAbsence.objects
-        .filter(youth_uid=youth_uid, date__gte=daily_from, date__lte=daily_to)
-        .order_by('date')
-        .values('id', 'date', 'reason', 'note')
-    )
-    absences = [
-        {'id': a['id'], 'date': str(a['date']), 'reason': a['reason'], 'note': a['note']}
-        for a in absence_rows
-    ]
+    profile = getattr(request.user, 'profile', None)
+    can_manage_absences = bool(profile and profile.role in WIG_ALLOWED_ROLES)
+    if can_manage_absences:
+        absence_rows = (
+            StaffAbsence.objects
+            .filter(youth_uid=youth_uid, date__gte=daily_from, date__lte=daily_to)
+            .order_by('date')
+            .values('id', 'date', 'reason', 'note')
+        )
+        absences = [
+            {'id': a['id'], 'date': str(a['date']), 'reason': a['reason'], 'note': a['note']}
+            for a in absence_rows
+        ]
+    else:
+        absences = []
 ```
 
 Then add one line to the `return Response({...})` dict, after `'daily_sessions': daily_sessions,`:
@@ -679,15 +715,32 @@ Frontend: `cd frontend/masi-website && pnpm dev`
 
 As ADMIN/PM, open `localhost:3000/operations/youth-sessions`:
 1. Click a youth row → sheet opens; the "Days off" section shows under "Working days in period".
-2. Click "Mark days off" → pick a recent weekday range, reason, optional note → Save.
+2. Click "Mark days off" → pick a weekday range, reason, optional note → Save.
+   **Pick a date within the last ~10 working days** — the heatmap default window is
+   ~10 working days back (`youth_sessions.py` heatmap view), narrower than the
+   detail sheet's 30-day window. A date older than that is saved correctly and
+   updates the sheet's counts, but its heatmap column won't be on screen to flip.
 3. Confirm: toast success; the absence appears in the widget list; the matching heatmap cell flips "None" → "Off"; "Days Missed" / "Working days in period" update.
 4. Click the trash icon on the new absence → it disappears and the heatmap cell reverts.
-5. (Optional) Log in as a MENTOR / VIEWER → the "Days off" widget does not render.
+5. Log in as a MENTOR / VIEWER → the "Days off" widget does not render, **and** the
+   detail API returns `absences: []` for that user (server-side authorization, not
+   just a hidden widget).
 
 ---
 
+## Codex adversarial review (2026-06-10) — folded in
+
+- **[HIGH] fixed:** `youth_sessions_detail` is only `IsAuthenticated`, so the new
+  absence reason/note (HR-sensitive) would leak to MENTOR/VIEWER. Task 1 Step 4 now
+  authorization-gates the `absences` list to `WIG_ALLOWED_ROLES`; Task 1 Step 1 adds
+  a MENTOR test asserting `absences: []`.
+- **[LOW] noted:** heatmap default window (~10 working days) is narrower than the
+  detail window (30 days); Task 6 Step 3 tells the tester to pick an in-window date.
+- All other items passed (SWR matcher, server-side write/delete gating, no-school
+  youth, type contracts, `force_authenticate`, insertion anchors).
+
 ## Self-Review (completed during planning)
 
-- **Spec coverage:** Backend `absences` payload → Task 1. Widget (form + list + delete + gating) → Task 3. Placement in sheet → Task 4. SWR revalidation fan-out → Task 5. Types → Task 2. Verification → Task 6. All spec sections covered.
+- **Spec coverage:** Backend `absences` payload (role-gated) → Task 1. Widget (form + list + delete + gating) → Task 3. Placement in sheet → Task 4. SWR revalidation fan-out → Task 5. Types → Task 2. Verification → Task 6. All spec sections covered.
 - **Placeholder scan:** none — every step has concrete code/commands.
 - **Type consistency:** `YouthAbsence` (Task 2) is consumed identically in Task 3 (`absences: YouthAbsence[]`) and Task 4 (`absences={data.absences}`). `AbsenceReason` is imported from `./closures` in both the type file and the widget. `bulkCreateAbsences` body matches `AbsenceBulkBody` (`youth_uids`, `date_from`, `date_to`, `reason`, `note`). `onAbsenceChanged` prop name matches between Task 4 (interface) and Task 5 (call site). Backend `'absences'` key matches the test assertions and the frontend field name.
