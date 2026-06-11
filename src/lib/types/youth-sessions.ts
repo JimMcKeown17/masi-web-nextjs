@@ -1,3 +1,5 @@
+import type { AbsenceReason } from './closures';
+
 export interface YouthSessionsFilters {
   date_from?: string;
   date_to?: string;
@@ -94,6 +96,13 @@ export interface YouthDailySession {
   numeracy: number;
 }
 
+export interface YouthAbsence {
+  id: number;
+  date: string; // ISO yyyy-mm-dd
+  reason: AbsenceReason;
+  note: string;
+}
+
 export interface YouthDetailResponse {
   youth_uid: string;
   full_name: string;
@@ -107,6 +116,7 @@ export interface YouthDetailResponse {
   total_working_days: number;
   children_worked_with: number;
   daily_sessions: YouthDailySession[];
+  absences: YouthAbsence[];
 }
 
 export interface LookupYouth {
