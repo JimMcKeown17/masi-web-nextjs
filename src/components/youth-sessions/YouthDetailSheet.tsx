@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Activity, Calendar, Users, TrendingDown } from 'lucide-react';
 import type { YouthDetailResponse } from '@/lib/types/youth-sessions';
+import { YouthDaysOffWidget } from '@/components/youth-sessions/YouthDaysOffWidget';
 
 const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
@@ -21,9 +22,10 @@ interface YouthDetailSheetProps {
   onOpenChange: (open: boolean) => void;
   data: YouthDetailResponse | null;
   isLoading: boolean;
+  onAbsenceChanged: () => void;
 }
 
-export function YouthDetailSheet({ open, onOpenChange, data, isLoading }: YouthDetailSheetProps) {
+export function YouthDetailSheet({ open, onOpenChange, data, isLoading, onAbsenceChanged }: YouthDetailSheetProps) {
   const chartData = useMemo(() => {
     if (!data) return null;
     const isDark = typeof window !== 'undefined' &&
@@ -157,6 +159,14 @@ export function YouthDetailSheet({ open, onOpenChange, data, isLoading }: YouthD
                   {data.total_working_days - data.days_with_no_sessions} active / {data.total_working_days} total
                 </span>
               </div>
+
+              {/* Inline days-off capture (ADMIN/PM only; self-hides otherwise) */}
+              <YouthDaysOffWidget
+                youthUid={data.youth_uid}
+                youthName={data.full_name}
+                absences={data.absences}
+                onChanged={onAbsenceChanged}
+              />
 
               {/* Daily sessions chart */}
               {chartData && (
