@@ -1,20 +1,24 @@
-import { dirname } from "path";
-import { fileURLToPath } from "url";
-import { FlatCompat } from "@eslint/eslintrc";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const compat = new FlatCompat({
-  baseDirectory: __dirname,
-});
+// Next 16 ships eslint-config-next as native ESLint flat configs, so we import
+// them directly. The old FlatCompat.extends(...) shim routed them through the
+// legacy @eslint/eslintrc loader, which crashed on a circular plugin reference.
+import coreWebVitals from "eslint-config-next/core-web-vitals";
+import typescript from "eslint-config-next/typescript";
 
 const eslintConfig = [
-  ...compat.extends("next/core-web-vitals", "next/typescript"),
+  ...coreWebVitals,
+  ...typescript,
   {
     rules: {
       'react/no-unescaped-entities': 'off',
       '@typescript-eslint/no-unused-vars': 'warn',
+    },
+  },
+  {
+    // Ambient type shims for untyped JS libraries (e.g. react-plotly.js) legitimately
+    // use `any` to bridge an untyped surface -- don't fail lint on that.
+    files: ['**/*.d.ts'],
+    rules: {
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
   {
