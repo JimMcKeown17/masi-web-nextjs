@@ -2,7 +2,7 @@
 
 import { useState, useCallback } from 'react';
 import { useAuth } from '@clerk/nextjs';
-import useSWR from 'swr';
+import useSWR, { useSWRConfig } from 'swr';
 import { Skeleton } from '@/components/ui/skeleton';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Info } from 'lucide-react';
@@ -29,6 +29,17 @@ import type { YouthSessionsFilters } from '@/lib/types/youth-sessions';
 
 export default function YouthSessionsDashboardPage() {
   const { getToken } = useAuth();
+  const { mutate } = useSWRConfig();
+
+  // Absence writes change the denominator across heatmap, detail, inactive, and
+  // summary -- revalidate every youth-sessions cache so "None" cells flip to "Off".
+  const refreshYouthData = useCallback(() => {
+    mutate(
+      (key) =>
+        typeof key === 'string' &&
+        (key.startsWith('youth-sessions-') || key.startsWith('youth-detail-')),
+    );
+  }, [mutate]);
 
   const [filters, setFilters] = useState<YouthSessionsFilters>({
     programme: 'all',
@@ -295,6 +306,7 @@ export default function YouthSessionsDashboardPage() {
           onOpenChange={setSheetOpen}
           data={youthDetail || null}
           isLoading={detailLoading}
+          onAbsenceChanged={refreshYouthData}
         />
       </div>
     </div>
