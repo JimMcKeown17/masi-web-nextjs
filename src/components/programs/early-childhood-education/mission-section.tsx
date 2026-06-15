@@ -1,38 +1,51 @@
+'use client';
+import { FadeUp, FadeLeft } from '@/components/animations/FadeAnimations';
+
+const serif = { fontFamily: 'var(--font-fraunces), Georgia, serif' };
+
 export default function MissionSection() {
   return (
-    <section className="py-20 md:py-28 bg-white">
+    <section className="bg-[#FAF7F2] py-20 md:py-28">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-          {/* Left - Text Content */}
-          <div className="space-y-6">
-            <h2 className="text-4xl md:text-5xl font-bold leading-tight">
-              Our <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Mission</span>
-            </h2>
-            <div className="space-y-4 text-lg text-gray-700">
-              <p>
-                To provide our all of our children with the superpower of reading, the self-confidence to prosper, and to instill a spirit of curiosity and learning.
-              </p>
-              <p>
-                We take a data-driven and systematic approach to teaching children, step-by-step, at their pace and on their level, how to read.
-              </p>
+        <div className="grid md:grid-cols-2 gap-12 lg:gap-16 items-center max-w-6xl mx-auto">
+          {/* Left - Mission statement */}
+          <FadeUp className="space-y-8">
+            <div className="flex items-center gap-3">
+              <span className="h-px w-10 bg-[#E72D4D]" />
+              <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Our mission</span>
             </div>
-          </div>
+
+            <p style={serif} className="text-3xl md:text-4xl leading-[1.25] text-[#14181D]">
+              Give every child the{' '}
+              <span className="relative whitespace-nowrap">
+                superpower of reading
+                <span className="absolute left-0 -bottom-1 w-full h-[0.16em] bg-[#E72D4D]/70 rounded-full" />
+              </span>
+              , the confidence to prosper, and a lasting spirit of curiosity.
+            </p>
+
+            <p className="text-gray-600 text-lg leading-relaxed">
+              We take a data-driven, systematic approach: teaching children step by
+              step, at their own pace and on their own level, until they can read.
+            </p>
+          </FadeUp>
 
           {/* Right - Video */}
-          <div className="relative rounded-2xl overflow-hidden shadow-2xl">
-            <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
-              <iframe
-                className="absolute inset-0 w-full h-full"
-                src="https://www.youtube.com/embed/tj_W0jlFiPQ?si=jZsBVkX_TCUpidH8"
-                title="YouTube video player"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-              />
+          <FadeLeft>
+            <div className="relative rounded-lg overflow-hidden shadow-xl ring-1 ring-black/5">
+              <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
+                <iframe
+                  className="absolute inset-0 w-full h-full"
+                  src="https://www.youtube.com/embed/tj_W0jlFiPQ?si=jZsBVkX_TCUpidH8"
+                  title="Masinyusane Early Childhood Education"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              </div>
             </div>
-          </div>
+          </FadeLeft>
         </div>
       </div>
     </section>
   );
 }
-
