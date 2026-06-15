@@ -1,99 +1,105 @@
 'use client';
 import { getImageUrl } from '@/lib/imageUrl';
-import { FadeRight } from '@/components/animations/FadeAnimations';
-import { useState, useEffect } from 'react';
+import { motion } from 'framer-motion';
+import { Play, ChevronDown } from 'lucide-react';
+
+const serif = { fontFamily: 'var(--font-fraunces), Georgia, serif' };
 
 export default function CommunityJobsHeroSection() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const scrollToContent = () =>
+    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
 
   return (
-    <section className="relative h-screen">
-      <div className="relative h-full">
-        {/* Desktop/Tablet - Video */}
-        {!isMobile && (
-          <div className="grid md:grid-cols-12 h-full">
-            {/* Left Column - Text Content */}
-            <div className="md:col-span-4 bg-white flex items-center">
-              <div className="container mx-auto px-6">
-                <FadeRight>
-                  <div className="max-w-xl">
-                    <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                      Empowering <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Communities</span>
-                    </h1>
-                    <p className="text-xl md:text-2xl text-gray-700 mb-8">
-                      Local Communities Implementing Data-Driven Literacy & Numeracy Programmes.
-                    </p>
-                    <a 
-                      href="/donate" 
-                      className="inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-rose-600 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300"
-                    >
-                      Sponsor a Job
-                    </a>
-                  </div>
-                </FadeRight>
-              </div>
-            </div>
+    <section className="relative h-screen min-h-[640px]">
+      <video
+        autoPlay
+        muted
+        loop
+        playsInline
+        poster={getImageUrl('/images/Staff 1.jpg')}
+        className="absolute inset-0 w-full h-full object-cover"
+      >
+        <source src={getImageUrl('/images/Youth_Video_Strip.mp4')} type="video/mp4" />
+      </video>
 
-            {/* Right Column - Video */}
-            <div className="md:col-span-8 relative overflow-hidden">
-              <video 
-                autoPlay 
-                muted 
-                loop 
-                playsInline 
-                className="absolute inset-0 w-full h-full object-cover"
+      {/* Layered scrim: protect the text zone, let the footage breathe elsewhere */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/50 via-transparent to-transparent" />
+
+      <div className="relative h-full flex items-center">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl text-white">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="flex items-center gap-3 mb-6"
+            >
+              <span className="h-px w-10 bg-[#5B9BFF]" />
+              <span className="text-sm md:text-base tracking-[0.25em] uppercase text-white font-medium">
+                Community Jobs
+              </span>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              style={serif}
+              className="text-5xl md:text-7xl font-semibold leading-[1.05] mb-6"
+            >
+              Empowering a community to
+              <br />
+              <span className="italic font-light">uplift itself.</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-lg md:text-xl text-white/85 max-w-xl mb-9"
+            >
+              We hire and train unemployed local youth, most of them young women, to run
+              our literacy and numeracy programmes in their own schools.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.45 }}
+              className="flex flex-wrap items-center gap-4"
+            >
+              <a
+                href="/donate"
+                className="bg-[#1D4ED8] hover:bg-[#1740b0] text-white px-9 py-4 rounded-md font-semibold text-lg transition-colors"
               >
-                <source src={getImageUrl("/images/Youth_Video_Strip.mp4")} type="video/mp4" />
-                Your browser does not support the video tag.
-              </video>
-              <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent" />
-            </div>
+                Sponsor a job
+              </a>
+              <a
+                href="https://www.youtube.com/watch?v=5j2d6nlFVe8&t=3s"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 px-6 py-4 text-white font-medium text-lg"
+              >
+                <span className="flex items-center justify-center w-11 h-11 rounded-full border border-white/60 group-hover:bg-white group-hover:text-black transition-colors">
+                  <Play className="w-4 h-4 ml-0.5 fill-current" />
+                </span>
+                Watch the film
+              </a>
+            </motion.div>
           </div>
-        )}
-
-        {/* Mobile - Image */}
-        {isMobile && (
-          <div className="relative h-full w-full">
-            <div 
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage: `url('${getImageUrl('/images/Staff 1.jpg')}')`
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 flex items-center">
-              <div className="container mx-auto px-4">
-                <FadeRight>
-                  <div className="text-white">
-                    <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">
-                      Empowering <span className="font-light bg-gradient-to-r from-blue-400 to-rose-400 bg-clip-text text-transparent">Communities</span>
-                    </h1>
-                    <p className="text-xl mb-6 drop-shadow-lg">
-                      Local Communities Implementing Data-Driven Literacy & Numeracy Programmes.
-                    </p>
-                    <a 
-                      href="#donate" 
-                      className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-rose-600 text-white font-semibold rounded-full hover:shadow-xl hover:scale-105 transition-all duration-300"
-                    >
-                      Sponsor a Job
-                    </a>
-                  </div>
-                </FadeRight>
-              </div>
-            </div>
-          </div>
-        )}
+        </div>
       </div>
+
+      <button
+        onClick={scrollToContent}
+        className="absolute bottom-8 right-8 md:bottom-12 md:right-12 text-white/80 hover:text-white transition-colors"
+        aria-label="Scroll to content"
+      >
+        <span className="flex w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/50 items-center justify-center">
+          <ChevronDown className="w-6 h-6 animate-bounce" />
+        </span>
+      </button>
     </section>
   );
 }
-
