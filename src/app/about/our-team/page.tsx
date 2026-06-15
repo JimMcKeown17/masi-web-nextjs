@@ -1,5 +1,3 @@
-'use client';
-import { FadeUp } from '@/components/animations/FadeAnimations';
 import HeroSection from '@/components/about/hero-section';
 import ExecutiveDirector from '@/components/about/executive-director';
 import TeamSection from '@/components/about/team-section';
@@ -16,34 +14,13 @@ export default function AboutPage() {
         <HeroSection />
       </div>
 
-      {/* Executive Director Section */}
-      <FadeUp>
-        <ExecutiveDirector />
-      </FadeUp>
+      <ExecutiveDirector />
+      <TeamSection />
+      <FemaleStatSection />
+      <FoundersSection />
+      <JobsChartSection />
 
-      {/* Team Section */}
-      <FadeUp>
-        <TeamSection />
-      </FadeUp>
-
-      {/* Female Stat Section */}
-      <FadeUp>
-        <FemaleStatSection />
-      </FadeUp>
-
-      {/* Founders Section */}
-      <FadeUp>
-        <FoundersSection />
-      </FadeUp>
-
-      {/* Jobs Chart Section */}
-      <FadeUp>
-        <JobsChartSection />
-      </FadeUp>
-
-      {/* Footer */}
       <Footer />
     </div>
   );
 }
-

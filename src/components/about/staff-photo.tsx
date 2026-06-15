@@ -26,8 +26,8 @@ export default function StaffPhoto({
     <div
       className={`relative w-full max-w-[414px] aspect-[4/3] overflow-visible ${className}`}
     >
-      {/* Grey rounded panel behind - narrower at 88% width */}
-      <div className="absolute inset-x-[6%] top-16 bottom-0 rounded-[28px] bg-zinc-200" />
+      {/* Warm rounded panel behind - narrower at 88% width. Reads on both white and paper sections. */}
+      <div className="absolute inset-x-[6%] top-16 bottom-0 rounded-[28px] bg-[#E8E2D6]" />
 
       {/* Foreground cutout image - taller to extend above panel */}
       <img

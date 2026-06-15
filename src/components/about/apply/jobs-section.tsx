@@ -1,17 +1,17 @@
 'use client';
 import Image from 'next/image';
 import { getImageUrl } from '@/lib/imageUrl';
-import { Card, CardContent } from '@/components/ui/card';
 import { ArrowRight, Briefcase } from 'lucide-react';
+import { FadeUp } from '@/components/animations/FadeAnimations';
 
 const jobs = [
   {
     id: 1,
     title: 'Youth Job Opportunity',
-    description: 'Join our community jobs program to help uplift local communities.',
+    description: 'Join our community jobs programme to help uplift local communities.',
     image: '/images/Lit Session 1.jpg',
     applyUrl: 'https://forms.gle/RQyUe2WoyvSot1ws9',
-    status: 'open'
+    status: 'open',
   },
   {
     id: 2,
@@ -19,79 +19,60 @@ const jobs = [
     description: 'Become a part of our team and contribute to our mission.',
     image: '/images/staff/Thembeka-Nobomvu.jpg',
     applyUrl: 'https://forms.gle/Ar6HV9G8CWg4HC7c7',
-    status: 'open'
-  }
+    status: 'open',
+  },
 ];
 
 export default function JobsSection() {
   return (
-    <section className="py-20 md:py-28 bg-gradient-to-b from-white to-blue-50/30">
+    <section className="py-20 md:py-28 bg-white">
       <div className="container mx-auto px-4">
-        {/* Section Header */}
-        <div className="text-center mb-16">
-          <div className="inline-block mb-4">
-            <span className="text-sm font-semibold tracking-wider uppercase bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
-              Career Opportunities
-            </span>
+        <FadeUp className="max-w-3xl mb-14 md:mb-16">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="h-px w-10 bg-[#1D4ED8]" />
+            <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Career opportunities</span>
           </div>
-          <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold leading-tight mb-4">
-            Masi <span className="font-light bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">Jobs</span>
+          <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#14181D]">
+            Masi <span className="italic font-light text-[#1D4ED8]">Jobs</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Be part of our mission to empower communities through education
+          <p className="text-gray-600 text-lg leading-relaxed mt-5 max-w-xl">
+            Be part of our mission to empower communities through education.
           </p>
-        </div>
+        </FadeUp>
 
-        {/* Jobs Grid */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {jobs.map((job) => (
-            <Card 
-              key={job.id} 
-              className="group overflow-hidden border-0 shadow-xl hover:shadow-2xl transition-all duration-300 hover:-translate-y-2 bg-white"
-            >
-              <CardContent className="p-0">
-                {/* Image */}
-                <div className="relative h-64 overflow-hidden">
+        <div className="grid md:grid-cols-2 gap-6 md:gap-8 max-w-5xl">
+          {jobs.map((job, i) => (
+            <FadeUp key={job.id} delay={0.1 * (i + 1)}>
+              <div className="group h-full flex flex-col rounded-2xl overflow-hidden bg-white ring-1 ring-black/5 shadow-sm hover:shadow-xl transition-shadow duration-300">
+                <div className="relative h-60 overflow-hidden">
                   <Image
                     src={getImageUrl(job.image)}
                     alt={job.title}
                     fill
-                    className="object-cover group-hover:scale-110 transition-transform duration-500"
+                    className="object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
-                  
-                  {/* Icon Badge */}
-                  <div className="absolute top-4 right-4 w-12 h-12 rounded-full bg-white/90 backdrop-blur-sm flex items-center justify-center shadow-lg">
-                    <Briefcase className="w-6 h-6 text-blue-600" />
+                  <div className="absolute top-4 right-4 w-11 h-11 rounded-full bg-white/95 backdrop-blur-sm flex items-center justify-center shadow">
+                    <Briefcase className="w-5 h-5 text-[#1D4ED8]" />
                   </div>
                 </div>
-
-                {/* Content */}
-                <div className="p-6 space-y-4">
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    {job.title}
-                  </h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    {job.description}
-                  </p>
-
-                  {/* Apply Button */}
+                <div className="p-6 flex flex-col flex-1">
+                  <h3 className="font-serif text-2xl text-[#14181D] mb-2">{job.title}</h3>
+                  <p className="text-gray-600 leading-relaxed mb-6">{job.description}</p>
                   <a
                     href={job.applyUrl}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-blue-700 text-white font-semibold rounded-full hover:shadow-lg hover:scale-105 transition-all duration-300 group/btn"
+                    className="mt-auto self-start inline-flex items-center gap-2 bg-[#1D4ED8] hover:bg-[#1740b0] text-white px-6 py-3 rounded-md font-medium transition-colors group/btn"
                   >
-                    <span>Apply Now</span>
-                    <ArrowRight className="w-5 h-5 group-hover/btn:translate-x-1 transition-transform" />
+                    Apply now
+                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
                   </a>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+            </FadeUp>
           ))}
         </div>
       </div>
     </section>
   );
 }
-

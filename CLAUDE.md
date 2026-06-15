@@ -30,6 +30,13 @@ pnpm install  # from root or masi-website/
 - **Auth:** Clerk (`@clerk/nextjs`)
 - **Charts:** react-plotly.js | **Maps:** react-map-gl + MapLibre | **Forms:** react-hook-form + zod | **Animations:** framer-motion
 
+## Design System
+
+When doing ANY redesign work, or building or restyling website pages, sections, or
+UI components, first read `documentation/design-system.md`. It defines the "Ink &
+Signal" visual language from the 2026 homepage redesign (live preview at
+`/home-v2-preview`, components in `src/components/home/v3/`).
+
 ## Routes
 
 **Public:** `/`, `/about/our-team`, `/about/where-we-work`, `/about/apply`, `/programs/early-childhood-education`, `/programs/community-jobs`, `/programs/top-learners`, `/programs/zazi-izandi`, `/impact/`, `/impact/reports`, `/impact/data-portal`, `/impact/annual-report/[year]`, `/media/in-the-news`, `/media/media-resources`, `/donate`, `/privacy`

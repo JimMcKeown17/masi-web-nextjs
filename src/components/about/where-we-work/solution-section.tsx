@@ -1,34 +1,31 @@
-"use client";
-import Image from "next/image";
+'use client';
+import { Globe, Coins, Users } from 'lucide-react';
+import { FadeUp } from '@/components/animations/FadeAnimations';
+import CountUp from '@/components/animations/count-up';
 
-// Stat card component
 function StatCard({
-  icon,
-  mainText,
-  description
+  icon: Icon,
+  display,
+  to,
+  suffix,
+  description,
 }: {
-  icon: string;
-  mainText: string;
+  icon: React.ElementType;
+  display?: string;
+  to?: number;
+  suffix?: string;
   description: string;
 }) {
   return (
-    <div className="flex items-center gap-6 px-4 md:px-8">
-      <div className="flex-shrink-0 w-20 h-20 md:w-24 md:h-24">
-        <Image
-          src={icon}
-          alt=""
-          width={96}
-          height={96}
-          className="w-full h-full object-contain"
-        />
+    <div className="flex items-center gap-5">
+      <div className="flex-shrink-0 w-16 h-16 md:w-20 md:h-20 rounded-full bg-[#C81E3C]/10 flex items-center justify-center">
+        <Icon className="w-8 h-8 md:w-9 md:h-9 text-[#C81E3C]" />
       </div>
-      <div className="text-left">
-        <p className="text-4xl md:text-5xl lg:text-6xl font-bold text-red-600 mb-1">
-          {mainText}
-        </p>
-        <p className="text-sm md:text-base text-gray-700 max-w-[220px] uppercase font-medium">
-          {description}
-        </p>
+      <div>
+        <span className="font-serif block text-4xl md:text-6xl font-medium text-[#C81E3C]">
+          {display ?? <CountUp to={to ?? 0} suffix={suffix} />}
+        </span>
+        <p className="text-sm md:text-base text-gray-600 max-w-[210px] mt-1">{description}</p>
       </div>
     </div>
   );
@@ -36,44 +33,31 @@ function StatCard({
 
 export default function SolutionSection() {
   return (
-    <section className="py-16 md:py-24 bg-white">
+    <section className="py-20 md:py-28 bg-[#FAF7F2]">
       <div className="container mx-auto px-4">
-        {/* Eyebrow text */}
-        <p className="text-center text-sm md:text-base font-semibold tracking-wider uppercase text-gray-500 mb-8">
-          High Unemployment
-        </p>
+        <FadeUp className="max-w-4xl mb-14 md:mb-20">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="h-px w-10 bg-[#C81E3C]" />
+            <span className="text-sm tracking-[0.25em] uppercase text-gray-500">The unemployment crisis</span>
+          </div>
+          <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#14181D]">
+            Meanwhile, South Africa has the world&apos;s highest{' '}
+            <span className="italic font-light text-[#C81E3C]">unemployment rate.</span>
+          </h2>
+        </FadeUp>
 
-        {/* Main heading with gradient */}
-        <h2 className="text-center text-3xl md:text-4xl lg:text-5xl font-bold mb-16 md:mb-20 max-w-5xl mx-auto leading-tight">
-          <span className="bg-gradient-to-r from-rose-600 to-purple-600 bg-clip-text text-transparent">
-            ...meanwhile South Africa has
-          </span>
-          <br />
-          <span className="bg-gradient-to-r from-rose-600 to-purple-600 bg-clip-text text-transparent">
-            the world's highest unemployment rate.
-          </span>
-        </h2>
-
-        {/* Stats grid */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-0 md:divide-x divide-gray-300">
-          <StatCard
-            icon="/globe2.svg"
-            mainText="#1"
-            description="unemployment rate in the world"
-          />
-          <StatCard
-            icon="/people.svg"
-            mainText="81m"
-            description="South Africans live on LESS THAN $2 A DAY"
-          />
-          <StatCard
-            icon="/unemployed.svg"
-            mainText="75%"
-            description="of the unemployed ARE YOUTH"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+          <FadeUp delay={0.05}>
+            <StatCard icon={Globe} display="#1" description="unemployment rate in the world" />
+          </FadeUp>
+          <FadeUp delay={0.1}>
+            <StatCard icon={Coins} to={23} suffix="m" description="South Africans live on less than $2 a day" />
+          </FadeUp>
+          <FadeUp delay={0.15}>
+            <StatCard icon={Users} to={75} suffix="%" description="of the unemployed are youth" />
+          </FadeUp>
         </div>
       </div>
     </section>
   );
 }
-

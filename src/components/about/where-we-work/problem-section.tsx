@@ -1,72 +1,52 @@
-"use client";
-import { BookOpen, Blocks, Home } from "lucide-react";
+'use client';
+import { useRef } from 'react';
+import { BookOpen, Blocks, Home } from 'lucide-react';
+import { motion, useInView } from 'framer-motion';
+import { FadeUp } from '@/components/animations/FadeAnimations';
+import CountUp from '@/components/animations/count-up';
 
-// Circular progress component
+// Ring that fills to `percentage` on scroll, paired with a counting number.
 function CircularProgress({ percentage, icon: Icon }: { percentage: number; icon: React.ElementType }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const inView = useInView(ref, { once: true, margin: '-15% 0px' });
   const radius = 70;
   const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (percentage / 100) * circumference;
-
-  const scrollToTop = () => {
-    window.scrollTo({
-      top: 0,
-      behavior: 'smooth'
-    });
-  };
+  const target = circumference - (percentage / 100) * circumference;
 
   return (
-    <div className="relative w-40 h-40 md:w-44 md:h-44">
+    <div ref={ref} className="relative w-32 h-32 md:w-40 md:h-40 flex-shrink-0">
       <svg className="w-full h-full -rotate-90" viewBox="0 0 160 160">
-        {/* Background circle */}
-        <circle
+        <circle cx="80" cy="80" r={radius} fill="none" stroke="#EAE4D8" strokeWidth="10" />
+        <motion.circle
           cx="80"
           cy="80"
           r={radius}
           fill="none"
-          stroke="#d1d5db"
-          strokeWidth="12"
-        />
-        {/* Progress circle */}
-        <circle
-          cx="80"
-          cy="80"
-          r={radius}
-          fill="none"
-          stroke="#dc2626"
-          strokeWidth="12"
+          stroke="#C81E3C"
+          strokeWidth="10"
           strokeDasharray={circumference}
-          strokeDashoffset={strokeDashoffset}
           strokeLinecap="round"
+          initial={{ strokeDashoffset: circumference }}
+          animate={inView ? { strokeDashoffset: target } : {}}
+          transition={{ duration: 1.6, ease: [0.22, 1, 0.36, 1] }}
         />
       </svg>
-      {/* Icon in center */}
       <div className="absolute inset-0 flex items-center justify-center">
-        <Icon className="w-10 h-10 md:w-12 md:h-12 text-red-600" />
+        <Icon className="w-8 h-8 md:w-10 md:h-10 text-[#C81E3C]" />
       </div>
     </div>
   );
 }
 
-// Stat card component
-function StatCard({
-  percentage,
-  icon,
-  description
-}: {
-  percentage: number;
-  icon: React.ElementType;
-  description: string;
-}) {
+function StatCard({ percentage, icon, description }: { percentage: number; icon: React.ElementType; description: string }) {
   return (
-    <div className="flex items-center gap-6 px-4 md:px-8">
+    <div className="flex items-center gap-5">
       <CircularProgress percentage={percentage} icon={icon} />
-      <div className="text-left">
-        <p className="text-5xl md:text-6xl lg:text-7xl font-bold text-red-600 mb-2">
-          {percentage}%
-        </p>
-        <p className="text-sm md:text-base text-gray-700 max-w-[220px]">
-          {description}
-        </p>
+      <div>
+        <span className="font-serif block text-5xl md:text-6xl font-medium text-[#C81E3C]">
+          <CountUp to={percentage} suffix="%" />
+        </span>
+        <p className="text-sm md:text-base text-gray-600 max-w-[200px] mt-1">{description}</p>
       </div>
     </div>
   );
@@ -74,44 +54,31 @@ function StatCard({
 
 export default function ProblemSection() {
   return (
-    <section className="relative py-16 md:py-24 bg-gray-50">
+    <section className="py-20 md:py-28 bg-white">
       <div className="container mx-auto px-4">
-        {/* Eyebrow text */}
-        <p className="text-center text-sm md:text-base font-semibold tracking-wider uppercase text-gray-500 mb-8">
-          Education Crisis
-        </p>
+        <FadeUp className="max-w-4xl mb-14 md:mb-20">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="h-px w-10 bg-[#C81E3C]" />
+            <span className="text-sm tracking-[0.25em] uppercase text-gray-500">The education crisis</span>
+          </div>
+          <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#14181D]">
+            81% of ten-year-olds in South Africa{' '}
+            <span className="italic font-light text-[#C81E3C]">cannot read.</span>
+          </h2>
+        </FadeUp>
 
-        {/* Main heading with gradient */}
-        <h2 className="text-center text-3xl md:text-4xl lg:text-5xl font-bold mb-16 md:mb-20 max-w-5xl mx-auto leading-tight">
-          <span className="bg-gradient-to-r from-rose-600 to-purple-600 bg-clip-text text-transparent">
-            81% of 10-year old
-          </span>
-          <br />
-          <span className="bg-gradient-to-r from-rose-600 to-purple-600 bg-clip-text text-transparent">
-            children in South Africa cannot read...
-          </span>
-        </h2>
-
-        {/* Stats grid */}
-        <div className="flex flex-col md:flex-row items-center justify-center gap-8 md:gap-0 md:divide-x divide-gray-300">
-          <StatCard
-            percentage={81}
-            icon={BookOpen}
-            description="of South African Children CANNOT read"
-          />
-          <StatCard
-            percentage={75}
-            icon={Blocks}
-            description="of South African Children DO NOT get a preschool education"
-          />
-          <StatCard
-            percentage={56}
-            icon={Home}
-            description="of South African homes HAVE NO BOOKS"
-          />
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-10 md:gap-8">
+          <FadeUp delay={0.05}>
+            <StatCard percentage={81} icon={BookOpen} description="of South African children cannot read for meaning" />
+          </FadeUp>
+          <FadeUp delay={0.1}>
+            <StatCard percentage={75} icon={Blocks} description="do not receive any preschool education" />
+          </FadeUp>
+          <FadeUp delay={0.15}>
+            <StatCard percentage={56} icon={Home} description="of South African homes have no books" />
+          </FadeUp>
         </div>
       </div>
     </section>
   );
 }
-

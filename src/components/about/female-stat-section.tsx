@@ -1,5 +1,8 @@
+'use client';
 import { getImageUrl } from '@/lib/imageUrl';
 import Image from 'next/image';
+import { FadeUp, FadeLeft } from '@/components/animations/FadeAnimations';
+import CountUp from '@/components/animations/count-up';
 
 const employeeImages = [
   'images/LCs/LC-1.jpg',
@@ -10,46 +13,46 @@ const employeeImages = [
   'images/LCs/LC-12.jpg',
   'images/LCs/LC-2.jpg',
   'images/LCs/LC-13.jpg',
-  'images/LCs/LC-4.jpg'
+  'images/LCs/LC-4.jpg',
 ];
 
 export default function FemaleStatSection() {
   return (
-    <section className="py-16 md:py-24 bg-gray-100">
+    <section className="py-20 md:py-28 bg-[#FAF7F2]">
       <div className="container mx-auto px-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          <div className="flex flex-col justify-center md:justify-start">
-            <div className="inline-block mb-2 text-center md:text-left">
-              <span className="text-sm font-semibold tracking-wider uppercase bg-gradient-to-r from-blue-600 to-rose-600 bg-clip-text text-transparent">
-                Employees
-              </span>
+          <FadeUp>
+            <div className="flex items-center gap-3 mb-6">
+              <span className="h-px w-10 bg-[#1D4ED8]" />
+              <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Our employees</span>
             </div>
-            <p className="text-2xl md:text-3xl lg:text-4xl leading-relaxed text-center md:text-left">
-              95% of our employees are{' '}
-              <span className="font-bold text-3xl md:text-4xl lg:text-5xl bg-gradient-to-r from-rose-600 to-blue-600 bg-clip-text text-transparent">
-                female
-              </span>
-              .
+            <p className="font-serif text-3xl md:text-5xl leading-[1.15] text-[#14181D]">
+              <span className="text-[#1D4ED8]"><CountUp to={95} suffix="%" /></span> of the people we
+              employ are <span className="italic">women</span>.
             </p>
-          </div>
-          <div className="grid grid-cols-3 gap-4">
+            <p className="text-gray-600 leading-relaxed mt-6 max-w-md">
+              We hire from the communities we serve, and we hire women first. They are
+              the backbone of every programme we run.
+            </p>
+          </FadeUp>
+
+          <FadeLeft className="grid grid-cols-3 gap-3 md:gap-4">
             {employeeImages.map((image, index) => (
               <div
                 key={index}
-                className="relative aspect-square overflow-hidden rounded-lg shadow-md group"
+                className="relative aspect-square overflow-hidden rounded-xl shadow-sm ring-1 ring-black/5 group"
               >
                 <Image
                   src={getImageUrl(image)}
-                  alt={`Employee ${index + 1}`}
+                  alt={`Masinyusane employee ${index + 1}`}
                   fill
-                  className="object-cover transition-transform duration-300 group-hover:scale-110"
+                  className="object-cover transition-transform duration-500 group-hover:scale-110"
                 />
               </div>
             ))}
-          </div>
+          </FadeLeft>
         </div>
       </div>
     </section>
   );
 }
-

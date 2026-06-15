@@ -13,9 +13,7 @@ export default function Footer() {
           <div className="flex flex-col gap-8">
             {/* Address Section - Full Width */}
             <div>
-              <h6 className="text-white font-bold mb-4">
-                <span className="bg-gradient-to-r from-blue-400 to-rose-400 bg-clip-text text-transparent">Masinyusane</span>
-              </h6>
+              <h6 className="font-serif text-2xl text-white mb-4">Masinyusane</h6>
               <div className="mb-4">
                 <p className="font-semibold text-white text-sm">South Africa</p>
                 <p className="text-sm">72 Russell Road, Central, Gqeberha 6001</p>
