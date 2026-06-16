@@ -8,7 +8,7 @@ const Plot = dynamic(() => import('react-plotly.js'), { ssr: false });
 
 const chartData = {
   years: [2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025],
-  jobs: [12, 28, 52, 80, 122, 172, 219, 309, 548, 839, 1318, 1806],
+  jobs: [12, 28, 52, 80, 122, 172, 219, 309, 548, 839, 1318, 1964],
 };
 
 export default function JobsChartSection() {
@@ -21,7 +21,7 @@ export default function JobsChartSection() {
     line: { color: '#1D4ED8', width: 3 },
     fill: 'tozeroy' as const,
     fillcolor: 'rgba(29, 78, 216, 0.08)',
-    hovertemplate: '%{y} women in %{x}<extra></extra>',
+    hovertemplate: '%{y} jobs in %{x}<extra></extra>',
   }], []);
 
   const layout = useMemo(() => ({
@@ -47,11 +47,11 @@ export default function JobsChartSection() {
               <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Empowering women</span>
             </div>
             <p className="font-serif text-3xl md:text-5xl leading-[1.15] text-[#14181D]">
-              In a decade, we created jobs for{' '}
-              <span className="text-[#1D4ED8]"><CountUp to={1806} /></span> women.
+              In a decade, we created{' '}
+              <span className="text-[#1D4ED8]"><CountUp to={1964} /></span> jobs.
             </p>
             <p className="text-gray-600 leading-relaxed mt-6 max-w-sm">
-              From 12 jobs in 2014 to over 1,800 today, almost all of them held by women
+              From 12 jobs in 2014 to nearly 2,000 today, the vast majority held by women
               from the communities we serve.
             </p>
           </FadeUp>

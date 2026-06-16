@@ -27,7 +27,7 @@ export default function FemaleStatSection() {
               <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Our employees</span>
             </div>
             <p className="font-serif text-3xl md:text-5xl leading-[1.15] text-[#14181D]">
-              <span className="text-[#1D4ED8]"><CountUp to={95} suffix="%" /></span> of the people we
+              <span className="text-[#1D4ED8]"><CountUp to={92} suffix="%" /></span> of the people we
               employ are <span className="italic">women</span>.
             </p>
             <p className="text-gray-600 leading-relaxed mt-6 max-w-md">
