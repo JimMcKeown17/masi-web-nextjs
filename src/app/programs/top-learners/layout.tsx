@@ -1,19 +1,19 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Top Learners Scholarship Program | Academic Excellence in South Africa",
-  description: "Recognizing and supporting academic excellence in South Africa. Our top learners scholarship program provides educational support and opportunities for high-achieving students in underserved communities.",
+  title: "Scholarship Fund",
+  description: "Masinyusane's Scholarship Fund walks the brightest learners from Gqeberha's township schools through university to a career: full scholarships, mentoring, food, transport, and a home at our Houses of Excellence. 505 graduates and counting.",
   keywords: [
-    "scholarship programs South Africa",
-    "academic excellence Africa",
+    "university scholarships South Africa",
+    "township graduates",
     "student scholarships South Africa",
-    "education support Africa",
-    "top students South Africa",
-    "merit scholarships Africa"
+    "Houses of Excellence",
+    "first generation graduates",
+    "Masinyusane scholarship fund"
   ],
   openGraph: {
-    title: "Top Learners Scholarship Program | Masinyusane",
-    description: "Supporting academic excellence through scholarships and educational opportunities for top students in South African communities.",
+    title: "Scholarship Fund | Masinyusane",
+    description: "Full university scholarships, mentoring, and a home for the brightest learners from Gqeberha's townships. 505 graduates and counting.",
     url: "https://www.masinyusane.org/programs/top-learners"
   }
 };

@@ -1,79 +1,119 @@
 'use client';
-import { getImageUrl } from '@/lib/imageUrl';
-import { FadeRight } from '@/components/animations/FadeAnimations';
 import Image from 'next/image';
-import { useState, useEffect } from 'react';
+import { getImageUrl } from '@/lib/imageUrl';
+import { motion } from 'framer-motion';
+import { Play, ChevronDown } from 'lucide-react';
 
+const serif = { fontFamily: 'var(--font-fraunces), Georgia, serif' };
+
+// Scholarship Fund hero. Accent: gold #B8860B (design-system programme colour for
+// graduates). Headline echoes the 2025 Graduate Magazine cover ("Futures Unlocked");
+// the eyebrow carries the SEO/section label "Scholarship Fund".
 export default function TopLearnersHeroSection() {
-  const [isMobile, setIsMobile] = useState(false);
-
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 640);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+  const scrollToContent = () =>
+    window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
 
   return (
-    <section className="relative h-[70vh] min-h-[500px]">
-      <div className="relative h-full">
-        {/* Desktop/Tablet - Background Image */}
-        {!isMobile && (
-          <>
-            <Image
-              src={getImageUrl("/images/tl-photo-1.webp")}
-              alt="Scholarship Fund"
-              fill
-              className="object-cover"
-              priority
-            />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent flex items-center">
-              <div className="container mx-auto px-4">
-                <FadeRight>
-                  <div className="max-w-2xl text-white">
-                    <h1 className="text-5xl md:text-6xl font-bold mb-4 drop-shadow-lg">
-                      Scholarship <span className="font-light bg-gradient-to-r from-blue-400 to-rose-400 bg-clip-text text-transparent">Fund</span>
-                    </h1>
-                    <p className="text-xl md:text-2xl drop-shadow-lg">
-                      Creating a generation of young graduates empowered to uplift their communities.
-                    </p>
-                  </div>
-                </FadeRight>
-              </div>
-            </div>
-          </>
-        )}
+    <section className="relative h-screen min-h-[640px]">
+      <Image
+        src={getImageUrl('/images/tl-photo-1.webp')}
+        alt="A Masinyusane scholarship graduate on graduation day"
+        fill
+        priority
+        sizes="100vw"
+        className="object-cover object-center"
+      />
 
-        {/* Mobile - Image */}
-        {isMobile && (
-          <div className="relative h-full w-full">
-            <div 
-              className="absolute inset-0 bg-cover bg-center"
-              style={{
-                backgroundImage: `url('${getImageUrl('/images/tl-photo-1.webp')}')`
-              }}
-            />
-            <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/60 flex items-center">
-              <div className="container mx-auto px-4">
-                <FadeRight>
-                  <div className="text-white">
-                    <h1 className="text-4xl font-bold mb-4 drop-shadow-lg">
-                      Scholarship <span className="font-light bg-gradient-to-r from-blue-400 to-rose-400 bg-clip-text text-transparent">Fund</span>
-                    </h1>
-                    <p className="text-xl mb-6 drop-shadow-lg">
-                      Creating a generation of young graduates empowered to uplift their communities.
-                    </p>
-                  </div>
-                </FadeRight>
-              </div>
-            </div>
+      {/* Layered scrim: protect the text zone on the left, let the photo breathe */}
+      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-black/30" />
+      <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-black/15 to-transparent" />
+
+      <div className="relative h-full flex items-center">
+        <div className="container mx-auto px-4">
+          <div className="max-w-3xl text-white">
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7 }}
+              className="flex items-center gap-3 mb-6"
+            >
+              <span className="h-px w-10 bg-[#E2B53C]" />
+              <span className="text-sm md:text-base tracking-[0.25em] uppercase text-white font-medium">
+                Scholarship Fund
+              </span>
+            </motion.div>
+
+            <motion.h1
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.15 }}
+              style={serif}
+              className="text-5xl md:text-7xl font-semibold leading-[1.04] mb-6"
+            >
+              Futures,
+              <br />
+              <span className="italic font-light text-[#E2B53C]">unlocked.</span>
+            </motion.h1>
+
+            <motion.p
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.3 }}
+              className="text-lg md:text-xl text-white/85 max-w-xl mb-9"
+            >
+              We walk alongside the brightest learners from Gqeberha&apos;s townships, from
+              a high-school classroom to a university degree to a career that lifts their
+              whole family out of poverty.
+            </motion.p>
+
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.45 }}
+              className="flex flex-wrap items-center gap-4"
+            >
+              <a
+                href="/donate"
+                className="bg-[#B8860B] hover:bg-[#9a7009] text-white px-9 py-4 rounded-md font-semibold text-lg transition-colors"
+              >
+                Support the Fund
+              </a>
+              <a
+                href="https://www.youtube.com/watch?v=Yg3elIFqDS8"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="group inline-flex items-center gap-3 px-6 py-4 text-white font-medium text-lg"
+              >
+                <span className="flex items-center justify-center w-11 h-11 rounded-full border border-white/60 group-hover:bg-white group-hover:text-black transition-colors">
+                  <Play className="w-4 h-4 ml-0.5 fill-current" />
+                </span>
+                Watch their stories
+              </a>
+            </motion.div>
+
+            {/* Single anchoring stat, gold-topped */}
+            <motion.div
+              initial={{ opacity: 0, y: 24 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.6 }}
+              className="mt-12 inline-block border-t border-[#E2B53C]/60 pt-4"
+            >
+              <span style={serif} className="text-3xl md:text-4xl font-medium text-[#E2B53C]">505</span>
+              <span className="ml-3 text-white/75 align-middle">university graduates, and counting</span>
+            </motion.div>
           </div>
-        )}
+        </div>
       </div>
+
+      <button
+        onClick={scrollToContent}
+        className="absolute bottom-8 right-8 md:bottom-12 md:right-12 text-white/80 hover:text-white transition-colors"
+        aria-label="Scroll to content"
+      >
+        <span className="flex w-12 h-12 md:w-14 md:h-14 rounded-full border border-white/50 items-center justify-center">
+          <ChevronDown className="w-6 h-6 animate-bounce" />
+        </span>
+      </button>
     </section>
   );
 }
-

@@ -61,6 +61,12 @@ Two reds is intentional: `#C81E3C` is the deeper brand crimson for large fills a
 backgrounds; `#E72D4D` is the brighter "signal" red for thin accent lines, links,
 and data visualization. Don't introduce a third red.
 
+Gold follows the same two-tone rule: `#B8860B` is the canonical accent on light
+surfaces (paper/white) and for solid fills (buttons, the gold stat band). On dark
+surfaces (`#0E1116` panels, photo heroes) `#B8860B` goes muddy, so accent words,
+hairlines, and stat numerals lift to `#E2B53C`. Same accent, tuned for contrast, see
+the Scholarship Fund page (`src/components/programs/top-learners/`). Don't add a third gold.
+
 **Accent rule:** each section commits to ONE accent. The eyebrow rule, the headline
 accent word, the buttons, and any underline in that section all use the same color.
 Don't mix programme colors within a section.

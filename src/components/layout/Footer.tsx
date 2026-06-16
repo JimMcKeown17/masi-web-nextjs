@@ -5,10 +5,7 @@ import Link from 'next/link';
 
 export default function Footer() {
     return (
-        <footer className="relative bg-gray-900 text-gray-300 py-12">
-        {/* Subtle gradient border at top */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 to-rose-600" />
-        
+        <footer className="bg-gray-900 text-gray-300 py-12">
         <div className="container mx-auto px-4">
           <div className="flex flex-col gap-8">
             {/* Address Section - Full Width */}
