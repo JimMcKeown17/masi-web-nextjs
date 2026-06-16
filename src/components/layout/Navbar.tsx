@@ -51,7 +51,7 @@ const programsItems = [
   {
     title: "Early Childhood Education",
     href: "/programs/early-childhood-education",
-    description: "Data-driven literacy programmes for children aged 2-13.",
+    description: "Data-driven literacy and numeracy programmes for children aged 2-13.",
     icon: Baby,
   },
   {
