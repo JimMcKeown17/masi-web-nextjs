@@ -25,7 +25,7 @@ function DashboardCard() {
             <span className="w-2.5 h-2.5 rounded-sm bg-white/20" /> Control group
           </span>
           <span className="ml-auto">
-            <CountUp to={18756} className="text-white font-semibold" /> children tracked
+            <CountUp to={19228} className="text-white font-semibold" /> children tracked
           </span>
         </div>
       </div>

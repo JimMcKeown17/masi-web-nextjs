@@ -93,7 +93,7 @@ export default function HeroV3() {
           <div className="container mx-auto px-4">
             <div className="grid grid-cols-3 divide-x divide-white/15">
               {[
-                { to: 18756, label: 'children in our literacy programmes' },
+                { to: 19228, label: 'children in our literacy programmes' },
                 { to: 1964, label: 'jobs created for unemployed youth' },
                 { to: 10000, suffix: '+', label: 'high school learners assisted' },
               ].map((s) => (

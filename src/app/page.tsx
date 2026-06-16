@@ -1,82 +1,61 @@
-'use client';
-import React from 'react';
-import { FadeUp } from '@/components/animations/FadeAnimations';
-import HeroSection from '@/components/home/hero-section';
-import MissionSection from '@/components/home/mission-section';
-import ChildStripInfoV2 from '@/components/home/child-strip-info-v2';
-import ChildStripV2 from '@/components/home/child-strip-v2';
-import AnnualReportSection from '@/components/home/annual-report-section';
-import DataPortalStrip from '@/components/home/data-portal-strip';
-import MeetOurGrads from '@/components/home/meet-our-grads';
-import OurApproachStrip from '@/components/home/our-approach-strip';
-import TrustedBySection from '@/components/home/trusted-by-section';
+import HeroV3 from '@/components/home/v3/hero-v3';
+import MissionV3 from '@/components/home/v3/mission-v3';
+import ChildStripV3 from '@/components/home/v3/child-strip-v3';
+import YouthStripV3 from '@/components/home/v3/youth-strip-v3';
+import StatBandV3 from '@/components/home/v3/stat-band-v3';
+import DataPortalV3 from '@/components/home/v3/data-portal-v3';
+import GradsV3 from '@/components/home/v3/grads-v3';
+import DonateCtaV3 from '@/components/home/v3/donate-cta-v3';
+import TrustedByV3 from '@/components/home/v3/trusted-by-v3';
 import Footer from '@/components/layout/Footer';
-import YouthStripV2 from '@/components/home/youth-strip-v2';
-import YouthStripInfoV2 from '@/components/home/youth-strip-info-v2';
-import ScholarshipStripV2 from '@/components/home/scholarship-strip-v2';
-import ScholarshipStripInfoV2 from '@/components/home/scholarship-strip-info-v2';
+
+export const metadata = {
+  title: 'Masinyusane | Every child reading, every youth working',
+  description:
+    'We hire and train unemployed local youth to run data-driven literacy and numeracy programmes in South Africa’s public schools.',
+};
 
 export default function MasinyusaneHome() {
-
-
   return (
     <div className="min-h-screen bg-white">
-   
+      <HeroV3 />
+      <MissionV3 />
 
-      {/* Hero Video Section - fade-right like your Django version */}
-      <HeroSection />
+      <ChildStripV3 />
+      <StatBandV3
+        bg="#C81E3C"
+        tagline={
+          <>
+            Where every child discovers <span className="not-italic font-medium">the power of words.</span>
+          </>
+        }
+        context="Most children in our communities start school without the pre-literacy basics that wealthier peers take for granted."
+        stats={[
+          { to: 1.9, decimals: 1, suffix: 'x', label: 'We double the number of children hitting reading benchmarks.' },
+          { to: 314, suffix: '%', label: 'better performance than control groups in 40+ preschools.' },
+          { to: 19228, label: 'children in our literacy and reading projects in 2025.' },
+        ]}
+      />
 
-      {/* Mission Section - fade-up like your Django version */}
-      <FadeUp>
-        <MissionSection />
-      </FadeUp>
+      <YouthStripV3 />
+      <StatBandV3
+        bg="#1D4ED8"
+        tagline={
+          <>
+            Empowering a community to <span className="not-italic font-medium">uplift itself.</span>
+          </>
+        }
+        context="South Africa has the world's highest youth unemployment rate: 43% of young people are out of work."
+        stats={[
+          { to: 1964, label: 'previously unemployed youth have received jobs.' },
+          { to: 92, suffix: '%', label: 'of our jobs go to women.' },
+        ]}
+      />
 
-      {/* Decorative Gradient Bar */}
-      <FadeUp>
-        <div className="flex justify-center py-8">
-          <div className="h-1 w-32 rounded-full bg-gradient-to-r from-[#FF006B] via-purple-500 to-[#4F46E5]"></div>
-        </div>
-      </FadeUp>
-
-            {/* Child Strip - fade-right on overlay text */}
-      <ChildStripV2 />
-
-      {/* Child Info Strip - fade-up */}
-      <FadeUp>
-        <ChildStripInfoV2 />
-      </FadeUp>
-      {/* Youth Strip - fade-right */}
-      <YouthStripV2 />
-
-      {/* Youth Info Strip - fade-up */}
-      <FadeUp>
-        <YouthStripInfoV2 />
-      </FadeUp>
-
-      {/* Scholarship Strip - fade-right */}
-      <ScholarshipStripV2 />
-
-      {/* Scholarship Info Strip - fade-up */}
-      <FadeUp>
-        <ScholarshipStripInfoV2 />
-      </FadeUp>
-
-      {/* Annual Report Section */}
-      <AnnualReportSection />
-
-      {/* Meet Graduates Carousel */}
-      <MeetOurGrads />
-
-      {/* Data Portal Section */}
-      <DataPortalStrip />
-
-      {/* Approach Section - fade-right like your Django version */}
-      <OurApproachStrip />
-
-      {/* Trusted By Section */}
-      <TrustedBySection />
-
-      {/* Footer */}
+      <DataPortalV3 />
+      <GradsV3 />
+      <DonateCtaV3 />
+      <TrustedByV3 />
       <Footer />
     </div>
   );
