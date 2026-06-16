@@ -55,9 +55,9 @@ const programsItems = [
     icon: Baby,
   },
   {
-    title: "Zazi iZandi",
+    title: "Know Your Sounds",
     href: "/programs/zazi-izandi",
-    description: "Teaching children their letter sounds — our flagship early literacy programme.",
+    description: "Zazi iZandi, our flagship government partnership, teaches children phonics and how to blend sounds into words.",
     icon: BookOpen,
   },
   {
