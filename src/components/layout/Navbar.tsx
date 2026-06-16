@@ -198,7 +198,7 @@ export function Navbar() {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-4">
-            <NavigationMenu>
+            <NavigationMenu className="h-16">
               <NavigationMenuList>
                 {/* About Us Dropdown */}
                 <NavigationMenuItem>
