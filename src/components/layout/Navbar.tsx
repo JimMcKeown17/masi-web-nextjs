@@ -51,7 +51,7 @@ const programsItems = [
   {
     title: "Early Childhood Education",
     href: "/programs/early-childhood-education",
-    description: "Data-driven literacy and numeracy programmes for children aged 2-13.",
+    description: "Data-driven literacy and numeracy programmes for children aged 2 to 13.",
     icon: Baby,
   },
   {
@@ -193,7 +193,7 @@ export function Navbar() {
               height={40}
               className="object-contain"
             />
-            <span className={`hidden sm:inline text-2xl font-bold transition-colors duration-300 ${isTransparent ? 'text-white' : 'text-foreground'}`}>Masinyusane</span>
+            <span className={`hidden sm:inline font-serif text-2xl font-semibold tracking-tight transition-colors duration-300 ${isTransparent ? 'text-white' : 'text-[#14181D]'}`}>Masinyusane</span>
           </Link>
 
           {/* Desktop Navigation */}
@@ -204,7 +204,7 @@ export function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className={triggerClass}>About Us</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
+                    <ul className="grid gap-1 p-3 md:w-[440px] lg:w-[560px]">
                       {aboutUsItems.map((item) => (
                         <ListItem
                           key={item.title}
@@ -223,7 +223,7 @@ export function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className={triggerClass}>Programs</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
+                    <ul className="grid gap-1 p-3 md:w-[440px] lg:w-[560px]">
                       {programsItems.map((item) => (
                         <ListItem
                           key={item.title}
@@ -242,7 +242,7 @@ export function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className={triggerClass}>Impact</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
+                    <ul className="grid gap-1 p-3 md:w-[440px] lg:w-[560px]">
                       {impactItems.map((item) => (
                         <ListItem
                           key={item.title}
@@ -261,7 +261,7 @@ export function Navbar() {
                 <NavigationMenuItem>
                   <NavigationMenuTrigger className={triggerClass}>Media</NavigationMenuTrigger>
                   <NavigationMenuContent>
-                    <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
+                    <ul className="grid gap-1 p-3 md:w-[440px] lg:w-[560px]">
                       {mediaItems.map((item) => (
                         <ListItem
                           key={item.title}
@@ -281,7 +281,7 @@ export function Navbar() {
                   <NavigationMenuItem>
                     <NavigationMenuTrigger className={triggerClass}>Project Management</NavigationMenuTrigger>
                     <NavigationMenuContent>
-                      <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px]">
+                      <ul className="grid gap-1 p-3 md:w-[440px] lg:w-[560px]">
                         {pmItems.map((item) => (
                           <ListItem
                             key={item.title}
@@ -316,7 +316,7 @@ export function Navbar() {
             {/* Desktop Donate Button */}
             <Link
               href="/donate"
-              className="bg-red-600 text-white px-6 py-2 rounded-md hover:bg-red-700 transition font-medium"
+              className="bg-[#C81E3C] text-white px-6 py-2 rounded-md hover:bg-[#a81832] transition-colors font-medium"
             >
               Donate
             </Link>
@@ -341,7 +341,7 @@ export function Navbar() {
             {/* Mobile Donate Button */}
             <Link
               href="/donate"
-              className="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition text-sm font-medium"
+              className="bg-[#C81E3C] text-white px-4 py-2 rounded-md hover:bg-[#a81832] transition-colors text-sm font-medium"
             >
               Donate
             </Link>
@@ -361,7 +361,7 @@ export function Navbar() {
                 <div className="mt-8 flex flex-col gap-6 overflow-y-auto max-h-[calc(100vh-8rem)] pb-6">
                   {/* About Us Section */}
                   <div>
-                    <h3 className="font-semibold text-sm mb-3 text-muted-foreground">About Us</h3>
+                    <h3 className="text-xs uppercase tracking-[0.2em] mb-3 text-gray-400">About Us</h3>
                     <ul className="space-y-3">
                       {aboutUsItems.map((item) => (
                         <MobileMenuItem
@@ -375,7 +375,7 @@ export function Navbar() {
 
                   {/* Programs Section */}
                   <div>
-                    <h3 className="font-semibold text-sm mb-3 text-muted-foreground">Programs</h3>
+                    <h3 className="text-xs uppercase tracking-[0.2em] mb-3 text-gray-400">Programs</h3>
                     <ul className="space-y-3">
                       {programsItems.map((item) => (
                         <MobileMenuItem
@@ -389,7 +389,7 @@ export function Navbar() {
 
                   {/* Impact Section */}
                   <div>
-                    <h3 className="font-semibold text-sm mb-3 text-muted-foreground">Impact</h3>
+                    <h3 className="text-xs uppercase tracking-[0.2em] mb-3 text-gray-400">Impact</h3>
                     <ul className="space-y-3">
                       {impactItems.map((item) => (
                         <MobileMenuItem
@@ -403,7 +403,7 @@ export function Navbar() {
 
                   {/* Media Section */}
                   <div>
-                    <h3 className="font-semibold text-sm mb-3 text-muted-foreground">Media</h3>
+                    <h3 className="text-xs uppercase tracking-[0.2em] mb-3 text-gray-400">Media</h3>
                     <ul className="space-y-3">
                       {mediaItems.map((item) => (
                         <MobileMenuItem
@@ -418,7 +418,7 @@ export function Navbar() {
                   {/* Project Management Section - Only for Administrators, Project Managers, and Mentors */}
                   {hasProjectManagementAccess && (
                     <div>
-                      <h3 className="font-semibold text-sm mb-3 text-muted-foreground">Project Management</h3>
+                      <h3 className="text-xs uppercase tracking-[0.2em] mb-3 text-gray-400">Project Management</h3>
                       <ul className="space-y-3">
                         {pmItems.map((item) => (
                           <MobileMenuItem
@@ -450,23 +450,25 @@ const ListItem = React.forwardRef<
 >(({ className, title, children, href, icon: Icon, ...props }, ref) => {
   return (
     <li>
-      <NavigationMenuLink asChild>
-        <Link
-          ref={ref}
-          href={href ?? "#"}
-          className={cn(
-            "block select-none space-y-1 rounded-md p-3 leading-none no-underline outline-none transition-colors hover:bg-accent hover:text-accent-foreground focus:bg-accent focus:text-accent-foreground",
-            className
+      <NavigationMenuLink
+        asChild
+        className={cn(
+          "group flex flex-row select-none items-start gap-3.5 rounded-lg p-3 no-underline outline-none transition-colors hover:bg-[#FAF7F2] focus:bg-[#FAF7F2]",
+          className
+        )}
+      >
+        <Link ref={ref} href={href ?? "#"} {...props}>
+          {Icon && (
+            <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF7F2] text-[#14181D] ring-1 ring-black/[0.06] transition-colors group-hover:bg-white">
+              <Icon className="h-[18px] w-[18px] text-[#14181D]" />
+            </span>
           )}
-          {...props}
-        >
-          <div className="flex items-center gap-2">
-            {Icon && <Icon className="h-4 w-4 text-muted-foreground" />}
-            <div className="text-sm font-medium leading-none">{title}</div>
+          <div className="space-y-1">
+            <div className="font-serif text-[15px] leading-none text-[#14181D]">{title}</div>
+            <p className="line-clamp-2 text-sm leading-snug text-gray-500">
+              {children}
+            </p>
           </div>
-          <p className="line-clamp-2 text-sm leading-snug text-muted-foreground">
-            {children}
-          </p>
         </Link>
       </NavigationMenuLink>
     </li>
@@ -493,12 +495,14 @@ function MobileMenuItem({
       <Link
         href={item.href}
         onClick={onClick}
-        className="flex items-start gap-3 p-2 rounded-md hover:bg-accent transition-colors"
+        className="group flex items-start gap-3 p-2 rounded-lg hover:bg-[#FAF7F2] transition-colors"
       >
-        <Icon className="h-5 w-5 mt-0.5 text-muted-foreground flex-shrink-0" />
+        <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-[#FAF7F2] text-[#14181D] ring-1 ring-black/[0.06] transition-colors group-hover:bg-white">
+          <Icon className="h-[18px] w-[18px]" />
+        </span>
         <div>
-          <div className="font-medium text-sm mb-1">{item.title}</div>
-          <p className="text-xs text-muted-foreground leading-snug">
+          <div className="font-serif text-[15px] mb-0.5 text-[#14181D]">{item.title}</div>
+          <p className="text-xs text-gray-500 leading-snug">
             {item.description}
           </p>
         </div>
