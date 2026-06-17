@@ -4,12 +4,14 @@ import { ImpactDashboard } from "@/components/impact/dashboard/ImpactDashboard";
 import { getPublishedStats } from "@/lib/api/impact/published-stats";
 
 export const metadata: Metadata = {
-  title: "Our Impact in Data | Masinyusane",
-  description:
-    "Children on Masinyusane programmes perform as much as two grade levels ahead of comparison groups. Daily sessions, formal assessments and mentor visits measure every child.",
+  title: "Impact Dashboard Preview | Masinyusane",
+  robots: {
+    index: false,
+    follow: false,
+  },
 };
 
-export default async function ImpactPage() {
+export default async function ImpactDashboardPreviewPage() {
   const payload = await getPublishedStats();
 
   return <ImpactDashboard payload={payload} />;
