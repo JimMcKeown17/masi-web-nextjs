@@ -18,16 +18,8 @@ export default function EarlyChildhoodEducationPage() {
       {/* One child's journey — emotional hook before the method */}
       <ChildStorySection />
 
-      {/* The method, collapsed into a tight 3-card row */}
-      <ApproachSection />
-
-      {/* Numeracy — its own section (future: its own page) */}
-      <NumeracySection />
-
-      {/* We build and run preschools — its own section (future: its own page) */}
-      <PreschoolSection />
-
-      {/* The proof, at scale. Figures audited from the homepage / data portal (2025). */}
+      {/* The proof, at scale. Sits directly under Luphawu's story so "Not just her"
+          refers back to her. Figures audited from the homepage / data portal (2025). */}
       <StatBandV3
         bg="#C81E3C"
         tagline={
@@ -43,6 +35,15 @@ export default function EarlyChildhoodEducationPage() {
           { to: 19228, label: 'children in our literacy and reading projects in 2025.' },
         ]}
       />
+
+      {/* The method, collapsed into a tight 3-card row */}
+      <ApproachSection />
+
+      {/* Numeracy — its own section (future: its own page) */}
+      <NumeracySection />
+
+      {/* We build and run preschools — its own section (future: its own page) */}
+      <PreschoolSection />
 
       <DonateCtaV3 />
 
