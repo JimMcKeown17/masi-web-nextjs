@@ -82,6 +82,12 @@ const impactItems = [
     icon: TrendingUp,
   },
   {
+    title: "How We Measure Impact",
+    href: "/impact/measurement",
+    description: "Our monitoring, evaluation, and data system explained.",
+    icon: Activity,
+  },
+  {
     title: "Data Portal",
     href: "/impact/data-portal",
     description: "Explore our real-time data and measurable impact.",
