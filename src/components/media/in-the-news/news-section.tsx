@@ -35,27 +35,27 @@ const newsItems = [
 export default function NewsSection() {
   return (
     <>
-      {/* Featured video, Citizen of the Year (hero "Watch" link targets #citizen) */}
-      <section id="citizen" className="py-20 md:py-28 bg-white scroll-mt-20">
+      {/* Cover story: Citizen of the Year (leads the page). pt clears the fixed navbar. */}
+      <section className="pt-28 md:pt-36 pb-20 md:pb-28 bg-white">
         <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <FadeUp className="mb-10 md:mb-12">
+          <div className="grid lg:grid-cols-12 gap-10 lg:gap-14 items-center">
+            <FadeUp className="lg:col-span-5">
               <div className="flex items-center gap-3 mb-6">
                 <span className="h-px w-10 bg-[#C81E3C]" />
-                <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Recognition</span>
+                <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Press Coverage</span>
               </div>
-              <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#14181D]">
+              <h1 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#14181D]">
                 Citizen of the Year,{' '}
                 <span className="italic font-light text-[#C81E3C]">2025.</span>
-              </h2>
-              <p className="text-lg text-gray-600 mt-5 max-w-2xl">
-                Masinyusane Executive Director Zama Zulu was named Citizen of the Year for her
-                tireless work transforming early literacy and creating youth employment across
-                South Africa.
+              </h1>
+              <p className="text-lg text-gray-600 mt-6 max-w-md">
+                Masinyusane Executive Director Zama Zulu was named Citizen of the Year for
+                her tireless work transforming early literacy and creating youth employment
+                across South Africa.
               </p>
             </FadeUp>
 
-            <FadeUp>
+            <FadeUp delay={0.1} className="lg:col-span-7">
               <div className="rounded-lg overflow-hidden shadow-xl aspect-video">
                 <iframe
                   src="https://www.youtube.com/embed/MqXxGNOeQtM"
@@ -82,6 +82,10 @@ export default function NewsSection() {
               Recent{' '}
               <span className="italic font-light text-[#C81E3C]">coverage.</span>
             </h2>
+            <p className="text-lg text-gray-600 mt-5">
+              From the State of the Nation Address to local front pages, our work in early
+              literacy and youth employment keeps making news.
+            </p>
           </FadeUp>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
