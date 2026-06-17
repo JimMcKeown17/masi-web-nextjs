@@ -3,9 +3,9 @@ import StaffPhoto from '@/components/about/staff-photo';
 import { FadeUp } from '@/components/animations/FadeAnimations';
 
 const teamMembers = [
-  { id: 4, firstName: 'Chombe', lastName: 'Ncandana', role: 'ECD Team Leader', image: 'images/staff/chombe-mask.webp' },
+  { id: 4, firstName: 'Chombe', lastName: 'Ncandana', role: 'Programmes Manager', image: 'images/staff/chombe-mask.webp' },
   { id: 1, firstName: 'Noxolo', lastName: 'Mkutswana', role: 'Data & HR', image: 'images/staff/Noxolo-Mkutswana.webp' },
-  { id: 2, firstName: 'Buyiswa', lastName: 'Xaba', role: 'Programme Manager', image: 'images/staff/buyi-mask.webp' },
+  { id: 2, firstName: 'Buyiswa', lastName: 'Xaba', role: 'ZZ Programme Manager', image: 'images/staff/buyi-mask.webp' },
   { id: 3, firstName: 'Zola', lastName: 'Mbusi', role: 'Chief Operating Officer', image: 'images/staff/zola-mask.webp' },
   { id: 5, firstName: 'Nwabisa', lastName: 'Ngceshe', role: 'Finance Team', image: 'images/staff/nwabisa-mask.webp' },
   { id: 6, firstName: 'Tumelo', lastName: 'Lungile', role: 'Data Team Lead', image: 'images/staff/tumelo-mask.webp' },
