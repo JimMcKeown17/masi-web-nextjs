@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { getImageUrl } from '@/lib/imageUrl';
+import { FadeUp } from '@/components/animations/FadeAnimations';
 import {
   Dialog,
   DialogContent,
@@ -47,22 +48,22 @@ export default function GallerySection() {
   };
 
   return (
-    <section className="py-20 bg-gray-50">
+    <section id="gallery" className="py-20 md:py-28 bg-[#FAF7F2] scroll-mt-20">
       <div className="container mx-auto px-4">
-        <div className="text-center mb-16">
-          <div className="flex items-center justify-center gap-3 mb-3">
-            <div className="w-8 h-1 bg-yellow-400" />
-            <span className="text-sm font-semibold uppercase tracking-widest text-blue-700">
-              Photo Gallery
-            </span>
+        <FadeUp className="max-w-2xl mb-14 md:mb-16">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="h-px w-10 bg-[#C81E3C]" />
+            <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Photo Gallery</span>
           </div>
-          <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-            Meet Our Graduates
+          <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#14181D]">
+            Meet our{' '}
+            <span className="italic font-light text-[#C81E3C]">graduates.</span>
           </h2>
-          <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            The faces behind the numbers. Meet a few of the young superstars who are the future of our country.
+          <p className="text-lg text-gray-600 mt-5">
+            The faces behind the numbers. A few of the young superstars who are the
+            future of our country.
           </p>
-        </div>
+        </FadeUp>
 
         {/* Photo grid */}
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -70,7 +71,7 @@ export default function GallerySection() {
             <button
               key={index}
               onClick={() => setSelectedIndex(index)}
-              className="group relative aspect-[3/4] rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-700 focus:ring-offset-2"
+              className="group relative aspect-[3/4] rounded-lg overflow-hidden cursor-pointer focus:outline-none focus:ring-2 focus:ring-[#C81E3C] focus:ring-offset-2 focus:ring-offset-[#FAF7F2]"
             >
               <Image
                 src={image.src}
@@ -79,9 +80,9 @@ export default function GallerySection() {
                 height={400}
                 className="w-full h-full object-cover object-top group-hover:scale-110 transition-transform duration-500"
               />
-              <div className="absolute inset-0 bg-blue-900/0 group-hover:bg-blue-900/30 transition-colors duration-300" />
+              <div className="absolute inset-0 bg-[#C81E3C]/0 group-hover:bg-[#C81E3C]/25 transition-colors duration-300" />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
-                <span className="text-white text-sm font-semibold">{image.alt}</span>
+                <span className="text-white text-sm font-medium">{image.alt}</span>
               </div>
             </button>
           ))}

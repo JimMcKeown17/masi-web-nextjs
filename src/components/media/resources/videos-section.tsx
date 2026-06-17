@@ -1,3 +1,5 @@
+import { FadeUp } from '@/components/animations/FadeAnimations';
+
 // Video IDs are placeholders — swap for Masi-specific content when available
 const programmeVideos = [
   {
@@ -87,13 +89,25 @@ const classroomVideos = [
   {
     videoId: 'VX2c5tC4pvs',
     title: 'Masi House 2018',
-    description: 'One of our original Masi Houses of Excllence. Where it all began.',
+    description: 'One of our original Masi Houses of Excellence. Where it all began.',
   },
 ];
 
+function CategoryHeader({ label, intro }: { label: string; intro?: string }) {
+  return (
+    <div className={intro ? 'mb-6' : 'mb-8'}>
+      <div className="flex items-center gap-3">
+        <span className="h-px w-10 bg-[#E72D4D]" />
+        <h3 className="text-sm tracking-[0.25em] uppercase text-white/70 font-medium">{label}</h3>
+      </div>
+      {intro && <p className="text-white/55 text-sm max-w-2xl mt-4 leading-relaxed">{intro}</p>}
+    </div>
+  );
+}
+
 function VideoCard({ videoId, title, description }: { videoId: string; title: string; description: string }) {
   return (
-    <div className="bg-white/10 rounded-2xl overflow-hidden hover:bg-white/15 transition-colors duration-300">
+    <div className="bg-[#171C24] rounded-lg overflow-hidden ring-1 ring-white/5 hover:ring-[#E72D4D]/40 transition-all duration-300">
       <div className="aspect-video">
         <iframe
           src={`https://www.youtube.com/embed/${videoId}`}
@@ -104,8 +118,8 @@ function VideoCard({ videoId, title, description }: { videoId: string; title: st
         />
       </div>
       <div className="p-4">
-        <p className="font-semibold text-white text-sm leading-snug">{title}</p>
-        <p className="text-white/60 text-xs mt-1 leading-relaxed">{description}</p>
+        <p className="font-serif text-white text-base leading-snug">{title}</p>
+        <p className="text-white/55 text-xs mt-1.5 leading-relaxed">{description}</p>
       </div>
     </div>
   );
@@ -113,26 +127,23 @@ function VideoCard({ videoId, title, description }: { videoId: string; title: st
 
 export default function VideosSection() {
   return (
-    <section className="relative bg-gradient-to-br from-blue-800 via-blue-900 to-gray-950 py-20 overflow-hidden">
-      {/* Dot texture */}
-      <div
-        className="absolute inset-0 opacity-20"
-        style={{
-          backgroundImage:
-            'url("data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'none\' fill-rule=\'evenodd\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.4\'%3E%3Ccircle cx=\'3\' cy=\'3\' r=\'3\'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")',
-        }}
-      />
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_80%_50%_at_50%_40%,rgba(44,90,160,0.35),transparent)]" />
-
-      <div className="container mx-auto px-4 relative z-10">
-        {/* Programme Videos */}
-        <div className="mb-16">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-8 h-1 bg-yellow-400" />
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-yellow-400">
-              Children &amp; Youth Videos
-            </h3>
+    <section className="bg-[#0E1116] py-20 md:py-28">
+      <div className="container mx-auto px-4">
+        {/* Section header */}
+        <FadeUp className="max-w-2xl mb-14 md:mb-16">
+          <div className="flex items-center gap-3 mb-6">
+            <span className="h-px w-10 bg-[#E72D4D]" />
+            <span className="text-sm tracking-[0.25em] uppercase text-white/60">Video Library</span>
           </div>
+          <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-white">
+            Watch the{' '}
+            <span className="italic font-light text-[#E72D4D]">work.</span>
+          </h2>
+        </FadeUp>
+
+        {/* Children & Youth */}
+        <FadeUp className="mb-16">
+          <CategoryHeader label="Children & Youth" />
           <div className="flex gap-6 overflow-x-auto pb-4">
             {programmeVideos.map((v) => (
               <div key={v.videoId} className="w-[280px] sm:w-[calc(50%-12px)] lg:w-[calc(25%-18px)] shrink-0">
@@ -140,87 +151,43 @@ export default function VideosSection() {
               </div>
             ))}
           </div>
-        </div>
+        </FadeUp>
 
-        {/* Divider */}
-        <div className="flex items-center gap-4 mb-16">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/30 text-xs uppercase tracking-widest font-medium">
-            In the Classroom
-          </span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
-
-        {/* Classroom Videos */}
-        <div className="mb-16">
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-8 h-1 bg-yellow-400" />
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-yellow-400">
-              Top Learner Videos
-            </h3>
-          </div>
-          <p className="text-white/60 text-sm max-w-2xl mb-8">
-            Every game our Education Assistants run is designed to make daily
-            letter-sound practice something children genuinely look forward to.
-          </p>
+        {/* Top Learners */}
+        <FadeUp className="mb-16">
+          <CategoryHeader
+            label="Top Learners"
+            intro="Inside the Masi Houses of Excellence and the scholarships that carry our brightest learners through university."
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {classroomVideos.map((v) => (
               <VideoCard key={v.videoId} {...v} />
             ))}
           </div>
-        </div>
+        </FadeUp>
 
-        {/* Divider */}
-        <div className="flex items-center gap-4 mb-16">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/30 text-xs uppercase tracking-widest font-medium">
-            Programme
-          </span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
-
-        {/* Zazi iZandi Videos */}
-        <div className="mb-16">
-          <div className="flex items-center gap-4 mb-8">
-            <div className="w-8 h-1 bg-yellow-400" />
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-yellow-400">
-              Zazi iZandi Videos
-            </h3>
-          </div>
+        {/* Zazi iZandi */}
+        <FadeUp className="mb-16">
+          <CategoryHeader label="Zazi iZandi" />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {zaziIzandiVideos.map((v) => (
               <VideoCard key={v.videoId} {...v} />
             ))}
           </div>
-        </div>
+        </FadeUp>
 
-        {/* Divider */}
-        <div className="flex items-center gap-4 mb-16">
-          <div className="flex-1 h-px bg-white/10" />
-          <span className="text-white/30 text-xs uppercase tracking-widest font-medium">
-            Stories
-          </span>
-          <div className="flex-1 h-px bg-white/10" />
-        </div>
-
-        {/* Lives Changed Videos */}
-        <div>
-          <div className="flex items-center gap-4 mb-4">
-            <div className="w-8 h-1 bg-yellow-400" />
-            <h3 className="text-sm font-semibold uppercase tracking-widest text-yellow-400">
-              Real Lives, Real Impact
-            </h3>
-          </div>
-          <p className="text-white/60 text-sm max-w-2xl mb-8">
-            Personal stories from the people whose lives have been transformed
-            through Masinyusane&apos;s programmes.
-          </p>
+        {/* Real Lives, Real Impact */}
+        <FadeUp>
+          <CategoryHeader
+            label="Real Lives, Real Impact"
+            intro="Personal stories from the people whose lives have been transformed through Masinyusane's programmes."
+          />
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
             {livesChangedVideos.map((v) => (
               <VideoCard key={v.videoId} {...v} />
             ))}
           </div>
-        </div>
+        </FadeUp>
       </div>
     </section>
   );
