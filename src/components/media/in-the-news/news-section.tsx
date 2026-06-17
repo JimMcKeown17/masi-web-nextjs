@@ -1,6 +1,6 @@
 import Image from 'next/image';
-import { ExternalLink, Calendar, Download } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { ExternalLink, Download } from 'lucide-react';
+import { FadeUp } from '@/components/animations/FadeAnimations';
 
 const newsItems = [
   {
@@ -9,7 +9,7 @@ const newsItems = [
     source: 'SONA 2025 Report',
     date: '2025',
     excerpt:
-      'President Cyril Ramaphosa highlighted the Zazi iZandi programme in his State of the Nation Address, citing it as a leading example of youth employment and early literacy impact — with Education Assistants central to his vision for expanding youth jobs in South African schools.',
+      'President Cyril Ramaphosa highlighted the Zazi iZandi programme in his State of the Nation Address, citing it as a leading example of youth employment and early literacy impact, with Education Assistants central to his vision for expanding youth jobs in South African schools.',
     link: '/reports/SONA 2025 Report.pdf',
   },
   {
@@ -18,7 +18,7 @@ const newsItems = [
     source: 'Office of the Presidency',
     date: '2025',
     excerpt:
-      'President Cyril Ramaphosa announces the fifth phase of the BEEI — South Africa\'s largest youth employment programme — placing 200,000 young people in schools as reading champions, curriculum assistants, and more.',
+      'President Cyril Ramaphosa announces the fifth phase of the BEEI, South Africa\'s largest youth employment programme, placing 200,000 young people in schools as reading champions, curriculum assistants, and more.',
     link: 'https://www.thepresidency.gov.za/node/9033',
   },
   {
@@ -35,105 +35,103 @@ const newsItems = [
 export default function NewsSection() {
   return (
     <>
-      {/* Header — subtle blue tint */}
-      <section className="pt-20 pb-12 bg-blue-50/60">
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <div className="flex items-center justify-center gap-3 mb-3">
-              <div className="w-8 h-1 bg-yellow-400" />
-              <span className="text-sm font-semibold uppercase tracking-widest text-blue-700">
-                Press Coverage
-              </span>
-            </div>
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Masinyusane in the Media
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Masinyusane has been featured in national and local press for its
-              impact on early literacy and youth employment in South Africa.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* Featured video — Citizen of the Year */}
-      <section className="py-16 bg-white">
+      {/* Featured video, Citizen of the Year (hero "Watch" link targets #citizen) */}
+      <section id="citizen" className="py-20 md:py-28 bg-white scroll-mt-20">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
-            <div className="text-center mb-6">
-              <h3 className="text-2xl md:text-3xl font-bold text-gray-900 mb-2">
-                Citizen of the Year 2025
-              </h3>
-              <p className="text-gray-600 max-w-2xl mx-auto">
-                Masinyusane Executive Director Zama Zulu was named Citizen of the Year
-                for her tireless work transforming early literacy and creating youth
-                employment across South Africa.
+            <FadeUp className="mb-10 md:mb-12">
+              <div className="flex items-center gap-3 mb-6">
+                <span className="h-px w-10 bg-[#C81E3C]" />
+                <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Recognition</span>
+              </div>
+              <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#14181D]">
+                Citizen of the Year,{' '}
+                <span className="italic font-light text-[#C81E3C]">2025.</span>
+              </h2>
+              <p className="text-lg text-gray-600 mt-5 max-w-2xl">
+                Masinyusane Executive Director Zama Zulu was named Citizen of the Year for her
+                tireless work transforming early literacy and creating youth employment across
+                South Africa.
               </p>
-            </div>
-            <div className="rounded-xl overflow-hidden shadow-lg aspect-video">
-              <iframe
-                src="https://www.youtube.com/embed/MqXxGNOeQtM"
-                title="Zama Zulu — Citizen of the Year 2025"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                allowFullScreen
-                className="w-full h-full"
-              />
-            </div>
+            </FadeUp>
+
+            <FadeUp>
+              <div className="rounded-lg overflow-hidden shadow-xl aspect-video">
+                <iframe
+                  src="https://www.youtube.com/embed/MqXxGNOeQtM"
+                  title="Zama Zulu, Citizen of the Year 2025"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  className="w-full h-full"
+                />
+              </div>
+            </FadeUp>
           </div>
         </div>
       </section>
 
-      {/* News cards — light gray */}
-      <section className="py-20 bg-gray-50">
+      {/* Press cards */}
+      <section className="py-20 md:py-28 bg-[#FAF7F2]">
         <div className="container mx-auto px-4">
+          <FadeUp className="max-w-2xl mb-14 md:mb-16">
+            <div className="flex items-center gap-3 mb-6">
+              <span className="h-px w-10 bg-[#C81E3C]" />
+              <span className="text-sm tracking-[0.25em] uppercase text-gray-500">Selected coverage</span>
+            </div>
+            <h2 className="font-serif text-4xl md:text-6xl leading-[1.05] text-[#14181D]">
+              Recent{' '}
+              <span className="italic font-light text-[#C81E3C]">coverage.</span>
+            </h2>
+          </FadeUp>
+
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             {newsItems.map((item, index) => (
-              <article
-                key={index}
-                className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-shadow border border-gray-100"
-              >
-                <div className="aspect-[16/10] overflow-hidden relative">
-                  <Image
-                    src={item.image}
-                    alt={item.title}
-                    width={640}
-                    height={400}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
-                </div>
-                <div className="p-6">
-                  <div className="flex items-center gap-2 text-sm text-gray-500 mb-3">
-                    <Calendar className="h-4 w-4" />
-                    <span>{item.date}</span>
-                    <span className="mx-1">|</span>
-                    <span className="font-medium text-blue-700">{item.source}</span>
+              <FadeUp key={index} delay={0.1 * index}>
+                <article className="group h-full flex flex-col bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1.5">
+                  <div className="aspect-[16/10] overflow-hidden relative bg-gray-100">
+                    <Image
+                      src={item.image}
+                      alt={item.title}
+                      width={640}
+                      height={400}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
                   </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-3 group-hover:text-blue-700 transition-colors">
-                    {item.title}
-                  </h3>
-                  <p className="text-gray-600 text-sm leading-relaxed mb-4">
-                    {item.excerpt}
-                  </p>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="text-blue-700 hover:text-blue-800 p-0 h-auto font-semibold"
-                    asChild
-                  >
+                  <div className="p-6 flex flex-col flex-1">
+                    <div className="flex items-center gap-2 text-xs uppercase tracking-[0.15em] mb-3">
+                      <span className="font-semibold text-[#C81E3C]">{item.source}</span>
+                      <span className="text-gray-300">/</span>
+                      <span className="text-gray-500">{item.date}</span>
+                    </div>
+                    <h3 className="font-serif text-xl leading-snug text-[#14181D] mb-3 group-hover:text-[#C81E3C] transition-colors">
+                      {item.title}
+                    </h3>
+                    <p className="text-gray-600 text-sm leading-relaxed mb-5">
+                      {item.excerpt}
+                    </p>
                     {item.link.endsWith('.pdf') ? (
-                      <a href={item.link} download>
-                        Download Report
-                        <Download className="h-3.5 w-3.5 ml-1.5" />
+                      <a
+                        href={item.link}
+                        download
+                        className="mt-auto inline-flex items-center gap-1.5 text-[#C81E3C] font-medium hover:gap-2.5 transition-all"
+                      >
+                        Download report
+                        <Download className="h-3.5 w-3.5" />
                       </a>
                     ) : (
-                      <a href={item.link} target="_blank" rel="noopener noreferrer">
-                        Read Article
-                        <ExternalLink className="h-3.5 w-3.5 ml-1.5" />
+                      <a
+                        href={item.link}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="mt-auto inline-flex items-center gap-1.5 text-[#C81E3C] font-medium hover:gap-2.5 transition-all"
+                      >
+                        Read article
+                        <ExternalLink className="h-3.5 w-3.5" />
                       </a>
                     )}
-                  </Button>
-                </div>
-              </article>
+                  </div>
+                </article>
+              </FadeUp>
             ))}
           </div>
         </div>
