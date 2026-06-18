@@ -1,21 +1,20 @@
 import { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: "Donate to Support Education in South Africa",
-  description: "Support literacy programs, numeracy education, and women's employment opportunities in South Africa. Your donation transforms lives through education and fights poverty in underserved communities.",
+  title: "Donate to Masinyusane | Education in South Africa",
+  description: "Choose what your gift builds: teach a child to read, fund a community job, or sponsor a university scholar. Every figure is an audited cost.",
   keywords: [
     "donate to education Africa",
     "support literacy South Africa",
+    "sponsor a student South Africa",
     "education charity Africa",
-    "donate to African education",
-    "support women employment Africa",
-    "nonprofit donation South Africa"
+    "nonprofit donation South Africa",
   ],
   openGraph: {
     title: "Donate | Masinyusane",
-    description: "Transform lives through education in South Africa. Support literacy, numeracy, and women's employment programs.",
-    url: "https://www.masinyusane.org/donate"
-  }
+    description: "Teach a child to read, fund a community job, or sponsor a scholar. Every gift is an audited cost.",
+    url: "https://www.masinyusane.org/donate",
+  },
 };
 
 export default function DonateLayout({

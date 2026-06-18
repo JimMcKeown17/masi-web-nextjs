@@ -1,30 +1,22 @@
-'use client';
-import React from 'react';
-import { FadeUp } from '@/components/animations/FadeAnimations';
-import DonateHeroSection from '@/components/donate/hero-section';
-import ImpactSection from '@/components/donate/impact-section';
+// src/app/donate/page.tsx
+import DonateHero from '@/components/donate/donate-hero';
+import GivingMenu from '@/components/donate/giving-menu';
+import AfterYouGive from '@/components/donate/after-you-give';
+import CustomAmountBand from '@/components/donate/custom-amount';
+import DonorboxScript from '@/components/donate/donorbox-script';
 import TrustedBySection from '@/components/home/trusted-by-section';
 import Footer from '@/components/layout/Footer';
 
 export default function DonatePage() {
   return (
-    <div className="min-h-screen bg-white">
-      {/* Hero Section with Donorbox */}
-      <DonateHeroSection />
-
-      {/* Impact Section */}
-      <FadeUp>
-        <ImpactSection />
-      </FadeUp>
-
-      {/* Trusted By Section */}
-      <FadeUp>
-        <TrustedBySection />
-      </FadeUp>
-
-      {/* Footer */}
+    <main className="min-h-screen bg-white">
+      <DonateHero />
+      <GivingMenu />
+      <AfterYouGive />
+      <CustomAmountBand />
+      <TrustedBySection />
       <Footer />
-    </div>
+      <DonorboxScript />
+    </main>
   );
 }
-
