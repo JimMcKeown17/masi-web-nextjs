@@ -40,9 +40,9 @@ export const PROGRAMMES: Programme[] = [
     layout: 'row',
     gifts: [
       {
-        id: 'sounds', amount: 6.5, monthly: false, campaign: 'masi-literacy',
+        id: 'sounds', amount: 6.5, monthly: true, campaign: 'masi-literacy',
         name: "A child's sounds",
-        description: 'One learner masters their letter-sounds for a full year through Zazi iZandi, the foundation everything else builds on.',
+        description: 'Each month, another child masters their letter-sounds through Zazi iZandi, the foundation everything else builds on. Twelve children a year.',
       },
       {
         id: 'reader', amount: 15, monthly: true, campaign: 'masi-literacy', badge: 'Most chosen',
