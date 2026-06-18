@@ -2,15 +2,14 @@ import Image from 'next/image';
 import { getImageUrl } from '@/lib/imageUrl';
 import CountUp from '@/components/animations/count-up';
 
-// PLACEHOLDER photo: swap for the strongest donate hero image.
-const HERO_IMAGE = 'images/Strip - Child.jpg';
+// Hero photo from the approved mockup (Jim's preferred). One-line swap to change.
+const HERO_IMAGE = 'images/Dyanti Luphawu - Sifunimfundo ECD.webp';
 
-// Audited stats carried from the old page. FACT-CHECK against the data portal
-// before merge (design-system rule).
+// Impact stats confirmed by Jim 2026-06-18.
 const STATS = [
-  { to: 18276, suffix: '', label: 'Children' },
-  { to: 364, suffix: '', label: 'Community jobs' },
-  { to: 154, suffix: '', label: 'Schools' },
+  { to: 19444, suffix: '', label: 'Children on programme' },
+  { to: 515, suffix: '', label: 'Local youth employed' },
+  { to: 231, suffix: '', label: 'Schools & ECD centres' },
   { to: 100, suffix: '+', label: 'University scholars' },
 ];
 
@@ -42,7 +41,7 @@ export default function DonateHero() {
         </p>
       </div>
       <div className="relative min-h-[320px] md:min-h-0">
-        <Image src={getImageUrl(HERO_IMAGE)} alt="A child learning to read with Masinyusane" fill priority sizes="(max-width: 768px) 100vw, 50vw" className="object-cover" />
+        <Image src={getImageUrl(HERO_IMAGE)} alt="A child on the Masinyusane literacy programme" fill priority sizes="(max-width: 768px) 100vw, 50vw" className="object-cover object-center" />
       </div>
     </section>
   );
