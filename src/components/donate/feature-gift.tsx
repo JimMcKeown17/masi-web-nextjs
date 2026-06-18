@@ -17,7 +17,7 @@ export default function FeatureGift({
       <h3 className="mt-3 text-xl font-semibold text-[#14181D]">{gift.name}</h3>
       <p className="mt-2 text-sm leading-relaxed text-gray-600 md:text-[15px]">{gift.description}</p>
       <GiftButton campaign={gift.campaign} amount={gift.amount} monthly={gift.monthly} accent={accent} className="mt-4">
-        Sponsor monthly <span aria-hidden>&rarr;</span>
+        {gift.monthly ? 'Sponsor monthly' : `Give ${formatAmount(gift.amount)}`} <span aria-hidden>&rarr;</span>
       </GiftButton>
     </div>
   );
