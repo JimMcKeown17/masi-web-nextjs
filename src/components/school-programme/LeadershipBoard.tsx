@@ -36,8 +36,8 @@ export function LeadershipBoard({ grid }: { grid: SchoolProgrammeGrid }) {
     [grid.schools, grid.programmes],
   );
 
-  // Nothing planned in this view -> the board has nothing to summarise.
-  if (s.schoolsWithPlan === 0 && s.totalActive === 0) return null;
+  // Nothing planned in this view -> the board has no plan to summarise.
+  if (s.totalPlanned === 0) return null;
 
   const pct = s.pctStaffed ?? 0;
   const ringOffset = RING_C * (1 - Math.min(pct, 100) / 100);
@@ -80,22 +80,22 @@ export function LeadershipBoard({ grid }: { grid: SchoolProgrammeGrid }) {
               Overall staffing
             </div>
             <div className={styles.headline}>
-              <span className={styles.hl}>{s.totalActive}</span> of {s.totalPlanned}
+              <span className={styles.hl}>{s.filled}</span> of {s.totalPlanned}
               <br />
-              youth in post
+              planned posts filled
             </div>
             <div className={styles.miniwrap}>
               <div className={styles.minirow}>
-                <span>Filled</span>
+                <span>In post</span>
                 <span>
-                  <b>{s.totalActive} active</b>
+                  <b>{s.filled} filled</b>
                 </span>
               </div>
               <div className={styles.bartrack}>
                 <div className={styles.barfill} style={{ width: `${Math.min(pct, 100)}%` }} />
               </div>
               <div className={styles.minirow}>
-                <span>{s.netToFill} still to fill</span>
+                <span>{s.openVacancies} still to fill</span>
                 <span>{s.totalPlanned} planned</span>
               </div>
             </div>

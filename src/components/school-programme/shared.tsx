@@ -194,73 +194,82 @@ export interface StaffingWatchItem {
 }
 
 export interface StaffingSummary {
-  totalActive: number;
-  totalPlanned: number;
-  pctStaffed: number | null; // null when nothing is planned in view
-  netToFill: number; // max(0, planned - active) overall
-  openVacancies: number; // sum of per-cell shortfalls (gross)
-  schoolsShort: number;
-  overHires: number; // sum of per-cell over-staffing (gross)
+  filled: number; // planned positions actually in post (Σ min(active, planned))
+  totalPlanned: number; // Σ youth_planned over cells that HAVE a plan
+  pctStaffed: number | null; // plan fill-rate, 0-100; null when nothing planned
+  openVacancies: number; // Σ max(0, planned - active) over planned cells
+  schoolsShort: number; // schools with a plan and any vacancy
+  overHires: number; // Σ max(0, active - planned) over planned cells
   schoolsOver: number;
-  fullyStaffed: number; // schools (with a plan) at or above plan
+  fullyStaffed: number; // schools with a plan and zero vacancy
   schoolsWithPlan: number;
   watchlist: StaffingWatchItem[]; // top gaps, descending
   asOf: string | null; // latest cell refresh in view
 }
 
 // Derive the youth-staffing scoreboard from the (already filtered) grid so the
-// board, the table totals row, and any export all read the same numbers. One
-// pass over cells for org-wide totals + the gap watchlist; one over schools for
-// per-site coverage.
+// board and the table read the same numbers.
+//
+// Plan-relative by design: only cells with youth_planned set count toward the
+// plan math. A cell with active youth but no plan (youth_planned null) is real
+// staffing but not part of any allocation, so it must NOT inflate "% staffed" or
+// register as an over-hire -- it is simply outside the plan. "% staffed" is the
+// honest fill-rate of planned positions (<= 100%); over-hires are surplus only
+// where a plan exists. Per-school coverage uses cell-level vacancies so an
+// over-hire in one programme can't mask a vacancy in another.
 export function summarizeStaffing(
   schools: GridSchool[],
   programmes: Programme[],
 ): StaffingSummary {
   const label = new Map(programmes.map((p) => [p.key, p.label]));
 
-  let totalActive = 0;
   let totalPlanned = 0;
   let openVacancies = 0;
   let overHires = 0;
   let asOf: string | null = null;
   const watchlist: StaffingWatchItem[] = [];
 
-  for (const school of schools) {
-    for (const [key, cell] of Object.entries(school.cells)) {
-      const active = cell.youth_active ?? 0;
-      const planned = cell.youth_planned ?? 0;
-      totalActive += active;
-      totalPlanned += planned;
-      const gap = planned - active;
-      if (gap > 0) {
-        openVacancies += gap;
-        watchlist.push({ school: school.name, programme: label.get(key) ?? key, active, planned, gap });
-      } else if (gap < 0) {
-        overHires += -gap;
-      }
-      if (cell.as_of && (asOf === null || cell.as_of > asOf)) asOf = cell.as_of;
-    }
-  }
-
   let schoolsWithPlan = 0;
   let fullyStaffed = 0;
   let schoolsShort = 0;
   let schoolsOver = 0;
+
   for (const school of schools) {
-    const planned = youthPlannedTotal(school);
-    if (planned <= 0) continue;
-    schoolsWithPlan += 1;
-    const active = youthActiveTotal(school);
-    if (active >= planned) fullyStaffed += 1;
-    else schoolsShort += 1;
-    if (active > planned) schoolsOver += 1;
+    let sVacancy = 0;
+    let sOver = 0;
+    let sHasPlan = false;
+
+    for (const [key, cell] of Object.entries(school.cells)) {
+      if (cell.as_of && (asOf === null || cell.as_of > asOf)) asOf = cell.as_of;
+      const planned = cell.youth_planned;
+      if (planned == null) continue; // unplanned cell: outside the plan math
+      sHasPlan = true;
+      totalPlanned += planned;
+      const active = cell.youth_active ?? 0;
+      const gap = planned - active;
+      if (gap > 0) {
+        openVacancies += gap;
+        sVacancy += gap;
+        watchlist.push({ school: school.name, programme: label.get(key) ?? key, active, planned, gap });
+      } else if (gap < 0) {
+        overHires += -gap;
+        sOver += -gap;
+      }
+    }
+
+    if (sHasPlan) {
+      schoolsWithPlan += 1;
+      if (sVacancy === 0) fullyStaffed += 1;
+      else schoolsShort += 1;
+      if (sOver > 0) schoolsOver += 1;
+    }
   }
 
   return {
-    totalActive,
+    filled: totalPlanned - openVacancies,
     totalPlanned,
-    pctStaffed: totalPlanned > 0 ? Math.round((100 * totalActive) / totalPlanned) : null,
-    netToFill: Math.max(0, totalPlanned - totalActive),
+    pctStaffed:
+      totalPlanned > 0 ? Math.round((100 * (totalPlanned - openVacancies)) / totalPlanned) : null,
     openVacancies,
     schoolsShort,
     overHires,
