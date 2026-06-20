@@ -183,6 +183,95 @@ export function monthsAgo(iso: string | null): string | null {
   return months < 1 ? null : `${months}mo`;
 }
 
+// ---- leadership staffing summary --------------------------------------------
+
+export interface StaffingWatchItem {
+  school: string;
+  programme: string; // human label
+  active: number;
+  planned: number;
+  gap: number; // planned - active, always > 0 in the watchlist
+}
+
+export interface StaffingSummary {
+  totalActive: number;
+  totalPlanned: number;
+  pctStaffed: number | null; // null when nothing is planned in view
+  netToFill: number; // max(0, planned - active) overall
+  openVacancies: number; // sum of per-cell shortfalls (gross)
+  schoolsShort: number;
+  overHires: number; // sum of per-cell over-staffing (gross)
+  schoolsOver: number;
+  fullyStaffed: number; // schools (with a plan) at or above plan
+  schoolsWithPlan: number;
+  watchlist: StaffingWatchItem[]; // top gaps, descending
+  asOf: string | null; // latest cell refresh in view
+}
+
+// Derive the youth-staffing scoreboard from the (already filtered) grid so the
+// board, the table totals row, and any export all read the same numbers. One
+// pass over cells for org-wide totals + the gap watchlist; one over schools for
+// per-site coverage.
+export function summarizeStaffing(
+  schools: GridSchool[],
+  programmes: Programme[],
+): StaffingSummary {
+  const label = new Map(programmes.map((p) => [p.key, p.label]));
+
+  let totalActive = 0;
+  let totalPlanned = 0;
+  let openVacancies = 0;
+  let overHires = 0;
+  let asOf: string | null = null;
+  const watchlist: StaffingWatchItem[] = [];
+
+  for (const school of schools) {
+    for (const [key, cell] of Object.entries(school.cells)) {
+      const active = cell.youth_active ?? 0;
+      const planned = cell.youth_planned ?? 0;
+      totalActive += active;
+      totalPlanned += planned;
+      const gap = planned - active;
+      if (gap > 0) {
+        openVacancies += gap;
+        watchlist.push({ school: school.name, programme: label.get(key) ?? key, active, planned, gap });
+      } else if (gap < 0) {
+        overHires += -gap;
+      }
+      if (cell.as_of && (asOf === null || cell.as_of > asOf)) asOf = cell.as_of;
+    }
+  }
+
+  let schoolsWithPlan = 0;
+  let fullyStaffed = 0;
+  let schoolsShort = 0;
+  let schoolsOver = 0;
+  for (const school of schools) {
+    const planned = youthPlannedTotal(school);
+    if (planned <= 0) continue;
+    schoolsWithPlan += 1;
+    const active = youthActiveTotal(school);
+    if (active >= planned) fullyStaffed += 1;
+    else schoolsShort += 1;
+    if (active > planned) schoolsOver += 1;
+  }
+
+  return {
+    totalActive,
+    totalPlanned,
+    pctStaffed: totalPlanned > 0 ? Math.round((100 * totalActive) / totalPlanned) : null,
+    netToFill: Math.max(0, totalPlanned - totalActive),
+    openVacancies,
+    schoolsShort,
+    overHires,
+    schoolsOver,
+    fullyStaffed,
+    schoolsWithPlan,
+    watchlist: watchlist.sort((a, b) => b.gap - a.gap).slice(0, 3),
+    asOf,
+  };
+}
+
 // ---- filters ----------------------------------------------------------------
 
 export function GridFilters({

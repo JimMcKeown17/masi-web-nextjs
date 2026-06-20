@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { YouthGrid } from "@/components/school-programme/YouthGrid";
+import { LeadershipBoard } from "@/components/school-programme/LeadershipBoard";
 import {
   YearSelect,
   EmptyState,
@@ -46,8 +47,6 @@ export default function YouthStaffingPage() {
         </div>
       </header>
 
-      <Legend />
-
       {isLoading && <Skeleton className="h-96 w-full rounded-lg" />}
       {error && (
         <Alert variant="destructive">
@@ -61,6 +60,10 @@ export default function YouthStaffingPage() {
           <NoMatches />
         ) : (
           <>
+            <LeadershipBoard grid={{ ...data, schools: filtered }} />
+            <div className="mt-6">
+              <Legend />
+            </div>
             <YouthGrid
               grid={{ ...data, schools: filtered }}
               canEdit
