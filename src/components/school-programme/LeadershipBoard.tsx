@@ -108,7 +108,7 @@ export function LeadershipBoard({ grid }: { grid: SchoolProgrammeGrid }) {
             <span className={styles.dot} />
             Open vacancies
           </div>
-          <div className={styles.num}>{s.openVacancies}</div>
+          <div className={styles.num}>{s.netVacancies}</div>
           <div className={styles.foot}>
             <b>
               {s.schoolsShort} {s.schoolsShort === 1 ? "school" : "schools"}

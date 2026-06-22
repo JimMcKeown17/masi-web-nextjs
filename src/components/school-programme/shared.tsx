@@ -198,6 +198,7 @@ export interface StaffingSummary {
   totalPlanned: number; // Σ youth_planned over cells that HAVE a plan
   pctStaffed: number | null; // plan fill-rate, 0-100; null when nothing planned
   openVacancies: number; // Σ max(0, planned - active) over planned cells
+  netVacancies: number; // Σ planned - Σ active over ALL cells (= the table's Vacancies total); redeployment to other sites/programmes offsets a cell's gap
   schoolsShort: number; // schools with a plan and any vacancy
   overHires: number; // Σ max(0, active - planned) over planned cells
   schoolsOver: number;
@@ -224,6 +225,7 @@ export function summarizeStaffing(
   const label = new Map(programmes.map((p) => [p.key, p.label]));
 
   let totalPlanned = 0;
+  let totalActive = 0;
   let openVacancies = 0;
   let overHires = 0;
   let asOf: string | null = null;
@@ -241,6 +243,7 @@ export function summarizeStaffing(
 
     for (const [key, cell] of Object.entries(school.cells)) {
       if (cell.as_of && (asOf === null || cell.as_of > asOf)) asOf = cell.as_of;
+      totalActive += cell.youth_active ?? 0; // ALL cells, incl. unplanned-active (redeployments)
       const planned = cell.youth_planned;
       if (planned == null) continue; // unplanned cell: outside the plan math
       sHasPlan = true;
@@ -271,6 +274,7 @@ export function summarizeStaffing(
     pctStaffed:
       totalPlanned > 0 ? Math.round((100 * (totalPlanned - openVacancies)) / totalPlanned) : null,
     openVacancies,
+    netVacancies: totalPlanned - totalActive,
     schoolsShort,
     overHires,
     schoolsOver,
