@@ -43,11 +43,42 @@ export interface GridSchool {
   cells: Record<string, GridCell>; // keyed by programme key
 }
 
+export interface ReachEntry {
+  school: string;
+  school_uid: string | null;
+  programmes: string[];
+}
+
+// The persisted nightly-refresh integrity report (api.school_programme.build_grid_health).
+export interface GridHealth {
+  as_of: string;
+  year: number;
+  summary: { schools_processed: number; rows_created: number; rows_updated: number };
+  rollup: { children: number; sites_total: number; schools_primary: number; schools_ecd: number } | null;
+  reach_without_identities: {
+    total: number;
+    buckets: {
+      zazi_sourced: ReachEntry[]; // Zazi identities live in a separate backend — expected
+      masi_staffing: ReachEntry[]; // a Masi coach is placed but no 2026 sessions matched yet
+      manual_count: ReachEntry[]; // a manual aggregate (e.g. 1000 Stories) with no identities
+    };
+    by_programme_set: { programmes: string[]; count: number }[];
+  };
+  schools_missing_uid: string[];
+  site_assigned_no_school: Record<string, number>;
+  unmapped_job_titles: Record<string, number>;
+  unresolved_zazi_participants: number;
+  unmapped_zazi_schools: string[];
+  unknown_site_type_tokens: string[];
+  off_grid_roster: Record<string, number>;
+}
+
 export interface SchoolProgrammeGrid {
   year: number;
   programmes: Programme[];
   schools: GridSchool[];
   roster: Record<string, number>; // site-unassigned youth by job title
+  health: GridHealth | null; // null until a nightly refresh has persisted a report
 }
 
 export interface CellEdit {

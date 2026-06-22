@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { YouthGrid } from "@/components/school-programme/YouthGrid";
 import { LeadershipBoard } from "@/components/school-programme/LeadershipBoard";
+import { GridHealthPanel } from "@/components/school-programme/GridHealthPanel";
 import {
   YearSelect,
   EmptyState,
@@ -53,27 +54,31 @@ export default function YouthStaffingPage() {
           <AlertDescription>{(error as Error).message}</AlertDescription>
         </Alert>
       )}
-      {data &&
-        (data.schools.length === 0 ? (
-          <EmptyState year={year} />
-        ) : filtered.length === 0 ? (
-          <NoMatches />
-        ) : (
-          <>
-            <LeadershipBoard grid={{ ...data, schools: filtered }} />
-            <div className="mt-6">
-              <Legend />
-            </div>
-            <YouthGrid
-              grid={{ ...data, schools: filtered }}
-              canEdit
-              onCellEdit={onCellEdit}
-              onCellAdd={onCellAdd}
-              onCellRemove={onCellRemove}
-            />
-            <Roster roster={data.roster} />
-          </>
-        ))}
+      {data && (
+        <>
+          {data.schools.length === 0 ? (
+            <EmptyState year={year} />
+          ) : filtered.length === 0 ? (
+            <NoMatches />
+          ) : (
+            <>
+              <LeadershipBoard grid={{ ...data, schools: filtered }} />
+              <div className="mt-6">
+                <Legend />
+              </div>
+              <YouthGrid
+                grid={{ ...data, schools: filtered }}
+                canEdit
+                onCellEdit={onCellEdit}
+                onCellAdd={onCellAdd}
+                onCellRemove={onCellRemove}
+              />
+              <Roster roster={data.roster} />
+            </>
+          )}
+          <GridHealthPanel health={data.health} programmes={data.programmes} />
+        </>
+      )}
     </div>
   );
 }
