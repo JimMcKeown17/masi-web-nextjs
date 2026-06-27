@@ -1,6 +1,6 @@
 // Pure RAG/format helpers for WIG measures. Status is computed client-side from
 // value vs target + direction (the backend supplies numbers only).
-import type { Direction, RagStatus, ValueScale } from "@/lib/types/wig";
+import type { Direction, RagStatus, ValueScale, WigWindow } from "@/lib/types/wig";
 
 export function ragStatus(
   value: number | null | undefined,
@@ -64,6 +64,34 @@ export function formatWeekRange(from: string, to: string): string {
   const day = (d: Date) => d.toLocaleDateString("en-GB", { day: "numeric" });
   const monthYear = t.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
   return `Week of ${day(f)}–${day(t)} ${monthYear}`;
+}
+
+function formatDateRange(from: string, to: string): string {
+  const f = new Date(`${from}T00:00:00`);
+  const t = new Date(`${to}T00:00:00`);
+  const sameYear = f.getFullYear() === t.getFullYear();
+  const start = f.toLocaleDateString(
+    "en-GB",
+    sameYear
+      ? { day: "numeric", month: "short" }
+      : { day: "numeric", month: "short", year: "numeric" }
+  );
+  const end = t.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  });
+  return `${start}–${end}`;
+}
+
+export function formatWindowRange(window: WigWindow): string {
+  if (window.period === "week") {
+    return formatWeekRange(window.date_from, window.date_to);
+  }
+  if (window.period === "month") {
+    return `4 weeks · ${formatDateRange(window.date_from, window.date_to)}`;
+  }
+  return `Programme year · ${formatDateRange(window.date_from, window.date_to)}`;
 }
 
 export const RAG_HEX: Record<RagStatus, string> = {

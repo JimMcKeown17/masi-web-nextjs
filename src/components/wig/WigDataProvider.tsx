@@ -1,9 +1,9 @@
 "use client";
-import { createContext, useContext, type ReactNode } from "react";
+import { createContext, useContext, useState, type ReactNode } from "react";
 import useSWR from "swr";
 import { useAuth } from "@clerk/nextjs";
 import { getWigLeadMeasures, getWigDataQuality, getWigZazi } from "@/lib/api/wig";
-import type { MeasureValue, WigWindow, ZaziPayload } from "@/lib/types/wig";
+import type { MeasureValue, WigPeriod, WigWindow, ZaziPayload } from "@/lib/types/wig";
 
 // One fetch for the whole board. Placed in the WIG layout so the three
 // endpoints are loaded once and shared across every programme page; switching
@@ -16,6 +16,8 @@ interface WigData {
 
 interface WigContextValue {
   data?: WigData;
+  period: WigPeriod;
+  setPeriod: (period: WigPeriod) => void;
   isLoading: boolean;
   error?: Error;
 }
@@ -24,12 +26,13 @@ const WigContext = createContext<WigContextValue | null>(null);
 
 export function WigDataProvider({ children }: { children: ReactNode }) {
   const { getToken } = useAuth();
-  const { data, error, isLoading } = useSWR<WigData>("wig-board", async () => {
+  const [period, setPeriod] = useState<WigPeriod>("week");
+  const { data, error, isLoading } = useSWR<WigData>(["wig-board", period], async () => {
     const token = await getToken();
     if (!token) throw new Error("Not authenticated");
     const emptyZazi: ZaziPayload = { available: {}, measures: {} };
     const [lead, dq, zazi] = await Promise.all([
-      getWigLeadMeasures(token),
+      getWigLeadMeasures(token, period),
       getWigDataQuality(token),
       getWigZazi(token).catch(() => emptyZazi),
     ]);
@@ -42,7 +45,7 @@ export function WigDataProvider({ children }: { children: ReactNode }) {
 
   return (
     <WigContext.Provider
-      value={{ data, isLoading, error: error as Error | undefined }}
+      value={{ data, period, setPeriod, isLoading, error: error as Error | undefined }}
     >
       {children}
     </WigContext.Provider>

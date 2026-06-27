@@ -77,7 +77,7 @@ function FlagMark({ value }: { value: boolean | null }) {
 }
 
 export function VisitTable({ detail }: { detail: VisitTableDetail }) {
-  if (!detail.visits.length) return <Empty>No observation visits in the last completed week.</Empty>;
+  if (!detail.visits.length) return <Empty>No observation visits in this window.</Empty>;
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm border-collapse">

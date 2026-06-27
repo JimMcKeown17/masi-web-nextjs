@@ -5,6 +5,7 @@
 export type RagStatus = "green" | "amber" | "red" | "none";
 export type Direction = "gte" | "lte";
 export type ValueScale = "percent" | "ratio" | "per_day" | "count";
+export type WigPeriod = "week" | "month" | "programme_year";
 
 export interface MeasureValue {
   value: number | null;
@@ -17,7 +18,7 @@ export interface MeasureValue {
 }
 
 export interface WigWindow {
-  period: string;
+  period: WigPeriod;
   date_from: string;
   date_to: string;
   working_days: number;

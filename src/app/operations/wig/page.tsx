@@ -1,6 +1,6 @@
 "use client";
 import { PROGRAMMES } from "@/lib/wig/config";
-import { formatWeekRange } from "@/lib/wig/rag";
+import { formatWindowRange } from "@/lib/wig/rag";
 import { useWigData } from "@/components/wig/WigDataProvider";
 import { ProgrammeRollupCard } from "@/components/wig/ProgrammeRollupCard";
 import { WigSkeleton, WigError } from "@/components/wig/states";
@@ -16,7 +16,7 @@ export default function WigOverviewPage() {
       <div className="flex items-baseline justify-between flex-wrap gap-2 mb-2">
         <h1 className="text-2xl font-semibold tracking-tight">Overview</h1>
         <span className="text-sm text-muted-foreground">
-          {formatWeekRange(data.window.date_from, data.window.date_to)}
+          {formatWindowRange(data.window)}
         </span>
       </div>
 

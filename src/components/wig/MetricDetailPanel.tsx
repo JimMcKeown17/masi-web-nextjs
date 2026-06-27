@@ -5,6 +5,7 @@ import { getWigDetail } from "@/lib/api/wig";
 import type { MeasureConfig, WigDetail } from "@/lib/types/wig";
 import { SchoolCoverageGrid } from "@/components/youth-sessions/SchoolCoverageGrid";
 import { SessionHeatmapTable, VisitTable, RecordsTable } from "./DetailTables";
+import { useWigData } from "./WigDataProvider";
 
 // Weekly target for heatmap colouring, derived from the selected measure:
 // per-day measures -> x5 working days; sessions/week -> as-is; active coaches
@@ -51,12 +52,13 @@ export function MetricDetailPanel({
   measure: MeasureConfig;
 }) {
   const { getToken } = useAuth();
+  const { period } = useWigData();
   const { data, error } = useSWR(
-    ["wig-detail", programmeKey, measure.key],
+    ["wig-detail", programmeKey, measure.key, period],
     async () => {
       const token = await getToken();
       if (!token) throw new Error("Not authenticated");
-      return getWigDetail(token, programmeKey, measure.key);
+      return getWigDetail(token, programmeKey, measure.key, period);
     }
   );
 

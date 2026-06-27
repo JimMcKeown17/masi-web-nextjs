@@ -1,7 +1,7 @@
 "use client";
 import { useParams, notFound } from "next/navigation";
 import { programmeBySlug } from "@/lib/wig/config";
-import { formatWeekRange } from "@/lib/wig/rag";
+import { formatWindowRange } from "@/lib/wig/rag";
 import { useWigData } from "@/components/wig/WigDataProvider";
 import { ProgrammeView } from "@/components/wig/ProgrammeView";
 import { WigSkeleton, WigError } from "@/components/wig/states";
@@ -22,7 +22,7 @@ export default function ProgrammePage() {
       programme={programme}
       measures={data.measures}
       zaziAvailable={data.zaziAvailable}
-      weekLabel={formatWeekRange(data.window.date_from, data.window.date_to)}
+      weekLabel={formatWindowRange(data.window)}
     />
   );
 }

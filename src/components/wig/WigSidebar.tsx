@@ -77,7 +77,7 @@ export function WigSidebar({ onOpenGuide }: { onOpenGuide: () => void }) {
       <aside className="hidden md:flex flex-col w-56 bg-white border-r border-[#ececec] sticky top-16 h-[calc(100vh-4rem)] shrink-0">
         <div className="px-4 py-5 border-b border-[#f0f0f0]">
           <span className="block text-[15px] font-semibold tracking-tight">Wildly Important Goals</span>
-          <span className="block text-[11.5px] text-muted-foreground mt-0.5">Weekly scoreboard</span>
+          <span className="block text-[11.5px] text-muted-foreground mt-0.5">Management scoreboard</span>
         </div>
 
         <nav className="flex-1 px-2.5 py-3 flex flex-col gap-0.5 overflow-y-auto">
