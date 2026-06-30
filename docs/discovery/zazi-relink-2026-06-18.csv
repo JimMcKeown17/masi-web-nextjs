@@ -1,0 +1,374 @@
+participant_id,firstname,lastname,gender,match_child_uid,match_mcode,reason
+358419,Asiphile,Mlele,Male,CH-14585,14585,name_match_not_linked
+358422,Enzokuhle,Xhego,Male,CH-21724,21724,near_match ratio=0.97 canon='enzokuhle xego'
+358426,Onwaba,Gcasa,,CH-20316,20316,name_match_not_linked
+358427,Ndinazo,Sithole,,CH-20788,20788,near_match ratio=0.87 canon='ndinani sithole'
+354813,Endinako,Malgas,,CH-34445,34445,near_match ratio=0.87 canon='endinako makasi'
+370817,Iyana,Mnabisi,,CH-22732,22732,near_match ratio=0.92 canon='iyana mnabisa'
+431650,Bandla,Simamkele,,CH-41053,41053,near_match ratio=0.90 canon='mbana simamkele'
+352363,Banele,Lumka,,CH-43054,43054,name_match_not_linked
+350736,Aqhama,Makinana,Male,CH-41683,41683,near_match ratio=0.87 canon='aqhama mlanjana'
+350738,Alunamda,Sonti,Male,CH-22547,22547,near_match ratio=0.90 canon='alunamda solani'
+390072,Siqhamile,Dyakophu,Male,CH-34609,34609,near_match ratio=0.92 canon='dyakophu siqhamesihle'
+390112,Oyintando,Mayomela,Male,CH-42395,42395,near_match ratio=0.88 canon='majola oyintando'
+350707,Kungawo,Mali,Male,CH-43200,43200,near_match ratio=0.92 canon='kungawo maki'
+351527,Langalethu,Amos,,CH-22066,22066,near_match ratio=0.88 canon='jacobs langalethu'
+383832,Caleb,McPherson,,CH-39415,39415,near_match ratio=0.97 canon='caleb mc pherson'
+352944,Melokuhle,Mvebe,Male,CH-33154,33154,near_match ratio=0.88 canon='melokuhle mjebeza'
+354117,Linamandla,Tys,,CH-40779,40779,near_match ratio=0.87 canon='linamandla tyala'
+353024,Likuwe,Mkhono,Male,CH-21586,21586,name_match_not_linked
+386710,Lunathi,Kahla,,CH-14679,14679,name_match_not_linked
+354205,Othandwayo,Witbooi,,CH-23152,23152,near_match ratio=0.88 canon='athandwa witbooi'
+354206,Anothando,Nel,Male,CH-38697,38697,near_match ratio=0.87 canon='anothando dyaneli'
+433533,Kungentando,Tsewu,,CH-44734,44734,near_match ratio=0.94 canon='kungentando tsawu'
+433533,Kungentando,Tsewu,,CH-21962,21962,near_match ratio=0.94 canon='kungentando tsawu'
+370981,Lisanele,Majola,,CH-40890,40890,name_match_not_linked
+383849,Shade,Jantjies,,CH-20506,20506,near_match ratio=0.87 canon='jantjies shamone'
+383858,Meliah,Jacobs,,CH-8051,8051,near_match ratio=0.89 canon='jacobs miliyah'
+370606,Licebo,Minto,,CH-41183,41183,name_match_not_linked
+370595,Ahluma,Soyeye,,CH-41177,41177,name_match_not_linked
+382421,Livuse,Mjana,,CH-18901,18901,name_match_not_linked
+357480,Mkhitha,Ntshiliza,Male,CH-29114,29114,near_match ratio=0.94 canon='nomkhitha ntshiliza'
+358452,Kungawo,Moni,Male,CH-14651,14651,name_match_not_linked
+358446,Mivuyo,Ndevu,Male,CH-15448,15448,name_match_not_linked
+358447,Licebo,Njwambi,,CH-17990,17990,name_match_not_linked
+358430,Asonwabise,Qwetha,,CH-19995,19995,name_match_not_linked
+358432,Lubambo,Doyi,Male,CH-21589,21589,name_match_not_linked
+428663,Iminathi,Booi,,CH-20028,20028,name_match_not_linked
+438497,Simamkele,Tyota,,CH-42687,42687,near_match ratio=0.87 canon='simamkele totyi'
+351283,Sergio,Abrahams,,CH-42773,42773,name_match_not_linked
+428501,Angalakha,Lobese,,CH-14900,14900,name_match_not_linked
+438492,Kungentando,Dokolwana,,CH-19417,19417,near_match ratio=0.90 canon='kolwani kungentando'
+353494,Thandolwethu,T,,CH-39189,39189,near_match ratio=0.88 canon='msutu thandolwethu'
+353706,Oyama,Ximiya,,CH-17236,17236,name_match_not_linked
+353712,Luncumo,Xaba,Male,CH-17237,17237,name_match_not_linked
+386702,Imiyolo,Jekeqa,,CH-14678,14678,name_match_not_linked
+386703,Mihle,Msezeni,,CH-20104,20104,name_match_not_linked
+358478,Endinako,Lukhashe,Male,CH-28089,28089,near_match ratio=0.88 canon='endinakho hashe'
+358344,Asemahle,Fumba,Male,CH-6248,6248,name_match_not_linked
+358378,Azenathi,Dayimani,,CH-14593,14593,name_match_not_linked
+386692,Simamkele,Biyana,,CH-20950,20950,name_match_not_linked
+386693,Minentle,Mtana,,CH-14689,14689,name_match_not_linked
+386698,Migcobo,Mhambi,,CH-14688,14688,name_match_not_linked
+457056,Hope,Goliath,,CH-24314,24314,near_match ratio=0.87 canon='goliath zoe'
+356985,Simthandile,Ndzandze,,CH-43999,43999,name_match_not_linked
+370623,Kwakhanya,Diko,,CH-35991,35991,near_match ratio=0.88 canon='diko khanya'
+358364,Valentino,Cakwebe,Male,CH-4764,4764,name_match_not_linked
+391130,Linamandla,Pamani,Male,CH-40025,40025,near_match ratio=0.94 canon='linamandla mani'
+383126,Mivuyo,Basi,,CH-18900,18900,near_match ratio=0.87 canon='mbusi mivuyo'
+388453,Enzokuhle,Lwabi,Male,CH-43098,43098,name_match_not_linked
+370794,Oluhle,Roza,,CH-40949,40949,near_match ratio=0.92 canon='oluhle rozani'
+354253,Luthando,Magqabi,Male,CH-15692,15692,name_match_not_linked
+390377,IbanathÃ„Â±,Mgqwanci,,CH-20027,20027,near_match ratio=0.97 canon='ibanathi mgqwanci'
+356218,Lihlumile,Mayekiso,,CH-20357,20357,name_match_not_linked
+394799,Lifalethu,Mphephanduka,,CH-40737,40737,near_match ratio=0.98 canon='lifalethu phephanduka'
+354344,Lulothando,Bangani,Male,CH-31188,31188,near_match ratio=0.94 canon='bangani lelothando'
+382810,Minothando,Mangesi,,CH-44342,44342,name_match_not_linked
+355256,Lulonke,Mondile,,CH-15867,15867,near_match ratio=0.94 canon='lulonke mukondile'
+355248,Iminathi,Matomana,Male,CH-28953,28953,near_match ratio=0.88 canon='iminathi matomela'
+352046,Gosiame,Hlubi,Male,CH-15424,15424,name_match_not_linked
+359710,Melokuhle,Sobekwa,Male,CH-38760,38760,near_match ratio=0.91 canon='melokuhle sobela'
+391750,Busani,Slatsha,,CH-44240,44240,name_match_not_linked
+352438,Simamkele,Tyeli,Male,CH-42687,42687,near_match ratio=0.87 canon='simamkele totyi'
+354297,Avethandwa,Ala,,CH-13291,13291,near_match ratio=0.97 canon='alla avethandwa'
+354298,Luhle,Diko,Male,CH-19596,19596,name_match_not_linked
+354300,Alulutho,Taboshe,Male,CH-19615,19615,name_match_not_linked
+355895,Hlobanisa,Bob,Male,CH-32148,32148,near_match ratio=0.89 canon='blou hlobanisa'
+388443,Elihle,Ngesi,Male,CH-43096,43096,name_match_not_linked
+358974,Iilanga,Ambraal,Male,CH-30162,30162,near_match ratio=0.93 canon='ambraal lilanga'
+388468,Aphiwe,Ntshibilili,Male,CH-43083,43083,name_match_not_linked
+388469,Lunathi,Zini,Male,CH-42715,42715,name_match_not_linked
+388471,Miyonke,Gagela,,CH-42717,42717,name_match_not_linked
+350854,Khiana,Sauls,Male,CH-14971,14971,name_match_not_linked
+350846,Mihlali,Nana,Male,CH-14960,14960,name_match_not_linked
+382157,Jayrin,Saaiers,,CH-14969,14969,name_match_not_linked
+456328,Luphawu,Matikinca,,CH-16790,16790,name_match_not_linked
+382419,Simngcwalise,Matiwana,,CH-18898,18898,near_match ratio=0.95 canon='matiwana simngcwalisa'
+356779,Liyolatha,Magala,,CH-41753,41753,near_match ratio=0.97 canon='iyolatha magala'
+352120,Enzokuhle,Ketshengana,,CH-18893,18893,name_match_not_linked
+352121,Likuwe,Cola,Male,CH-18884,18884,name_match_not_linked
+382422,Akhanani,Dyubele,,CH-8596,8596,name_match_not_linked
+455720,Lulonke,Lupuwana,,CH-15547,15547,name_match_not_linked
+382424,Zinathi,Mbuqe,,CH-8647,8647,name_match_not_linked
+359863,Siyamthanda,Grangula,,CH-30970,30970,name_match_not_linked
+359516,Dontae,Tities,,CH-43102,43102,name_match_not_linked
+355236,Melokuhle,Malikgetla,Male,CH-26807,26807,near_match ratio=0.86 canon='malinga melokuhle'
+351798,Anathi,Tyali,Male,CH-24582,24582,near_match ratio=0.92 canon='inathi tyali'
+355920,Alunamda,Noduda,,CH-9426,9426,near_match ratio=0.87 canon='alunamda novuka'
+356669,Hlobanisa,Tyam,Male,CH-25329,25329,near_match ratio=0.93 canon='hlobanisa mtya'
+383817,Achuma,Blouw,,CH-32756,32756,near_match ratio=0.87 canon='achuma bolo'
+358918,Lulonke,Williams,Male,CH-32300,32300,near_match ratio=0.90 canon='luke williams'
+358924,Ingamihle,Lamani,Male,CH-31196,31196,near_match ratio=0.88 canon='ingamihle salman'
+358925,Lisakhanya,Konza,Male,CH-44788,44788,near_match ratio=0.90 canon='koba lisakhanya'
+358925,Lisakhanya,Konza,Male,CH-17215,17215,near_match ratio=0.90 canon='koba lisakhanya'
+398975,Oyintando,Matomela,Male,CH-42395,42395,near_match ratio=0.88 canon='majola oyintando'
+455443,Usiphile,Ngoxoza,,CH-13305,13305,name_match_not_linked
+432069,Siyamthanda,Ngindana,,CH-1417,1417,near_match ratio=0.89 canon='ngindo siyamthanda'
+386502,Keabetswe,Manekwane,Male,CH-16484,16484,near_match ratio=0.95 canon='keabetswe manekwana'
+457071,Monde,Nyathaza,,CH-25598,25598,near_match ratio=0.93 canon='monde myathaza'
+388460,Lisakhanya,Pini,Male,CH-43086,43086,name_match_not_linked
+388461,Sinovuyo,Thanda,,CH-43091,43091,name_match_not_linked
+388463,Sinekamva,Kondile,Male,CH-42716,42716,name_match_not_linked
+388465,Linamandla,Ntunye,,CH-43099,43099,name_match_not_linked
+357906,Limise,Mabheqa,,CH-15443,15443,near_match ratio=0.96 canon='limise mabeqa'
+357568,Likhona,Kala,,CH-4665,4665,near_match ratio=0.88 canon='klaas likhona'
+356214,Avethandwa,Mbali,Male,CH-41514,41514,near_match ratio=0.97 canon='avethandwa mali'
+357525,Mvuzo,Boyce,,CH-42708,42708,name_match_not_linked
+388455,Luminathi,Ngene,,CH-43087,43087,name_match_not_linked
+388456,Lusenathi,Vena,,CH-42710,42710,name_match_not_linked
+388457,Luphawu,Manxoyi,Male,CH-43090,43090,name_match_not_linked
+388459,Athandile,Mhlongo,Male,CH-44397,44397,near_match ratio=0.88 canon='athandile mingo'
+356237,Asanele,Mene,,CH-31006,31006,near_match ratio=0.87 canon='asange mene'
+353698,Melokuhle,Dekile,Male,CH-27575,27575,near_match ratio=0.88 canon='mejile melokuhle'
+350925,Sage,Hall,Male,CH-20496,20496,name_match_not_linked
+358429,Letsie,Nyanda,,CH-22320,22320,name_match_not_linked
+360203,Ayabulela,Madikane,,CH-33589,33589,near_match ratio=0.86 canon='ayabulela manekwane'
+388482,Athandwa,Piyo,,CH-26935,26935,near_match ratio=0.93 canon='ayathandwa piyo'
+350794,Alunga,Majoka,Male,CH-44038,44038,near_match ratio=0.92 canon='alunga majola'
+388448,Oluhle,Mlunguzi,,CH-43094,43094,name_match_not_linked
+388449,Endinako,Mgqali,Male,CH-7292,7292,near_match ratio=0.90 canon='endinako mgoqi'
+388451,Aphelele,Mkhulungu,,CH-43092,43092,name_match_not_linked
+388452,Luvano,Mama,Male,CH-43088,43088,name_match_not_linked
+352044,Ayonanga,Thundube,Male,CH-8261,8261,name_match_not_linked
+352045,Zimingonaphakadebe,Rolobe,Male,CH-15539,15539,near_match ratio=0.96 canon='rolobe zimingonaphakade'
+352047,Luphawu,Mashawa,Male,CH-15430,15430,name_match_not_linked
+423299,Melokuhle,Ndaba,,CH-28688,28688,near_match ratio=0.90 canon='melokuhle noda'
+360209,Kungawo,Kiti,Male,CH-41746,41746,near_match ratio=0.88 canon='kanti kungawo'
+353686,Zaylin,Williams,,CH-44173,44173,near_match ratio=0.97 canon='williams zylin'
+424955,Mbalentle,Myali,,CH-5801,5801,near_match ratio=0.90 canon='mbalentle moli'
+353681,Ashante,Williams,Male,CH-22641,22641,near_match ratio=0.88 canon='nakhane williams'
+352771,Lugcobo,Bhayi,,CH-23568,23568,near_match ratio=0.88 canon='bali lugcobo'
+360168,Kungentando,Kosani,,CH-19417,19417,near_match ratio=0.92 canon='kolwani kungentando'
+360169,Olothando,Mandeka,Male,CH-17919,17919,near_match ratio=0.88 canon='manga olothando'
+382374,Emily,Isreal,,CH-40715,40715,near_match ratio=0.92 canon='emily israel'
+386869,Iminathi,Teyise,,CH-25353,25353,name_match_not_linked
+394487,Shaneal,Van Aardt,Male,CH-31120,31120,near_match ratio=0.88 canon='aardt angel van'
+354419,Phiwokuhle,Nondishe,Male,CH-43275,43275,name_match_not_linked
+359841,Sanelisiwe,Konki,Male,CH-42817,42817,near_match ratio=0.97 canon='nkonki sanelisiwe'
+351936,Rejane,Cedras,,CH-40382,40382,near_match ratio=0.88 canon='cedars rejan'
+351851,Taira,Jacobs,Male,CH-24131,24131,near_match ratio=0.88 canon='jacobs tirano'
+428153,Abenathi,Feni,,CH-14886,14886,name_match_not_linked
+456924,Camagu,Bassie,,CH-17336,17336,name_match_not_linked
+428411,Sinebhongo,Ntingana,,CH-18185,18185,near_match ratio=0.95 canon='ntingane sinebhongo'
+350994,Chevandre,Potberg,,CH-43475,43475,name_match_not_linked
+350995,Jesmine,Bruintjies,Male,CH-18852,18852,name_match_not_linked
+354314,Naledi,Gcakasi,Male,CH-8598,8598,name_match_not_linked
+354316,Sihle,Mbulali,Male,CH-6369,6369,name_match_not_linked
+354317,Hlaluminathi,Vuma,Male,CH-19619,19619,name_match_not_linked
+357969,Lunikho,Mtembu,Male,CH-43487,43487,near_match ratio=0.96 canon='luniko mtembu'
+428547,Iminathi,Mfunda,,CH-2028,2028,near_match ratio=0.90 canon='linathi mfunda'
+350959,Elijah,Smith,,CH-19249,19249,name_match_not_linked
+350959,Elijah,Smith,,CH-44292,44292,name_match_not_linked
+353866,Sachin,Rhodes,,CH-41868,41868,near_match ratio=0.92 canon='rhodes sashin'
+388464,Liyakhanya,Mnyanda,,CH-42711,42711,name_match_not_linked
+456819,Avuyile,Vuma,,CH-19400,19400,name_match_not_linked
+354308,Luniko,Hala,,CH-19597,19597,name_match_not_linked
+354309,Thandeka,Matimise,Male,CH-19603,19603,near_match ratio=0.94 canon='matinise thandeka'
+354312,Tashinga,Nyamadzawo,Male,CH-19613,19613,near_match ratio=0.97 canon='nyamandzawo tashinga'
+350975,Tonique,Davids,Male,CH-19255,19255,name_match_not_linked
+350987,Kaylin,Majola,Male,CH-18865,18865,name_match_not_linked
+350988,Lucan,Philander,,CH-18871,18871,name_match_not_linked
+350991,Zaakir,Nordien,,CH-43473,43473,name_match_not_linked
+350992,Georgia,O'Reilly,Male,CH-43474,43474,name_match_not_linked
+352280,Elvendri,Swartbooi,,CH-25007,25007,near_match ratio=0.94 canon='alvendri swartbooi'
+350985,Calvert,Fredericks,,CH-18856,18856,name_match_not_linked
+350986,Roshnay,Jacob's,Male,CH-18858,18858,near_match ratio=0.90 canon='jacobs roshnay'
+350979,Oriana,Nel,Male,CH-18869,18869,name_match_not_linked
+382162,Nareign,Prins,,CH-18874,18874,near_match ratio=0.96 canon='nareighn prins'
+356990,Khanyile,Maseti,Male,CH-44037,44037,name_match_not_linked
+386650,Chulumanco,Badi,,CH-20312,20312,near_match ratio=0.87 canon='baba chulumanco'
+391886,Bukho,Tyabazayo,,CH-42119,42119,near_match ratio=0.93 canon='bukho dyabazayo'
+370727,Lelokubongwa,Blou,,CH-23564,23564,near_match ratio=0.94 canon='blouw lelokubonga'
+456774,Hlalumi,Maloni,,CH-8632,8632,name_match_not_linked
+382954,Sinalo,Ngalo,,CH-19611,19611,name_match_not_linked
+386537,Olumiyo,Melane,,CH-18732,18732,name_match_not_linked
+350791,Indiphile,Pekana,,CH-28752,28752,near_match ratio=0.87 canon='indiphile vena'
+357993,Emihle,Speelman,Male,CH-18179,18179,name_match_not_linked
+382413,Buhle,January,,CH-18889,18889,name_match_not_linked
+443402,Iphethina,Jobela,,CH-18890,18890,name_match_not_linked
+382415,Inako,Mbekela,,CH-18899,18899,name_match_not_linked
+352119,Asenathi,Ala,Male,CH-18881,18881,name_match_not_linked
+382409,Lisolethu,Matibe,,CH-18897,18897,name_match_not_linked
+456276,Relebogile,Dayile,,CH-18885,18885,name_match_not_linked
+382412,Luphupho,Debe,,CH-22560,22560,near_match ratio=0.92 canon='debe liphupho'
+382401,Oyintanda,Faltein,,CH-18887,18887,name_match_not_linked
+382402,Luhlelunje,Gegesi,,CH-22896,22896,name_match_not_linked
+382404,Abenathi,Fuyani,,CH-18888,18888,name_match_not_linked
+354342,Likuwe,Fesi,,CH-25453,25453,near_match ratio=0.91 canon='fezi likuwe'
+355385,Lulynn,Meyer,Male,CH-15085,15085,name_match_not_linked
+355983,Aayan,Abrahams,,CH-42284,42284,near_match ratio=0.87 canon='aaliyah abrahams'
+358899,Enzokuhle,Matsha,Male,CH-39260,39260,near_match ratio=0.88 canon='enzokuhle tshiva'
+360196,Phawulothando,Cakwebe,,CH-43589,43589,near_match ratio=0.87 canon='kawe phawulothando'
+360196,Phawulothando,Cakwebe,,CH-34733,34733,near_match ratio=0.87 canon='kawe phawulothando'
+438540,Othalive ,Nogwaja,,CH-22017,22017,name_match_not_linked
+392029,Brian,Jantjies,,CH-43121,43121,name_match_not_linked
+392031,Irien,Madjan,Male,CH-43116,43116,name_match_not_linked
+353995,Sealynn,Daniels,Male,CH-31696,31696,near_match ratio=0.87 canon='daniels jeslynn'
+388444,Avethandwa,Nkohla,,CH-43089,43089,name_match_not_linked
+358864,Silindokuhle,Lingani,,CH-23625,23625,near_match ratio=0.87 canon='lamani silindokuhle'
+358875,Achumile,Nyoka,,CH-33551,33551,near_match ratio=0.87 canon='achumile nomkala'
+456483,Lunje,Jayiya,,CH-8212,8212,name_match_not_linked
+352980,Othandwayo,Faku,,CH-42800,42800,name_match_not_linked
+455939,Sibusiso,Mqongwana,,CH-7574,7574,name_match_not_linked
+455761,Sibabaliwe,Maqanda,,CH-18212,18212,near_match ratio=0.97 canon='maqanda sibabalwe'
+455321,Liminathi,Ndongeni,,CH-18214,18214,name_match_not_linked
+388190,Lukhanyo,Singqotho,,CH-18737,18737,near_match ratio=0.97 canon='lukhanyo singqoto'
+350588,Yomelela,Mvandaba,Male,CH-8683,8683,name_match_not_linked
+359522,Autumn,Roman,Male,CH-43100,43100,name_match_not_linked
+358895,Melokuhle,Nxele,,CH-41975,41975,near_match ratio=0.90 canon='melokuhle nelo'
+359494,Caydon,Van der Merwe,,CH-43103,43103,name_match_not_linked
+359498,Liyolatha,Ngindo,,CH-43075,43075,name_match_not_linked
+352659,Chulumanco,Masebe,,CH-16824,16824,name_match_not_linked
+386535,Sinoxolo,Thisani,,CH-21196,21196,name_match_not_linked
+356691,Akhumzi,Gqalinyanga,,CH-39892,39892,near_match ratio=0.97 canon='akhumzi qalinyanga'
+359566,Taegan,Toring,,CH-43105,43105,near_match ratio=0.92 canon='teagan toring'
+359558,Terren,May,Male,CH-43064,43064,name_match_not_linked
+350789,Miviwe,Makana,Male,CH-40597,40597,near_match ratio=0.90 canon='makutwana miviwe'
+350583,Hlalumi,Boltina,Male,CH-20025,20025,name_match_not_linked
+350585,Hlalukho,Boltina,,CH-11133,11133,name_match_not_linked
+370742,Indiphile,Gongqa,,CH-23572,23572,near_match ratio=0.97 canon='gongq indiphile'
+370743,Okuhle,Mapangwana,,CH-23559,23559,near_match ratio=0.88 canon='maphunwana okuhle'
+383459,Maryon,Ruiters,,CH-41454,41454,near_match ratio=0.93 canon='mayron ruiters'
+359552,Luqalo,Tshanga,Male,CH-43107,43107,name_match_not_linked
+359547,Willow,Nel,Male,CH-43065,43065,name_match_not_linked
+356984,Sinoxolo,Ndzandze,Male,CH-44013,44013,name_match_not_linked
+352802,Linothando,Kolisi,,CH-41137,41137,near_match ratio=0.94 canon='koliti linothando'
+352794,Alunamda,Kwitsana,,CH-22572,22572,near_match ratio=0.97 canon='alunamda kitsana'
+352768,Lubango,Matodlana,,CH-21304,21304,near_match ratio=0.88 canon='lubanzi matodlana'
+358535,Niyole,Vena,Male,CH-15806,15806,name_match_not_linked
+359951,Olothando,Nomarwayi,Male,CH-42103,42103,near_match ratio=0.89 canon='maxwayi olothando'
+359504,Lee-Zay,Felix,Male,CH-43109,43109,name_match_not_linked
+357974,Luniko,Mtembu,Male,CH-43487,43487,name_match_not_linked
+359555,Raynique,Witbooi,Male,CH-43108,43108,name_match_not_linked
+356243,Liqhawe,Handile,Male,CH-23130,23130,near_match ratio=0.89 canon='hani liqhawe'
+354252,Luncumo,Galada,,CH-15714,15714,name_match_not_linked
+388472,Achuma,Nxopho,,CH-42714,42714,name_match_not_linked
+388475,Sibusiso,Mqongana,,CH-7574,7574,near_match ratio=0.97 canon='mqongwana sibusiso'
+451894,Anothando,Kamana,,CH-18892,18892,name_match_not_linked
+382156,Imolathile,Mlilwana,,CH-40168,40168,name_match_not_linked
+354295,Iyana,Notshulwana,Male,CH-21257,21257,name_match_not_linked
+354330,Lelothando,Lombo,Male,CH-22456,22456,name_match_not_linked
+352050,Tinashe,Bojana,,CH-14644,14644,name_match_not_linked
+352035,Zenokuhle,Mfuniso,,CH-15441,15441,name_match_not_linked
+352036,Aviwe,Tondile,,CH-15566,15566,name_match_not_linked
+352038,Ukhona,Mtshambela,,CH-18266,18266,name_match_not_linked
+356077,Aluthando,Mbuqo,,CH-7156,7156,near_match ratio=0.87 canon='aluthando mbewu'
+383195,Aqhama,Fumba,,CH-41410,41410,near_match ratio=0.87 canon='aqhama puba'
+384146,Ayabukwa,Sibengu,,CH-43788,43788,near_match ratio=0.91 canon='ayabukwa sebengqu'
+354324,Aviwe,Plaatjies,,CH-19614,19614,name_match_not_linked
+383097,Endinako,Ncokwana,,CH-41338,41338,near_match ratio=0.91 canon='endinako vokwana'
+354535,Siphenathi,Makasi,,CH-42856,42856,name_match_not_linked
+355879,Lifa,Jacobs,,CH-26425,26425,near_match ratio=0.91 canon='jacobs liam'
+355879,Lifa,Jacobs,,CH-26190,26190,near_match ratio=0.91 canon='jacobs liam'
+351865,Emihle,Kala,Male,CH-14613,14613,near_match ratio=0.91 canon='emihle rala'
+451719,Miyolo,Gcolothela,,CH-15355,15355,near_match ratio=0.97 canon='gcolotela miyolo'
+352345,Silindokuhle,Hlekani,,CH-25045,25045,name_match_not_linked
+352347,Kungentando,Yose,,CH-25043,25043,name_match_not_linked
+350885,Leeroy,Ruiters,,CH-15274,15274,name_match_not_linked
+350879,Kinsley,Leen,,CH-20746,20746,name_match_not_linked
+350881,Jordan,Asia,,CH-15246,15246,name_match_not_linked
+350883,Sadeeqah,Daniels,Male,CH-15250,15250,name_match_not_linked
+351001,Skylar,Muller,,CH-18867,18867,near_match ratio=0.92 canon='muller skyler'
+351002,Miah,Madatt,Male,CH-19242,19242,name_match_not_linked
+351004,Riley,Loots,Male,CH-18862,18862,name_match_not_linked
+451463,Lukuwe,Cola,,CH-18884,18884,near_match ratio=0.91 canon='cola likuwe'
+359845,Amyoli,Tonisi,,CH-20259,20259,name_match_not_linked
+350983,Revino,Neff,,CH-18868,18868,name_match_not_linked
+354304,Lawula,Mali,Male,CH-20053,20053,name_match_not_linked
+356149,Azincge,Dlova,Male,CH-39851,39851,near_match ratio=0.92 canon='azingce dlova'
+386874,Ethan,Schoeman,,CH-44577,44577,name_match_not_linked
+371051,Luhlelunje,Krafa,,CH-30964,30964,near_match ratio=0.88 canon='klaas luhlelunje'
+382407,Luchumokuhle,Kumalo,,CH-18894,18894,near_match ratio=0.92 canon='khumalo luchumoluhle'
+386207,Liphahle,Lamani,,CH-20904,20904,name_match_not_linked
+370699,Yamihle,Maltina,,CH-15863,15863,near_match ratio=0.87 canon='martins yamihle'
+356866,Alunamnda,Mkaza,Male,CH-5546,5546,near_match ratio=0.87 canon='alunamda mazana'
+431496,Luhlelunje,Kraya,,CH-30964,30964,near_match ratio=0.88 canon='klaas luhlelunje'
+439303,Khanya,Maseti,,CH-36453,36453,near_match ratio=0.92 canon='khanya seti'
+439211,Anathi,Fina,,CH-43056,43056,name_match_not_linked
+431940,Imolathile,Dyaneli,,CH-20756,20756,near_match ratio=0.89 canon='dyaloyi imolathile'
+432012,Okuhle,Maphangwana,,CH-23559,23559,near_match ratio=0.91 canon='maphunwana okuhle'
+431578,Yamihle,Moltina,,CH-40828,40828,near_match ratio=0.89 canon='mona yamihle'
+438353,Lubanje,Bangani,,CH-44183,44183,name_match_not_linked
+424957,Limokuhle,Ndleleni,,CH-23737,23737,near_match ratio=0.89 canon='melokuhle ndleleni'
+424941,Amila,Kanana,,CH-19153,19153,near_match ratio=0.91 canon='amila kana'
+431044,Indamkele,Singata,,CH-28718,28718,near_match ratio=0.88 canon='simamkele singata'
+432004,Lelokubongwa,Blouw,,CH-23564,23564,near_match ratio=0.97 canon='blouw lelokubonga'
+434359,Luminjalo,Bonani,,CH-38787,38787,near_match ratio=0.88 canon='bongwana luminjalo'
+434259,Minentle,Moyi,,CH-16886,16886,near_match ratio=0.88 canon='minentle mto'
+434196,Enzokuhle,Baleni,,CH-37551,37551,near_match ratio=0.93 canon='bali enzokuhle'
+433607,Ntando,Khala,,CH-41387,41387,near_match ratio=0.92 canon='khala ntandazo'
+425093,Luniko,Tube,,CH-16115,16115,near_match ratio=0.96 canon='luniko thube'
+432017,Indiphile,Gongqo,,CH-23572,23572,near_match ratio=0.97 canon='gongq indiphile'
+431416,Liminathi,Nduna,,CH-14756,14756,name_match_not_linked
+431410,Indiphilenkosi,Nqabeni,,CH-40610,40610,near_match ratio=0.87 canon='indiphileinkosi nqweniso'
+431032,Ndalwentle,Labi,,CH-7107,7107,near_match ratio=0.88 canon='layiti ndalwentle'
+430983,Alunamda,Mkaza,,CH-5546,5546,near_match ratio=0.90 canon='alunamda mazana'
+430799,Kungentando,Mengu,,CH-41986,41986,near_match ratio=0.88 canon='kungentando mongo'
+430700,Linamandla,Nevana,,CH-32003,32003,near_match ratio=0.94 canon='linamandla mevana'
+430625,Athule,Jonas,,CH-7793,7793,near_match ratio=0.87 canon='athule joka'
+430618,Lundanele,Helesi,,CH-20463,20463,near_match ratio=0.88 canon='hlsani lundanele'
+430022,Ayabonga,Hashe,,CH-42513,42513,near_match ratio=0.90 canon='ayabonga mbashe'
+429229,Avethandwa,Zenzile,,CH-27936,27936,near_match ratio=0.97 canon='aventhandwa zenzile'
+429112,Jeremarthia,Jerry,,CH-7828,7828,near_match ratio=0.97 canon='jeremartha jerry'
+428683,Buhlebendalo,Yawa,,CH-28862,28862,near_match ratio=0.88 canon='buhlebendalo yani'
+428679,Liyakhanya,Matanda,,CH-42711,42711,near_match ratio=0.89 canon='liyakhanya mnyanda'
+351307,Olothando,Ntamo,,CH-43221,43221,name_match_not_linked
+428566,Rayvial,Coetzee,,CH-43467,43467,name_match_not_linked
+428553,Limise,Mabeqa,,CH-15443,15443,name_match_not_linked
+428520,Aluthando,Mbuqu,,CH-7156,7156,near_match ratio=0.87 canon='aluthando mbewu'
+428418,Olothando,Sigabi,,CH-22829,22829,near_match ratio=0.88 canon='olothando sikani'
+354319,Nthabeleng,Mkobuwa,Male,CH-19606,19606,name_match_not_linked
+428160,Kungentando,Gcakasi,,CH-44634,44634,name_match_not_linked
+428160,Kungentando,Gcakasi,,CH-14656,14656,name_match_not_linked
+425238,Imokuhle,Nqayi,,CH-38938,38938,near_match ratio=0.97 canon='limokuhle nqayi'
+425081,Avuyile,Liwani,,CH-20447,20447,near_match ratio=0.87 canon='avuyile loliwana'
+424961,Grayson,Pluke,,CH-33811,33811,near_match ratio=0.88 canon='grayson luka'
+383692,Kungawo,Momeni,,CH-14651,14651,near_match ratio=0.92 canon='kungawo moni'
+423437,Jaden,Jacobs,,CH-43139,43139,near_match ratio=0.92 canon='jacobus jayden'
+423340,Olothando,Mfuniso,,CH-29542,29542,near_match ratio=0.91 canon='funiso olothandp'
+423332,Melokuhle,Kamana,,CH-14645,14645,near_match ratio=0.88 canon='mbanga melokuhle'
+423329,Kungentando,Hawu,,CH-32095,32095,near_match ratio=0.97 canon='hawu kungentandio'
+423295,Amvuynyele,Ncambele,,CH-21182,21182,near_match ratio=0.89 canon='amvuyile ncambele'
+423293,Alunamda,Mkhunqwana,,CH-7238,7238,near_match ratio=0.89 canon='alunamda mkhontwana'
+354303,Akohlulwa,Tesana,Male,CH-19616,19616,name_match_not_linked
+418934,Likhaya,Lila,,CH-14770,14770,near_match ratio=0.88 canon='likhanye lila'
+359919,Anoyolo,Aba,Male,CH-8201,8201,name_match_not_linked
+370950,Zokhanyo,Nkwenkwezi,,CH-43700,43700,name_match_not_linked
+412698,Ntwentle,Fololo,Male,CH-22180,22180,name_match_not_linked
+412698,Ntwentle,Fololo,Male,CH-19962,19962,name_match_not_linked
+386219,Hlelolenkosi,Tose,,CH-44713,44713,name_match_not_linked
+386219,Hlelolenkosi,Tose,,CH-23133,23133,name_match_not_linked
+382406,Lithandiwe,Maguga,,CH-18896,18896,name_match_not_linked
+388201,Lunathi,Smolwana,,CH-42801,42801,name_match_not_linked
+394673,Luminathi,Nduna,,CH-14756,14756,near_match ratio=0.93 canon='liminathi nduna'
+403439,Athandwayo,Piyo,,CH-26935,26935,near_match ratio=0.87 canon='ayathandwa piyo'
+352877,Lulonke,Matodlana,,CH-15606,15606,near_match ratio=0.88 canon='lulonke mbalana'
+358457,Sonwabisile,Ngwalangwala,Male,CH-14888,14888,near_match ratio=0.96 canon='ngwalangwala sonwabise'
+386696,Kamokgelo,Mooi,,CH-14690,14690,name_match_not_linked
+358806,Iminathi,Piet,Male,CH-41397,41397,near_match ratio=0.92 canon='iminathi pike'
+354263,Lakhanya,Maphisa,,CH-15772,15772,name_match_not_linked
+352439,Azole,Somhlahlo,,CH-15536,15536,name_match_not_linked
+354299,Liqhamile,Gadu,Male,CH-21699,21699,name_match_not_linked
+430004,Lelona,Tsitsa,,CH-17537,17537,name_match_not_linked
+354302,Malvern,Mombe,,CH-19607,19607,name_match_not_linked
+354370,Iminathi,Mpike,,CH-41397,41397,near_match ratio=0.96 canon='iminathi pike'
+450180,Elam,Nomankonyana,,CH-19007,19007,near_match ratio=0.94 canon='elam mankonyana'
+352810,Linamandla,Mlele,,CH-1592,1592,near_match ratio=0.94 canon='lunamandla mlele'
+354341,Liphelo,Mlungwana,,CH-33636,33636,name_match_not_linked
+394706,Onikayo,Manziya,,CH-40164,40164,name_match_not_linked
+382372,Othalive,Williams,,CH-6863,6863,near_match ratio=0.97 canon='othalive wlilliams'
+353717,Okuhle,Windvoel,,CH-17072,17072,name_match_not_linked
+443036,Owam,Ngene,,CH-9374,9374,near_match ratio=0.90 canon='ngeni owam'
+386224,Okwenam,Solani,,CH-20256,20256,name_match_not_linked
+386224,Okwenam,Solani,,CH-44709,44709,name_match_not_linked
+386222,Imivuyo,Masoka,,CH-16064,16064,name_match_not_linked
+356978,Enkosi,Van Ryner,,CH-28683,28683,near_match ratio=0.97 canon='nkosi ryner van'
+352890,Iyana,Sizani,,CH-16260,16260,near_match ratio=0.87 canon='iyana msizi'
+431736,Liphahle,Liamani,,CH-20904,20904,near_match ratio=0.97 canon='lamani liphahle'
+444797,Kuyanda,Simelela,,CH-22423,22423,name_match_not_linked
+430886,Isiphile,Nojila,,CH-16124,16124,near_match ratio=0.87 canon='isiphile ngcola'
+430879,Likuwe,Hobo,,CH-7149,7149,near_match ratio=0.91 canon='gobo likuwe'
+428671,Simoesihle,Jacobs,,CH-44082,44082,near_match ratio=0.88 canon='jacobs siphesihle'
+394461,Alunamda,Mandela,,CH-17450,17450,near_match ratio=0.87 canon='alunamda mvana'
+358470,Alulutho,Mateza,,CH-43899,43899,name_match_not_linked
+358443,Sonwabise,Ngwalangwala,Male,CH-14888,14888,name_match_not_linked
