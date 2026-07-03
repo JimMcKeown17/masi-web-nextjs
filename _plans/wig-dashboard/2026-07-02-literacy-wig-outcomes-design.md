@@ -62,6 +62,11 @@ join scopes to Masi literacy children (excludes Zazi cohorts).
   roster size) and the UI shows "assessed X of Y" next to the ring. Revisit at
   Nov endline whether the year-end WIG should count unassessed children as
   non-passing.
+- Known conditional divergence (final review, 2026-07-03): the WIG cohort
+  filters `on_the_programme=True`; the Streamlit processor does not filter on
+  that flag. Identical today because no active off-programme child has scores.
+  If mid-year off-boarding starts using the flag, the surfaces drift - re-check
+  at Nov endline.
 - Out-of-range guard: scores above the instrument max (Read Words > 40,
   Letter Sounds > 60) are data errors, treated as missing - the portal's
   `_null_out_of_range` rule. These two maxima are language-invariant (no
