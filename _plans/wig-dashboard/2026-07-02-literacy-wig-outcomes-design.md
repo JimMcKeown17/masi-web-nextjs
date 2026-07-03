@@ -116,9 +116,10 @@ GET /api/wig/outcomes/
   between the two syncs to about a day. No batch-coupling mechanism: the age
   gate covers the skew risk without new machinery.
 - **Dedupe fail-closed**: the endpoint evaluates the shared `dedupe()` exception
-  list for the cohort. Any `unresolved_tie` or `duplicate_more_complete_rejected`
-  exception -> `available: false` with a source note, mirroring the exporter's
-  blocking defaults. The WIG must never publish numbers the parquet export would
+  list over the whole roster-joined 2026 row set (all grades), the same scope at
+  which the exporter blocks. Any `unresolved_tie` or
+  `duplicate_more_complete_rejected` exception -> `available: false` with a
+  source note, mirroring the exporter's blocking defaults. The WIG must never publish numbers the parquet export would
   refuse to ship.
 - With healthy sources, no qualifying rows for a programme -> that key is `null`
   -> frontend keeps the awaiting state.
