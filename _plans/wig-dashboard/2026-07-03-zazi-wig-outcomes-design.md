@@ -3,7 +3,10 @@
 Wires the Zazi iZandi Primary and ECD hero WIG rings to real 2026 assessment
 data from the Zazi backend, extending the literacy WIG outcomes pattern
 (2026-07-02 spec). Approved by Jim 2026-07-03 (metrics, three-mini-ring hero,
-live-fetch architecture).
+live-fetch architecture). Revised same day after a Codex adversarial round:
+null scores count as non-passing (site parity), ECD raw rows both phases,
+as_of staleness gate dropped (insert-only timestamps), deploy-order-safe
+payload migration, lead/outcome population rationale documented.
 
 ## Context
 
@@ -36,9 +39,12 @@ live-fetch architecture).
 
 ## Metric definitions (decided by Jim, 2026-07-03)
 
-All: passing = `letters_total_correct >= threshold`; denominator = assessed
-children in the term (non-null `letters_total_correct` after dedupe);
-value = fraction 0..1.
+All: passing = `letters_total_correct >= threshold`; denominator = ALL
+deduped rows in the grade+term (a null `letters_total_correct` counts as
+NOT passing, exactly like the site's `benchmark_summary` which uses
+`len(phase_df)`); value = fraction 0..1. NOTE this deliberately differs from
+the Masi literacy convention (which excludes null scores) - each surface
+matches ITS parity dashboard.
 
 | Programme | Metric | Cohort | Threshold | Target |
 |---|---|---|---|---|
@@ -47,19 +53,25 @@ value = fraction 0..1.
 | `zazi_izandi` | Gr 2 | grade='Grade 2', same | 55 | 40% |
 | `zazi_izandi_ecd` | Letter sounds | ECD surveys (805 baseline, 891 midline) | 20 | 75% |
 
-- Primary population = treatment + SEF school sets (the constants
-  `programme_overview` already uses, views.py:533-543) - excludes the RCT
-  control arm, matching `programmatic-impact-2026`'s population. Extract those
-  school-name sets into a shared constant both views import.
+- Primary population = treatment + SEF, classified via the existing pure
+  module `api/cohorts_2026.py` (`classify` with the treatment/SEF sets from
+  `api.views`) - inclusion rule: classification in {'treatment','sef'}.
+  Excludes the RCT control arm, matching `programmatic-impact-2026`.
+  Deliberate asymmetry with lead measures (adversarial review, resolved):
+  lead measures use cohort=primary (all primary schools), but control schools
+  have no Masi EAs or sessions, so the lead-measure population is de facto
+  treatment+SEF already; outcomes make the exclusion explicit because control
+  children DO have assessments.
 - Primary dedupe = ZZ Data Site rule: drop blank `participant_id`, sort by
   (`response_date`, `data_refresh_timestamp`, `response_id`), keep last per
   (`participant_id`, `assessment_type`).
 - Grade backfill = ZZ Data Site rule (`midline_primary_helpers_2026.py:161-183`):
   a midline row with a blank grade inherits the same participant's baseline
   grade, so those children stay in their grade cohort on both surfaces.
-- ECD: survey 891 (midline) and 805 (baseline). Baseline has no participant
-  IDs, so ECD is cross-sectional over raw rows - identical to the site's ECD
-  page. Midline rows are deduped when `participant_id` is present.
+- ECD: survey 891 (midline) and 805 (baseline). Raw response rows for BOTH
+  phases, no dedupe at all - the site's ECD helper deliberately counts raw
+  rows in both phases (deduping only midline would mix units, its docstring
+  says so) even though survey 891 rows carry participant IDs.
 - Terms: `baseline` < `midline` only. `endline` is enabled later, together
   with the ZZ Data Site pages, so the parity surfaces can always cross-check.
   Displayed term = latest with denominator > 0; baseline shown as context.
@@ -112,11 +124,14 @@ GET /api/wig-outcomes/
   no snapshot model, no cron).
 - `api/wig_outcomes.py` `build_outcomes()`: after the literacy outcomes,
   merge Zazi. Fail-closed per programme:
-  - fetch error/timeout -> both Zazi keys = `{kind: 'unavailable',
-    note: 'Zazi backend unreachable'}`;
-  - `as_of` missing or older than 48h -> unavailable with a stale note
-    (mirrors the literacy dead-cron gate);
+  - fetch error/timeout/malformed payload -> both Zazi keys =
+    `{kind: 'unavailable', note: 'Zazi backend unreachable'}`;
   - healthy fetch, programme null -> `null` (awaiting).
+  - NO as_of staleness gate (adversarial review, fixed): Zazi's
+    `data_refresh_timestamp` is stamped only on row INSERT, and between
+    assessment rounds no new rows arrive for months, so a max-row-timestamp
+    age gate would blank healthy data under normal conditions. `as_of` is
+    informational only (surfaced in the calculation note).
 
 ### Payload contract change (breaking, we own both ends)
 
@@ -136,6 +151,13 @@ outcomes: {
 
 - Literacy builders gain `kind: 'single'` (tests updated); global `available`
   + `source_note` keep gating the MASI literacy sources exactly as today.
+- Deploy-order safety (adversarial review, resolved): `single` KEEPS all its
+  flat fields (value/numerator/denominator/term/cohort_total/baseline), so an
+  old frontend against a new backend still renders literacy correctly (extra
+  `kind` field ignored; Zazi keys ignored because old config has no
+  `wig.target` on them). The new frontend defaults a missing `kind` to
+  `'single'`, so it also works against an old backend. Either repo can deploy
+  or roll back first.
 - Zazi ECD maps to `kind:'single'` with `target` in the payload (overrides
   config, same precedence as lead measures); `cohort_total` is omitted (no
   roster concept on the Zazi side) and the UI omits the coverage phrase when
@@ -168,16 +190,21 @@ outcomes: {
 ## Testing
 
 - Zazi backend (Django TestCase, new `api/tests_wig_outcomes_2026.py`):
-  dedupe keeps the latest row per participant per term (older passing row
-  cannot flip a child); threshold boundaries (exactly 20/40/55/20 pass);
-  control-school rows excluded from primary; ECD baseline rows without
-  participant_id counted raw; term selection (midline over baseline; endline
-  ignored); null letters_total_correct excluded; programme with no rows ->
-  null; as_of = max data_refresh_timestamp.
+  primary dedupe keeps the latest row per participant per term (older passing
+  row cannot flip a child); threshold boundaries (exactly 20/40/55/20 pass);
+  control-school rows excluded from primary ('other' classification also
+  excluded); grade backfill from baseline; ECD counts raw rows in BOTH phases
+  (duplicate midline rows for one participant each count); null
+  letters_total_correct counted as NOT passing in the denominator (primary
+  and ECD); term selection (midline over baseline; endline ignored);
+  programme with no rows -> null; as_of = max data_refresh_timestamp.
 - Masi backend (`api/tests_wig_outcomes.py` additions, Zazi fetch mocked):
-  merge shape for both kinds; fetch exception -> both Zazi keys unavailable
-  while literacy keys unaffected; stale as_of (>48h) -> unavailable; literacy
-  entries now carry kind:'single' (existing tests updated).
+  merge shape for both kinds; fetch exception and malformed payload -> both
+  Zazi keys unavailable while literacy keys unaffected; literacy entries now
+  carry kind:'single' with all flat fields intact (existing tests updated,
+  plus an explicit flat-field compatibility assertion).
+- Frontend compat: missing `kind` treated as `'single'` (unit-level assertion
+  via the type guard, exercised in E2E against the old payload if feasible).
 - Frontend: `pnpm lint` + `pnpm build`; browser E2E on
   `/operations/wig/zazi-izandi` (three mini-rings) and `/zazi-izandi-ecd`,
   values cross-checked against the ZZ Data Site midline pages (Gr R/Gr 1
