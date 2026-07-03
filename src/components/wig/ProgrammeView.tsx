@@ -1,7 +1,17 @@
 "use client";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import type { MeasureConfig, MeasureValue, ProgrammeConfig, OutcomesPayload, WigOutcome } from "@/lib/types/wig";
+import { outcomeKind } from "@/lib/types/wig";
+import type {
+  MeasureConfig,
+  MeasureValue,
+  ProgrammeConfig,
+  OutcomesPayload,
+  WigOutcomeMetric,
+  WigOutcomeMulti,
+  WigOutcomeSingle,
+  WigOutcomeUnavailable,
+} from "@/lib/types/wig";
 import { ragStatus, ringFill, formatValue, formatTarget, RAG_HEX } from "@/lib/wig/rag";
 import { TERM_LABELS } from "@/lib/wig/config";
 import { Ring, InfoTip } from "./primitives";
@@ -73,13 +83,14 @@ function HeroLiveRing({
   target,
   accent,
 }: {
-  outcome: WigOutcome;
+  outcome: WigOutcomeSingle;
   target: number;
   accent: string;
 }) {
   const R = 108;
   const C = 2 * Math.PI * R;
-  const fill = Math.max(0, Math.min(outcome.value, 1));
+  const value = outcome.value ?? 0;
+  const fill = Math.max(0, Math.min(value, 1));
   const tickAngle = (target * 360 - 90) * (Math.PI / 180);
   const tick = {
     x1: 120 + (R - 9) * Math.cos(tickAngle),
@@ -111,12 +122,63 @@ function HeroLiveRing({
           className="text-[54px] font-semibold tracking-tight leading-none"
           style={{ color: accent }}
         >
-          {Math.round(outcome.value * 100)}%
+          {Math.round(value * 100)}%
         </span>
         <span className="text-[12px] text-muted-foreground mt-2">
           {TERM_LABELS[outcome.term] ?? outcome.term}
         </span>
       </div>
+    </div>
+  );
+}
+
+// Compact ring for the multi-metric hero: same geometry at 110px.
+function MiniOutcomeRing({ metric, accent }: { metric: WigOutcomeMetric; accent: string }) {
+  const R = 48;
+  const C = 2 * Math.PI * R;
+  const fill = Math.max(0, Math.min(metric.value ?? 0, 1));
+  const tickAngle = (metric.target * 360 - 90) * (Math.PI / 180);
+  const tick = {
+    x1: 55 + (R - 6) * Math.cos(tickAngle),
+    y1: 55 + (R - 6) * Math.sin(tickAngle),
+    x2: 55 + (R + 6) * Math.cos(tickAngle),
+    y2: 55 + (R + 6) * Math.sin(tickAngle),
+  };
+  return (
+    <div className="flex flex-col items-center">
+      <div className="relative w-[110px] h-[110px]">
+        <svg width={110} height={110} className="block">
+          <circle cx={55} cy={55} r={R} fill="none" stroke="#f0f0f2" strokeWidth={5} />
+          <circle
+            cx={55} cy={55} r={R} fill="none" stroke={accent} strokeWidth={5}
+            strokeLinecap="round" strokeDasharray={C} strokeDashoffset={C * (1 - fill)}
+            transform="rotate(-90 55 55)" style={{ transition: "stroke-dashoffset .6s ease" }}
+          />
+          <line {...tick} stroke="#1c1c1e" strokeWidth={2} strokeLinecap="round" />
+        </svg>
+        <div className="absolute inset-0 flex flex-col items-center justify-center">
+          <span className="text-[24px] font-semibold tracking-tight leading-none" style={{ color: accent }}>
+            {metric.value === null ? "–" : `${Math.round(metric.value * 100)}%`}
+          </span>
+        </div>
+      </div>
+      <span className="text-[12px] font-medium mt-1.5">{metric.label}</span>
+      <span className="text-[10.5px] text-muted-foreground">target {Math.round(metric.target * 100)}%</span>
+    </div>
+  );
+}
+
+function HeroMultiRings({ outcome, accent }: { outcome: WigOutcomeMulti; accent: string }) {
+  return (
+    <div className="flex flex-col items-center">
+      <div className="flex gap-4">
+        {outcome.metrics.map((m) => (
+          <MiniOutcomeRing key={m.key} metric={m} accent={accent} />
+        ))}
+      </div>
+      <span className="text-[12px] text-muted-foreground mt-3">
+        {TERM_LABELS[outcome.term] ?? outcome.term}
+      </span>
     </div>
   );
 }
@@ -129,17 +191,30 @@ function HeroWig({
   outcomes: OutcomesPayload;
 }) {
   const accent = programme.accent ?? "#0a84ff";
-  const target = programme.wig.target;
-  const wired = target !== undefined; // programme has a data-backed outcome
-  const unavailable = wired && !outcomes.available;
-  const outcome = wired && outcomes.available ? outcomes.outcomes[programme.key] ?? null : null;
+  const entry = outcomes.outcomes[programme.key] ?? null;
+  const kind = entry ? outcomeKind(entry) : null;
+  // Literacy programmes (wig.target in config) are gated by the global
+  // literacy source flag; Zazi failures arrive as explicit unavailable entries.
+  const literacyWired = programme.wig.target !== undefined;
+  const unavailable =
+    kind === "unavailable" || (literacyWired && !outcomes.available && kind === null);
+  const single = entry && kind === "single" ? (entry as WigOutcomeSingle) : null;
+  const multi = entry && kind === "multi" ? (entry as WigOutcomeMulti) : null;
+  const target = single ? single.target ?? programme.wig.target : undefined;
+  const unavailableNote =
+    kind === "unavailable" ? (entry as WigOutcomeUnavailable).note : outcomes.source_note;
 
   return (
     <div className="flex flex-col items-center text-center shrink-0 lg:w-[320px]">
-      {outcome && target !== undefined ? (
-        <HeroLiveRing outcome={outcome} target={target} accent={accent} />
+      {multi ? (
+        <HeroMultiRings outcome={multi} accent={accent} />
+      ) : single && single.value != null && target !== undefined ? (
+        <HeroLiveRing outcome={single} target={target} accent={accent} />
       ) : (
-        <div className="relative w-[240px] h-[240px]">
+        <div
+          className="relative w-[240px] h-[240px]"
+          title={unavailable ? unavailableNote ?? undefined : undefined}
+        >
           <svg width={240} height={240} className="block">
             <circle cx={120} cy={120} r={108} fill="none" stroke="#f0f0f2" strokeWidth={7} />
             <circle
@@ -170,27 +245,43 @@ function HeroWig({
       <div className="text-[18px] font-semibold leading-[1.35] mt-2 tracking-tight max-w-[320px]">
         {programme.wig.statement}
       </div>
-      {outcome && target !== undefined ? (
+      {single && target !== undefined && single.value != null ? (
         <div className="flex flex-col items-center gap-1 mt-3">
           <span className="text-[11px] text-muted-foreground">
             target {Math.round(target * 100)}%
-            {outcome.baseline && (
+            {single.baseline?.value != null && (
               <>
                 {" · "}
-                {TERM_LABELS[outcome.baseline.term] ?? outcome.baseline.term}:{" "}
-                {Math.round(outcome.baseline.value * 100)}%
+                {single.baseline.term
+                  ? TERM_LABELS[single.baseline.term] ?? single.baseline.term
+                  : "Baseline"}
+                : {Math.round(single.baseline.value * 100)}%
               </>
             )}
           </span>
           <span className="text-[11px] text-muted-foreground">
-            {outcome.numerator}/{outcome.denominator} passing · {outcome.denominator} of{" "}
-            {outcome.cohort_total} assessed
+            {single.numerator ?? "–"}/{single.denominator ?? "–"} passing
+            {single.cohort_total !== undefined && (
+              <>
+                {" · "}
+                {single.denominator ?? "–"} of {single.cohort_total} assessed
+              </>
+            )}
           </span>
+        </div>
+      ) : multi ? (
+        <div className="flex flex-col items-center gap-0.5 mt-3">
+          {multi.metrics.map((m) => (
+            <span key={m.key} className="text-[11px] text-muted-foreground">
+              {m.label}: {m.numerator ?? "–"}/{m.denominator ?? "–"} passing
+              {m.baseline?.value != null && <> · baseline {Math.round(m.baseline.value * 100)}%</>}
+            </span>
+          ))}
         </div>
       ) : (
         <span
           className="inline-block text-[11px] text-muted-foreground bg-[#f5f5f7] rounded-full px-2.5 py-1 mt-3"
-          title={unavailable ? outcomes.source_note ?? undefined : undefined}
+          title={unavailable ? unavailableNote ?? undefined : undefined}
         >
           {unavailable ? "Assessment data unavailable" : programme.wig.awaitingLabel}
         </span>

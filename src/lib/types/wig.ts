@@ -48,22 +48,52 @@ export interface ZaziPayload {
 // --- Outcome (lag) measures for hero WIG rings (GET /api/wig/outcomes/) ---
 
 export interface OutcomeTermStat {
-  value: number; // fraction 0..1
-  numerator: number;
-  denominator: number;
-  term: string; // "Jan" | "Jun" | "Nov"
+  value: number | null; // fraction 0..1 (null when the grade has no rows this term)
+  numerator: number | null;
+  denominator: number | null;
+  term?: string;
 }
 
-export interface WigOutcome extends OutcomeTermStat {
-  cohort_total: number; // full grade cohort on the roster (assessed or not)
+export interface WigOutcomeSingle extends OutcomeTermStat {
+  kind?: "single"; // absent on pre-migration payloads; treat missing as single
+  term: string;
+  cohort_total?: number; // Masi literacy only (no roster concept on Zazi side)
   baseline: OutcomeTermStat | null;
+  target?: number; // Zazi supplies its own; literacy uses config
   calculation_note?: string;
+}
+
+export interface WigOutcomeMetric extends OutcomeTermStat {
+  key: string;
+  label: string;
+  threshold: number;
+  target: number;
+  baseline: OutcomeTermStat | null;
+}
+
+export interface WigOutcomeMulti {
+  kind: "multi";
+  term: string;
+  as_of?: string | null;
+  metrics: WigOutcomeMetric[];
+}
+
+export interface WigOutcomeUnavailable {
+  kind: "unavailable";
+  note: string;
+}
+
+export type WigOutcomeEntry = WigOutcomeSingle | WigOutcomeMulti | WigOutcomeUnavailable;
+
+// Missing `kind` (old backend) is a single outcome — deploy-order safety.
+export function outcomeKind(o: WigOutcomeEntry): "single" | "multi" | "unavailable" {
+  return o.kind ?? "single";
 }
 
 export interface OutcomesPayload {
   available: boolean;
   source_note: string | null;
-  outcomes: Record<string, WigOutcome | null>;
+  outcomes: Record<string, WigOutcomeEntry | null>;
   data_as_of?: string;
 }
 

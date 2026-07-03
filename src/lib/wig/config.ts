@@ -367,6 +367,9 @@ export const TERM_LABELS: Record<string, string> = {
   Jan: "Baseline (Jan)",
   Jun: "Midline (Jun)",
   Nov: "Endline (Nov)",
+  baseline: "Baseline",
+  midline: "Midline",
+  endline: "Endline",
 };
 
 // URL slug <-> programme key. Keys use underscores; slugs use hyphens, so the

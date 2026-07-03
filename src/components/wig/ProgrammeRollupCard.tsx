@@ -1,5 +1,12 @@
 import Link from "next/link";
-import type { MeasureValue, ProgrammeConfig, OutcomesPayload } from "@/lib/types/wig";
+import { outcomeKind } from "@/lib/types/wig";
+import type {
+  MeasureValue,
+  ProgrammeConfig,
+  OutcomesPayload,
+  WigOutcomeMulti,
+  WigOutcomeSingle,
+} from "@/lib/types/wig";
 import { ragStatus, RAG_HEX } from "@/lib/wig/rag";
 import { programmeSlug, TERM_LABELS } from "@/lib/wig/config";
 import { onTrackCount, targetFor } from "./ProgrammeView";
@@ -24,10 +31,15 @@ export function ProgrammeRollupCard({
   const zaziDown =
     programme.key.startsWith("zazi_izandi") && zaziAvailable[programme.key] === false;
 
-  const target = programme.wig.target;
-  const wired = target !== undefined;
-  const outcome = wired && outcomes.available ? outcomes.outcomes[programme.key] ?? null : null;
-  const outcomeUnavailable = wired && !outcomes.available;
+  const entry = outcomes.outcomes[programme.key] ?? null;
+  const kind = entry ? outcomeKind(entry) : null;
+  const single = entry && kind === "single" ? (entry as WigOutcomeSingle) : null;
+  const g1 = entry && kind === "multi"
+    ? (entry as WigOutcomeMulti).metrics.find((m) => m.key === "grade_1") ?? null
+    : null;
+  const literacyWired = programme.wig.target !== undefined;
+  const outcomeUnavailable =
+    kind === "unavailable" || (literacyWired && !outcomes.available && kind === null);
 
   return (
     <Link
@@ -66,8 +78,12 @@ export function ProgrammeRollupCard({
           );
         })}
         <span className="ml-auto text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
-          {outcome
-            ? `${Math.round(outcome.value * 100)}% · ${TERM_LABELS[outcome.term] ?? outcome.term}`
+          {single?.value != null
+            ? `${Math.round(single.value * 100)}% · ${TERM_LABELS[single.term] ?? single.term}`
+            : g1?.value != null
+              ? `Gr 1: ${Math.round(g1.value * 100)}% · ${
+                  TERM_LABELS[(entry as WigOutcomeMulti).term] ?? ""
+                }`
             : zaziDown
               ? "backend unavailable"
               : outcomeUnavailable
