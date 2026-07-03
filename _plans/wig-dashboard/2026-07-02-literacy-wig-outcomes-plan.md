@@ -15,8 +15,8 @@
 - TWO git repos. Backend: `/Users/jimmckeown/Development/Masi_Website_2026/backend/Masi Web Main` (run git + manage.py from there, venv via `venv/bin/python`). Frontend: `/Users/jimmckeown/Development/Masi_Website_2026/frontend/masi-website` (run git + pnpm from there).
 - Backend tests: `venv/bin/python manage.py test <module> -v 2` from the backend dir. Frontend has NO unit-test runner: gates are `pnpm lint` + `pnpm build` + browser E2E.
 - Local Postgres (`DATABASE_URL` -> localhost/masi_db) for all dev/tests. NEVER point `DATABASE_URL` at prod.
-- Outcome values are fractions 0..1 (frontend formats as %). Programme keys: `core_literacy`, `ecd_literacy`. Terms: `Jan` < `Jun` < `Nov`.
-- Metric rules (decided, do not change): Grade 1 `read_words >= 16` target 0.5; PreR `letter_sounds >= 20` target 0.75; assessed-only denominator; cohort grade = `normalize_grade(roster.grade or assessment.grade)`.
+- Outcome values are fractions 0..1 (frontend formats as %). Programme keys: `core_literacy`, `ecd_literacy`. Terms: `Jan` < `Jun` (Nov endline is enabled later, together with the exporter's `TERM_TO_PREFIX` and the Streamlit processor's `MONTHS`, so the parity surface can always cross-check).
+- Metric rules (decided, do not change): Grade 1 `read_words >= 16` target 0.5; PreR `letter_sounds >= 20` target 0.75; assessed-only denominator; cohort grade = `normalize_grade(roster.grade or assessment.grade)`; scores above the instrument max (Read Words > 40, Letter Sounds > 60 — language-invariant for these two skills) are treated as missing, mirroring the portal's `_null_out_of_range`.
 - Fail-closed: sync-log problems, >48h-old syncs, or any dedupe exception -> `available: false`, never numbers.
 - No emojis anywhere. Commit messages: no co-author lines, imperative mood.
 
@@ -164,7 +164,7 @@ git commit -m "refactor: extract shared 2026 literacy dedupe policy module"
 - Test: create `api/tests_wig_outcomes.py`
 
 **Interfaces:**
-- Produces: `check_sources(now) -> (ok: bool, note: str | None)`; constants `REQUIRED_SYNCS`, `MAX_SYNC_AGE_HOURS = 48`, `TERM_ORDER = ("Jan", "Jun", "Nov")`, `OUTCOME_DEFS`.
+- Produces: `check_sources(now) -> (ok: bool, note: str | None)`; constants `REQUIRED_SYNCS`, `MAX_SYNC_AGE_HOURS = 48`, `TERM_ORDER = ("Jan", "Jun")`, `OUTCOME_DEFS` (each def carries `grade`, `skill`, `threshold`, `max`, `label`).
 
 - [ ] **Step 1: Write the failing tests**
 
@@ -279,12 +279,17 @@ from .models import AirtableSyncLog, LiteracyAssessment2026, OnTheProgramme2026
 
 REQUIRED_SYNCS = ("literacy_assessments_2026", "on_the_programme_2026")
 MAX_SYNC_AGE_HOURS = 48  # two missed nightly runs = dead cron
-TERM_ORDER = ("Jan", "Jun", "Nov")
+# Nov endline: append "Nov" here ONLY together with the exporter's TERM_TO_PREFIX
+# and the Streamlit processor's MONTHS, so the parity surfaces can cross-check.
+TERM_ORDER = ("Jan", "Jun")
 
+# "max" mirrors the portal's _null_out_of_range: scores above the instrument max
+# are data errors, treated as missing. Letter Sounds (60) and Read Words (40) are
+# language-invariant (no IsiXhosa/Afrikaans override touches them).
 OUTCOME_DEFS = {
-    "core_literacy": {"grade": "Grade 1", "skill": "Read Words", "threshold": 16.0,
+    "core_literacy": {"grade": "Grade 1", "skill": "Read Words", "threshold": 16.0, "max": 40.0,
                       "label": "Grade 1 on-roster children with Read Words >= 16"},
-    "ecd_literacy": {"grade": "PreR", "skill": "Letter Sounds", "threshold": 20.0,
+    "ecd_literacy": {"grade": "PreR", "skill": "Letter Sounds", "threshold": 20.0, "max": 60.0,
                      "label": "PreR on-roster children with Letter Sounds >= 20"},
 }
 
@@ -392,12 +397,26 @@ class OutcomeComputationTests(TestCase):
         self.assertEqual(out["baseline"]["term"], "Jan")
         self.assertEqual(out["baseline"]["value"], 0.0)
 
-    def test_nov_over_jun(self):
+    def test_nov_rows_ignored_until_parity_surfaces_support_endline(self):
+        # Enabled together with the exporter/portal Nov support (see TERM_ORDER).
         roster("CH-1")
         assess("CH-1", term="Jun", read_words=10.0)
         assess("CH-1", term="Nov", read_words=20.0)
         out = build_outcomes()["outcomes"]["core_literacy"]
-        self.assertEqual(out["term"], "Nov")
+        self.assertEqual(out["term"], "Jun")
+        self.assertEqual(out["value"], 0.0)
+
+    def test_out_of_range_read_words_treated_as_missing(self):
+        roster("CH-1"); roster("CH-2")
+        assess("CH-1", read_words=41.0)   # above instrument max 40: data error
+        assess("CH-2", read_words=40.0)   # boundary value is in range and passes
+        out = build_outcomes()["outcomes"]["core_literacy"]
+        self.assertEqual((out["numerator"], out["denominator"]), (1, 1))
+
+    def test_out_of_range_letter_sounds_treated_as_missing(self):
+        roster("CH-1", grade="PreR")
+        assess("CH-1", letter_sounds=61.0)  # above instrument max 60
+        self.assertIsNone(build_outcomes()["outcomes"]["ecd_literacy"])
 
     def test_only_jan_data_has_no_baseline_field(self):
         roster("CH-1")
@@ -488,16 +507,20 @@ Expected: `ImportError: cannot import name 'build_outcomes'`
 - [ ] **Step 3: Implement in `api/wig_outcomes.py` (append below `check_sources`)**
 
 ```python
-def _term_stat(cohort_uids, winners, term, skill, threshold):
-    """Assessed-only stats for one term, or None if nobody has the skill scored."""
+def _term_stat(cohort_uids, winners, term, defn):
+    """Assessed-only stats for one term, or None if nobody has the skill scored.
+
+    Scores above the instrument max are data errors, treated as missing —
+    the portal's _null_out_of_range rule, so both surfaces publish the same %.
+    """
     num = den = 0
     for uid in cohort_uids:
         row = winners.get((uid, term))
-        score = row['scores'].get(skill) if row else None
-        if score is None:
+        score = row['scores'].get(defn['skill']) if row else None
+        if score is None or score > defn['max']:
             continue
         den += 1
-        if score >= threshold:
+        if score >= defn['threshold']:
             num += 1
     if den == 0:
         return None
@@ -524,8 +547,7 @@ def _child_grades(roster_grades, winners):
 
 def _programme_outcome(defn, grades, fallback_uids, winners):
     cohort = [uid for uid, g in grades.items() if g == defn['grade']]
-    stats = {term: _term_stat(cohort, winners, term, defn['skill'], defn['threshold'])
-             for term in TERM_ORDER}
+    stats = {term: _term_stat(cohort, winners, term, defn) for term in TERM_ORDER}
     latest = None
     for term in TERM_ORDER:
         if stats[term] is not None:
@@ -573,7 +595,7 @@ def build_outcomes(now=None):
 - [ ] **Step 4: Run the full outcome test module**
 
 Run: `venv/bin/python manage.py test api.tests_wig_outcomes -v 2`
-Expected: all 26 tests PASS
+Expected: all 28 tests PASS
 
 - [ ] **Step 5: Commit (backend repo)**
 
@@ -593,22 +615,53 @@ git commit -m "feat: literacy WIG outcome computation (Grade 1 read words, PreR 
 **Interfaces:**
 - Produces: `GET /api/wig/outcomes/` returning `build_outcomes()`, guarded by `IsAdminOrProjectManager` + `SessionAuthentication`/`ClerkAuthentication` (same as the other WIG views).
 
-- [ ] **Step 1: Write the failing test (append to `api/tests_wig_outcomes.py`)**
+- [ ] **Step 1: Write the failing tests (append to `api/tests_wig_outcomes.py`)**
+
+URL-level tests (the `WigEndpointTests._client_as` pattern from `api/tests_wig.py`)
+so they prove BOTH that the route is registered in `api/urls.py` AND that the
+role gate is `IsAdminOrProjectManager`, not merely `IsAuthenticated`:
 
 ```python
-from rest_framework.test import APIRequestFactory
+from django.contrib.auth.models import User
+from rest_framework.test import APIClient
 
 
 class OutcomeEndpointTests(TestCase):
-    def test_anonymous_request_rejected(self):
-        from api.views import wig_outcomes as wig_outcomes_view
-        req = APIRequestFactory().get('/api/wig/outcomes/')
-        resp = wig_outcomes_view(req)
-        self.assertIn(resp.status_code, (401, 403))
+    """/api/wig/outcomes/ is wired and role-gated (ADMIN / PROJECT MANAGER only)."""
+
+    def _client_as(self, name, role):
+        u = User.objects.create(username=name)
+        u.profile.role = role
+        u.profile.save()
+        c = APIClient()
+        c.force_authenticate(u)
+        return c
+
+    def test_admin_gets_payload_via_url(self):
+        make_logs()
+        roster("CH-1")
+        assess("CH-1", read_words=20.0)
+        r = self._client_as('a', 'ADMIN').get('/api/wig/outcomes/')
+        self.assertEqual(r.status_code, 200)
+        body = r.json()
+        self.assertTrue(body['available'])
+        self.assertEqual(body['outcomes']['core_literacy']['numerator'], 1)
+
+    def test_project_manager_allowed(self):
+        r = self._client_as('pm', 'PROJECT MANAGER').get('/api/wig/outcomes/')
+        self.assertEqual(r.status_code, 200)
+
+    def test_mentor_denied(self):
+        r = self._client_as('m', 'MENTOR').get('/api/wig/outcomes/')
+        self.assertEqual(r.status_code, 403)
+
+    def test_anonymous_denied(self):
+        r = APIClient().get('/api/wig/outcomes/')
+        self.assertIn(r.status_code, (401, 403))
 ```
 
 Run: `venv/bin/python manage.py test api.tests_wig_outcomes.OutcomeEndpointTests -v 2`
-Expected: FAIL with `ImportError: cannot import name 'wig_outcomes'`
+Expected: FAIL — admin/PM tests get 404 (route not registered yet)
 
 - [ ] **Step 2: Add the view**
 
@@ -1028,7 +1081,9 @@ venv/bin/python - <<'EOF'
 import pandas as pd
 df = pd.read_parquet("/Users/jimmckeown/Development/Masi_Data_Site/masi_data_streamlit/data/parquet/raw/2026_literacy_midline.parquet")
 g1 = df[df["Grade"] == "Grade 1"]["June - Read Words"].dropna()
+g1 = g1[g1 <= 40]   # portal's out-of-range nulling (Read Words max 40)
 pre = df[df["Grade"] == "PreR"]["June - Letter Sounds"].dropna()
+pre = pre[pre <= 60]  # Letter Sounds max 60
 print("core:", len(g1), round((g1 >= 16).mean(), 4))
 print("ecd:", len(pre), round((pre >= 20).mean(), 4))
 EOF

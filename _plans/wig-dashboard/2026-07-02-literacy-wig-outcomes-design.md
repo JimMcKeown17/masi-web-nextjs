@@ -4,10 +4,12 @@ Wires the hero WIG rings for Core Literacy and ECD Literacy to real 2026 assessm
 data. Closes the "Awaiting baseline assessment" placeholder gap deferred as Phase 4
 in `plan.md` (metric-contract.md marked assessment measures "Gap - no source").
 Approved by Jim 2026-07-02 (metric definitions, display, architecture, ops).
-Revised same day after two Codex adversarial review rounds: source-health +
+Revised same day after three Codex adversarial review rounds: source-health +
 48h staleness gates, fail-closed dedupe exceptions, transport failures render
 unavailable (never awaiting), roster-grade cohort rule, shared pick_winner
-dedupe (no any-row-passes), cohort_total coverage visibility.
+dedupe (no any-row-passes), cohort_total coverage visibility, out-of-range
+score guard, Jan/Jun-only until parity surfaces support Nov, URL-level role
+tests.
 
 ## Context
 
@@ -60,9 +62,17 @@ join scopes to Masi literacy children (excludes Zazi cohorts).
   roster size) and the UI shows "assessed X of Y" next to the ring. Revisit at
   Nov endline whether the year-end WIG should count unassessed children as
   non-passing.
-- Terms ordered Jan < Jun < Nov. Displayed value = latest term whose denominator
-  is > 0 for that programme's skill. Baseline = Jan, shown as context; if Jan has
-  no data the baseline field is null and the UI omits the baseline line.
+- Out-of-range guard: scores above the instrument max (Read Words > 40,
+  Letter Sounds > 60) are data errors, treated as missing - the portal's
+  `_null_out_of_range` rule. These two maxima are language-invariant (no
+  IsiXhosa/Afrikaans denominator override touches them), so no language table
+  is needed backend-side.
+- Terms ordered Jan < Jun. Nov (endline) is enabled later, together with the
+  exporter's `TERM_TO_PREFIX` and the Streamlit processor's `MONTHS`, so the
+  parity surfaces can always cross-check; until then Nov rows are ignored.
+  Displayed value = latest term whose denominator is > 0 for that programme's
+  skill. Baseline = Jan, shown as context; if Jan has no data the baseline field
+  is null and the UI omits the baseline line.
 - Thresholds are fixed year-end goals (16 wpm / 20 sounds); they do NOT shift
   mid-year vs end-year like the Streamlit on-grade-level chart.
 
@@ -161,9 +171,13 @@ fails). The awaiting label only ever appears with healthy syncs and no rows.
 ## Testing
 
 - Backend fixture tests (`api/tests_wig.py` style): threshold boundary (exactly
-  16/20 passes), null scores excluded from denominator, off-roster children
-  excluded, latest-term selection (Jun over Jan; Nov over Jun), empty tables
-  with no sync logs -> unavailable payload.
+  16/20 passes), null scores excluded from denominator, out-of-range scores
+  (Read Words > 40, Letter Sounds > 60) treated as missing, off-roster children
+  excluded, latest-term selection (Jun over Jan; Nov rows ignored until endline
+  support), empty tables with no sync logs -> unavailable payload.
+- Endpoint tests hit the real URL via APIClient (proves routing AND the role
+  gate): ADMIN 200 with payload, PROJECT MANAGER 200, MENTOR 403, anonymous
+  401/403.
 - Dedupe fixtures: a Duplicate-flagged passing row alongside a Single winner that
   fails -> child does NOT pass (winner policy holds); exporter and endpoint agree
   on the same fixture.
