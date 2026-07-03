@@ -191,10 +191,16 @@ GET /api/dashboard-summary/
 ### WIG Endpoints
 
 #### GET /api/wig/outcomes/
-Term-keyed outcome (lag) measures for the literacy hero WIG rings (ADMIN/PM only).
-Returns `{available, source_note, outcomes: {core_literacy, ecd_literacy}, data_as_of}`;
-each outcome has value/numerator/denominator/cohort_total/term/baseline. Fail-closed:
-sync-log problems, syncs older than 48h, or dedupe exceptions return available=false.
+Term-keyed outcome (lag) measures for the hero WIG rings (ADMIN/PM only).
+Returns `{available, source_note, outcomes, data_as_of}`. Entries are
+kind-discriminated per programme: literacy keys (`core_literacy`,
+`ecd_literacy`) are `kind:'single'` (value/numerator/denominator/cohort_total/
+term/baseline); Zazi keys (`zazi_izandi` = `kind:'multi'` with per-grade
+metrics, `zazi_izandi_ecd` = `kind:'single'` with payload-supplied target) are
+proxied live from the Zazi backend's `/api/wig-outcomes/` (60s in-process
+cache) and degrade independently to `kind:'unavailable'`. Fail-closed:
+literacy sync-log problems/staleness/dedupe exceptions -> available=false;
+Zazi fetch failure or malformed payload -> unavailable entries.
 
 ---
 
