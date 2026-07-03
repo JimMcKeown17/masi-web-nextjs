@@ -20,8 +20,8 @@ export default function WigOverviewPage() {
         </span>
       </div>
 
-      <div className="rounded-xl border border-dashed border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-2.5 text-[13px] text-indigo-700 mb-6">
-        <b>Org WIG</b> — to be defined · placeholder until the team sets the single north-star goal
+      <div className="rounded-xl border border-indigo-200 bg-gradient-to-r from-indigo-50 to-purple-50 px-4 py-2.5 text-[13px] text-indigo-700 mb-6">
+        <b>Org WIG</b> — Hit our Word Reading &amp; Blending WIGs in all programmes
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
