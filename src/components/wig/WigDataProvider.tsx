@@ -36,7 +36,10 @@ export function WigDataProvider({ children }: { children: ReactNode }) {
     const emptyOutcomes: OutcomesPayload = {
       available: false,
       source_note: "outcomes request failed",
-      outcomes: {},
+      outcomes: {
+        zazi_izandi: { kind: "unavailable", note: "outcomes request failed" },
+        zazi_izandi_ecd: { kind: "unavailable", note: "outcomes request failed" },
+      },
     };
     const [lead, dq, zazi, outcomes] = await Promise.all([
       getWigLeadMeasures(token, period),

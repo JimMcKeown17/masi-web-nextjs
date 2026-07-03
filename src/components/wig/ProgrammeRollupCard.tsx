@@ -34,9 +34,9 @@ export function ProgrammeRollupCard({
   const entry = outcomes.outcomes[programme.key] ?? null;
   const kind = entry ? outcomeKind(entry) : null;
   const single = entry && kind === "single" ? (entry as WigOutcomeSingle) : null;
-  const g1 = entry && kind === "multi"
-    ? (entry as WigOutcomeMulti).metrics.find((m) => m.key === "grade_1") ?? null
-    : null;
+  const multi = entry && kind === "multi" ? (entry as WigOutcomeMulti) : null;
+  const g1 = multi?.metrics.find((m) => m.key === "grade_1") ?? null;
+  const multiLabel = multi ? TERM_LABELS[multi.term] ?? multi.term : null;
   const literacyWired = programme.wig.target !== undefined;
   const outcomeUnavailable =
     kind === "unavailable" || (literacyWired && !outcomes.available && kind === null);
@@ -80,10 +80,10 @@ export function ProgrammeRollupCard({
         <span className="ml-auto text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
           {single?.value != null
             ? `${Math.round(single.value * 100)}% · ${TERM_LABELS[single.term] ?? single.term}`
-            : g1?.value != null
-              ? `Gr 1: ${Math.round(g1.value * 100)}% · ${
-                  TERM_LABELS[(entry as WigOutcomeMulti).term] ?? ""
-                }`
+            : multi
+              ? g1
+                ? `Gr 1: ${g1.value != null ? `${Math.round(g1.value * 100)}%` : "–"} · ${multiLabel}`
+                : multiLabel
             : zaziDown
               ? "backend unavailable"
               : outcomeUnavailable
