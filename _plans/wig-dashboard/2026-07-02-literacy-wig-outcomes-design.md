@@ -4,6 +4,8 @@ Wires the hero WIG rings for Core Literacy and ECD Literacy to real 2026 assessm
 data. Closes the "Awaiting baseline assessment" placeholder gap deferred as Phase 4
 in `plan.md` (metric-contract.md marked assessment measures "Gap - no source").
 Approved by Jim 2026-07-02 (metric definitions, display, architecture, ops).
+Revised same day after Codex adversarial review: source-health gate on the
+endpoint, shared pick_winner dedupe (no any-row-passes), roster-grade cohort rule.
 
 ## Context
 
@@ -19,7 +21,10 @@ Approved by Jim 2026-07-02 (metric definitions, display, architecture, ops).
 - The Streamlit portal consumes these via a parquet export; the WIG board reads
   the tables directly via ORM (live, no parquet involvement).
 - Verified against local snapshot (2026-07-02): Core Literacy Jan 2.8% -> Jun 23.3%
-  (n=344); ECD Literacy Jan 2.2% -> Jun 22.9% (n=310).
+  (n=344); ECD Literacy Jan 2.2% -> Jun 22.9% (n=310). Caveat: this sanity SQL used
+  raw assessment grade and no winner-dedupe; final numbers may shift slightly under
+  the roster-grade + pick_winner rules below. E2E verifies against the Streamlit
+  portal (same rules), not this SQL.
 
 ## Metric definitions (decided)
 
@@ -30,12 +35,23 @@ join scopes to Masi literacy children (excludes Zazi cohorts).
 
 | Programme | Grade filter | Passing rule | Target |
 |---|---|---|---|
-| `core_literacy` | assessment `grade = 'Grade 1'` | `read_words >= 16` | 50% |
-| `ecd_literacy` | assessment `grade = 'PreR'` | `letter_sounds >= 20` | 75% |
+| `core_literacy` | cohort grade `= 'Grade 1'` | `read_words >= 16` | 50% |
+| `ecd_literacy` | cohort grade `= 'PreR'` | `letter_sounds >= 20` | 75% |
 
-- Denominator = distinct children with a non-null score for that skill in the term.
-- Numerator = distinct children with any row passing (duplicate rows counted once;
-  simpler than the parquet exporter's `pick_winner`, duplicates ~0 per QA gates).
+- Cohort grade per child = `normalize_grade(roster.grade or assessment.grade)`,
+  exactly the parquet exporter's rule (roster grade first, assessment grade as
+  fallback, aliases normalised via `api/literacy_2026_grades.py`). One grade per
+  child for the year, so Jan and Jun percentages use the same cohort split -
+  matching the Streamlit portal. Grade-fallback count reported in the payload's
+  `calculation_note` for auditability.
+- Duplicate rows resolved with the exporter's winner policy, NOT any-row-passes:
+  extract `pick_winner`/`dedupe` (and the row-dict helpers they need) from
+  `export_literacy_2026_parquet.py` into a shared module
+  (`api/literacy_2026_dedupe.py`); both the exporter and `wig_outcomes` import it.
+  This keeps the WIG ring arithmetically consistent with the Streamlit export
+  (a Duplicate-flagged passing row must never flip a child to passing).
+- Denominator = children whose winning row has a non-null score for that skill
+  in the term. Numerator = those whose winning row passes the threshold.
 - Terms ordered Jan < Jun < Nov. Displayed value = latest term whose denominator
   is > 0 for that programme's skill. Baseline = Jan, shown as context; if Jan has
   no data the baseline field is null and the UI omits the baseline line.
@@ -52,11 +68,13 @@ join scopes to Masi literacy children (excludes Zazi cohorts).
 ```
 GET /api/wig/outcomes/
 {
+  "available": true,
+  "source_note": null,
   "outcomes": {
     "core_literacy": {
       "value": 0.233, "numerator": 80, "denominator": 344, "term": "Jun",
       "baseline": {"value": 0.028, "numerator": 10, "denominator": 361, "term": "Jan"},
-      "calculation_note": "Grade 1 on-roster children with Read Words >= 16"
+      "calculation_note": "Grade 1 on-roster children with Read Words >= 16; 0 grade fallbacks"
     },
     "ecd_literacy": { ...same shape... }
   },
@@ -65,8 +83,17 @@ GET /api/wig/outcomes/
 ```
 
 - Values are fractions (frontend formats as %), matching the board's ratio convention.
-- No qualifying rows for a programme -> that key is `null` -> frontend keeps the
-  awaiting state. Empty prod tables are therefore correct-but-awaiting, not an error.
+- **Source-health gate** (same rule as the exporter's `_assert_synced`): the
+  endpoint checks the latest `AirtableSyncLog` for both `literacy_assessments_2026`
+  and `on_the_programme_2026`. If either log is missing, failed, incomplete, or
+  flagged (`details.retire_skipped` / `details.dup_uid_skipped`), the payload is
+  `{"available": false, "source_note": "<which sync, why>", "outcomes": {}}`.
+  This distinguishes "pipeline broken/not configured" (today's empty prod: no log
+  rows -> unavailable) from "genuinely not assessed yet". No time-based staleness
+  check in v1: assessments change three times a year, so latest-attempt-succeeded
+  is the meaningful gate; a wall-clock threshold would only add false alarms.
+- With healthy sources, no qualifying rows for a programme -> that key is `null`
+  -> frontend keeps the awaiting state.
 
 ## Frontend
 
@@ -77,8 +104,13 @@ GET /api/wig/outcomes/
   in the statement string). Zazi and other programmes unchanged.
 - `WigDataProvider`: fourth call in the existing `Promise.all`, wrapped in
   `.catch(() => empty)` like the Zazi call. Expose `outcomes` in context.
-- `HeroWig` (`ProgrammeView.tsx`): when an outcome exists for the programme,
-  render a live ring instead of the dashed placeholder:
+- `HeroWig` (`ProgrammeView.tsx`): three states, mirroring the Zazi tiles'
+  unavailable pattern:
+  1. payload `available: false` -> "Assessment data unavailable" (grey, with
+     `source_note`), NOT the awaiting label - a broken pipeline must not read
+     as "not assessed yet";
+  2. sources healthy but outcome `null` -> existing awaiting placeholder;
+  3. outcome present -> live ring:
   - big % + term label ("23% - Midline (Jun)"); term label map
     Jan=Baseline, Jun=Midline, Nov=Endline
   - target tick at 50%/75% on the ring
@@ -107,8 +139,18 @@ Until run, prod shows "Awaiting baseline assessment" - correct behaviour.
 
 - Backend fixture tests (`api/tests_wig.py` style): threshold boundary (exactly
   16/20 passes), null scores excluded from denominator, off-roster children
-  excluded, latest-term selection (Jun over Jan; Nov over Jun), duplicate rows
-  counted once, empty tables -> null payload.
+  excluded, latest-term selection (Jun over Jan; Nov over Jun), empty tables ->
+  unavailable payload.
+- Dedupe fixtures: a Duplicate-flagged passing row alongside a Single winner that
+  fails -> child does NOT pass (winner policy holds); exporter and endpoint agree
+  on the same fixture.
+- Grade fixtures: roster/assessment grade disagreement resolves to roster grade;
+  alias grades (via `normalize_grade`) land in the right cohort; fallback grades
+  counted.
+- Source-health fixtures: no sync logs, latest log failed, latest log flagged
+  (`retire_skipped`/`dup_uid_skipped`) -> `available: false` with note; healthy
+  logs + no rows -> `available: true` with null outcomes.
 - E2E: local backend + `pnpm dev`, load `/operations/wig/core-literacy` and
-  `/operations/wig/ecd-literacy`, verify 23.3% / 22.9% against the SQL check.
+  `/operations/wig/ecd-literacy`; verify the June percentages match the Streamlit
+  portal's equivalents (same roster-grade + dedupe rules) and baseline lines render.
 - Docs: add endpoint to `documentation/api-endpoints.md`.
