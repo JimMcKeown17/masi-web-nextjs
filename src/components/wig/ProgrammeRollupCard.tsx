@@ -1,7 +1,7 @@
 import Link from "next/link";
-import type { MeasureValue, ProgrammeConfig } from "@/lib/types/wig";
+import type { MeasureValue, ProgrammeConfig, OutcomesPayload } from "@/lib/types/wig";
 import { ragStatus, RAG_HEX } from "@/lib/wig/rag";
-import { programmeSlug } from "@/lib/wig/config";
+import { programmeSlug, TERM_LABELS } from "@/lib/wig/config";
 import { onTrackCount, targetFor } from "./ProgrammeView";
 
 // Compact summary of one programme on the Overview page: WIG statement,
@@ -10,10 +10,12 @@ export function ProgrammeRollupCard({
   programme,
   measures,
   zaziAvailable,
+  outcomes,
 }: {
   programme: ProgrammeConfig;
   measures: Record<string, MeasureValue>;
   zaziAvailable: Record<string, boolean>;
+  outcomes: OutcomesPayload;
 }) {
   const onTrack = onTrackCount(programme, measures);
   const total = programme.measures.length;
@@ -21,6 +23,11 @@ export function ProgrammeRollupCard({
   const accent = programme.accent ?? "#0a84ff";
   const zaziDown =
     programme.key.startsWith("zazi_izandi") && zaziAvailable[programme.key] === false;
+
+  const target = programme.wig.target;
+  const wired = target !== undefined;
+  const outcome = wired && outcomes.available ? outcomes.outcomes[programme.key] ?? null : null;
+  const outcomeUnavailable = wired && !outcomes.available;
 
   return (
     <Link
@@ -59,7 +66,13 @@ export function ProgrammeRollupCard({
           );
         })}
         <span className="ml-auto text-[11px] text-muted-foreground group-hover:text-foreground transition-colors">
-          {zaziDown ? "backend unavailable" : programme.wig.awaitingLabel}
+          {outcome
+            ? `${Math.round(outcome.value * 100)}% · ${TERM_LABELS[outcome.term] ?? outcome.term}`
+            : zaziDown
+              ? "backend unavailable"
+              : outcomeUnavailable
+                ? "assessment data unavailable"
+                : programme.wig.awaitingLabel}
         </span>
       </div>
     </Link>

@@ -188,6 +188,16 @@ GET /api/dashboard-summary/
 
 ---
 
+### WIG Endpoints
+
+#### GET /api/wig/outcomes/
+Term-keyed outcome (lag) measures for the literacy hero WIG rings (ADMIN/PM only).
+Returns `{available, source_note, outcomes: {core_literacy, ecd_literacy}, data_as_of}`;
+each outcome has value/numerator/denominator/cohort_total/term/baseline. Fail-closed:
+sync-log problems, syncs older than 48h, or dedupe exceptions return available=false.
+
+---
+
 ## Frontend Integration Patterns
 
 ### Fetching with SWR (Recommended)

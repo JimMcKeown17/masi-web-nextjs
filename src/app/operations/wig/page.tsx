@@ -31,6 +31,7 @@ export default function WigOverviewPage() {
             programme={p}
             measures={data.measures}
             zaziAvailable={data.zaziAvailable}
+            outcomes={data.outcomes}
           />
         ))}
       </div>
