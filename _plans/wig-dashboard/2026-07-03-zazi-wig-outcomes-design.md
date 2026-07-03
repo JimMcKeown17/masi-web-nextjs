@@ -122,6 +122,13 @@ GET /api/wig-outcomes/
 - `api/zazi_client.py`: `fetch_zazi_wig_outcomes()` - live GET with a 5s
   timeout (the aggregate is sub-second, unlike the ~10s programme-overview;
   no snapshot model, no cron).
+- 60s in-process cache around fetch+normalize (gate-2 review): success AND
+  failure results are cached, so a Zazi outage costs at most one 5s wait per
+  worker per minute instead of per request. Live-fetch architecture kept.
+- Strict payload validation (gate-2 review): missing programme keys, non-dict
+  programmes, empty metrics, or missing metric KEYS -> both Zazi entries
+  unavailable ('Zazi payload malformed'). Null metric VALUES are valid. Only
+  a literally-null programme value (key present) means awaiting.
 - `api/wig_outcomes.py` `build_outcomes()`: after the literacy outcomes,
   merge Zazi. Fail-closed per programme:
   - fetch error/timeout/malformed payload -> both Zazi keys =
