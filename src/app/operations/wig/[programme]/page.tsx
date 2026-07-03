@@ -23,6 +23,7 @@ export default function ProgrammePage() {
       measures={data.measures}
       zaziAvailable={data.zaziAvailable}
       weekLabel={formatWindowRange(data.window)}
+      outcomes={data.outcomes}
     />
   );
 }
