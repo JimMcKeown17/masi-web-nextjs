@@ -4,8 +4,10 @@ Wires the hero WIG rings for Core Literacy and ECD Literacy to real 2026 assessm
 data. Closes the "Awaiting baseline assessment" placeholder gap deferred as Phase 4
 in `plan.md` (metric-contract.md marked assessment measures "Gap - no source").
 Approved by Jim 2026-07-02 (metric definitions, display, architecture, ops).
-Revised same day after Codex adversarial review: source-health gate on the
-endpoint, shared pick_winner dedupe (no any-row-passes), roster-grade cohort rule.
+Revised same day after two Codex adversarial review rounds: source-health +
+48h staleness gates, fail-closed dedupe exceptions, transport failures render
+unavailable (never awaiting), roster-grade cohort rule, shared pick_winner
+dedupe (no any-row-passes), cohort_total coverage visibility.
 
 ## Context
 
@@ -52,6 +54,12 @@ join scopes to Masi literacy children (excludes Zazi cohorts).
   (a Duplicate-flagged passing row must never flip a child to passing).
 - Denominator = children whose winning row has a non-null score for that skill
   in the term. Numerator = those whose winning row passes the threshold.
+- Assessed-only denominator is a DECIDED trade-off (Jim, 2026-07-02): it matches
+  the Streamlit portal's per-term population. To keep partial coverage visible
+  rather than hidden, the payload carries `cohort_total` (the grade cohort's full
+  roster size) and the UI shows "assessed X of Y" next to the ring. Revisit at
+  Nov endline whether the year-end WIG should count unassessed children as
+  non-passing.
 - Terms ordered Jan < Jun < Nov. Displayed value = latest term whose denominator
   is > 0 for that programme's skill. Baseline = Jan, shown as context; if Jan has
   no data the baseline field is null and the UI omits the baseline line.
@@ -72,7 +80,8 @@ GET /api/wig/outcomes/
   "source_note": null,
   "outcomes": {
     "core_literacy": {
-      "value": 0.233, "numerator": 80, "denominator": 344, "term": "Jun",
+      "value": 0.233, "numerator": 80, "denominator": 344, "cohort_total": 412,
+      "term": "Jun",
       "baseline": {"value": 0.028, "numerator": 10, "denominator": 361, "term": "Jan"},
       "calculation_note": "Grade 1 on-roster children with Read Words >= 16; 0 grade fallbacks"
     },
@@ -89,9 +98,18 @@ GET /api/wig/outcomes/
   flagged (`details.retire_skipped` / `details.dup_uid_skipped`), the payload is
   `{"available": false, "source_note": "<which sync, why>", "outcomes": {}}`.
   This distinguishes "pipeline broken/not configured" (today's empty prod: no log
-  rows -> unavailable) from "genuinely not assessed yet". No time-based staleness
-  check in v1: assessments change three times a year, so latest-attempt-succeeded
-  is the meaningful gate; a wall-clock threshold would only add false alarms.
+  rows -> unavailable) from "genuinely not assessed yet".
+- **Staleness gate**: each sync's latest success must also be within 48h (two
+  missed nightly runs), else `available: false` with a stale note. This is a
+  dead-cron detector, not a data-freshness claim - it catches "cron stopped or
+  was never scheduled" (prod's current state) and bounds roster/assessment skew
+  between the two syncs to about a day. No batch-coupling mechanism: the age
+  gate covers the skew risk without new machinery.
+- **Dedupe fail-closed**: the endpoint evaluates the shared `dedupe()` exception
+  list for the cohort. Any `unresolved_tie` or `duplicate_more_complete_rejected`
+  exception -> `available: false` with a source note, mirroring the exporter's
+  blocking defaults. The WIG must never publish numbers the parquet export would
+  refuse to ship.
 - With healthy sources, no qualifying rows for a programme -> that key is `null`
   -> frontend keeps the awaiting state.
 
@@ -102,8 +120,11 @@ GET /api/wig/outcomes/
 - `src/lib/wig/config.ts`: add `target` to the `wig` block for the two literacy
   programmes (0.5 / 0.75) so the ring has a structured target (today it lives only
   in the statement string). Zazi and other programmes unchanged.
-- `WigDataProvider`: fourth call in the existing `Promise.all`, wrapped in
-  `.catch(() => empty)` like the Zazi call. Expose `outcomes` in context.
+- `WigDataProvider`: fourth call in the existing `Promise.all`. Transport or
+  backend failures (500/403/network) must NOT be swallowed to an empty payload:
+  `.catch(() => ({ available: false, source_note: "outcomes request failed",
+  outcomes: {} }))` so any failure renders as unavailable, never as the benign
+  awaiting state. Expose `outcomes` in context.
 - `HeroWig` (`ProgrammeView.tsx`): three states, mirroring the Zazi tiles'
   unavailable pattern:
   1. payload `available: false` -> "Assessment data unavailable" (grey, with
@@ -115,7 +136,8 @@ GET /api/wig/outcomes/
     Jan=Baseline, Jun=Midline, Nov=Endline
   - target tick at 50%/75% on the ring
   - baseline context line ("Jan: 2.8%")
-  - n counts for auditability ("80 of 344 assessed")
+  - n counts for auditability, including coverage ("80/344 passing - 344 of 412
+    Grade 1 assessed")
   - NO red/amber RAG: lag measure below target mid-year is expected; ring fills
     in programme accent colour toward the target. RAG stays on lead measures.
 - `ProgrammeRollupCard` (overview): replace the awaiting pill with the live %
@@ -133,14 +155,15 @@ Migrations ran on Render, but the two syncs have only run locally; no cron exist
    (roster sync first, then assessments).
 3. Trigger one manual run so the WIG lights up immediately.
 
-Until run, prod shows "Awaiting baseline assessment" - correct behaviour.
+Until run, prod shows "Assessment data unavailable" (no sync logs -> health gate
+fails). The awaiting label only ever appears with healthy syncs and no rows.
 
 ## Testing
 
 - Backend fixture tests (`api/tests_wig.py` style): threshold boundary (exactly
   16/20 passes), null scores excluded from denominator, off-roster children
-  excluded, latest-term selection (Jun over Jan; Nov over Jun), empty tables ->
-  unavailable payload.
+  excluded, latest-term selection (Jun over Jan; Nov over Jun), empty tables
+  with no sync logs -> unavailable payload.
 - Dedupe fixtures: a Duplicate-flagged passing row alongside a Single winner that
   fails -> child does NOT pass (winner policy holds); exporter and endpoint agree
   on the same fixture.
@@ -148,8 +171,15 @@ Until run, prod shows "Awaiting baseline assessment" - correct behaviour.
   alias grades (via `normalize_grade`) land in the right cohort; fallback grades
   counted.
 - Source-health fixtures: no sync logs, latest log failed, latest log flagged
-  (`retire_skipped`/`dup_uid_skipped`) -> `available: false` with note; healthy
-  logs + no rows -> `available: true` with null outcomes.
+  (`retire_skipped`/`dup_uid_skipped`), latest success older than 48h, one sync
+  fresh + other stale -> `available: false` with note; healthy logs + no rows ->
+  `available: true` with null outcomes.
+- Dedupe-exception fixtures: an unresolved tie, and a duplicate-more-complete
+  rejection, in the cohort -> `available: false`.
+- Coverage fixture: large unassessed roster segment -> `cohort_total` reflects
+  the full grade cohort while `denominator` reflects assessed only.
+- Frontend failure handling: outcomes request rejects (simulate 500/network) ->
+  hero shows unavailable, not awaiting (verified in E2E by stopping the backend).
 - E2E: local backend + `pnpm dev`, load `/operations/wig/core-literacy` and
   `/operations/wig/ecd-literacy`; verify the June percentages match the Streamlit
   portal's equivalents (same roster-grade + dedupe rules) and baseline lines render.
