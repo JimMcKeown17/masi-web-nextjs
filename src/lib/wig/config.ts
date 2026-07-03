@@ -126,6 +126,7 @@ export const PROGRAMMES: ProgrammeConfig[] = [
     wig: {
       statement: "50% of Grade 1 children read 16+ words per minute",
       awaitingLabel: "Awaiting baseline assessment",
+      target: 0.5,
     },
     measures: [
       {
@@ -193,6 +194,7 @@ export const PROGRAMMES: ProgrammeConfig[] = [
     wig: {
       statement: "75% of children learn 20+ letter sounds",
       awaitingLabel: "Awaiting baseline assessment",
+      target: 0.75,
     },
     measures: [
       {
@@ -359,6 +361,13 @@ export const PROGRAMMES: ProgrammeConfig[] = [
     ],
   },
 ];
+
+// Assessment term -> display label for the hero WIG ring.
+export const TERM_LABELS: Record<string, string> = {
+  Jan: "Baseline (Jan)",
+  Jun: "Midline (Jun)",
+  Nov: "Endline (Nov)",
+};
 
 // URL slug <-> programme key. Keys use underscores; slugs use hyphens, so the
 // route `/operations/wig/core-literacy` maps to the `core_literacy` programme.

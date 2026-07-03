@@ -5,6 +5,7 @@ import type {
   ZaziPayload,
   WigDetail,
   WigPeriod,
+  OutcomesPayload,
 } from "@/lib/types/wig";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL;
@@ -38,4 +39,8 @@ export function getWigDetail(
 ) {
   const q = new URLSearchParams({ programme, measure, period }).toString();
   return getJson<WigDetail>(`/wig/detail/?${q}`, token);
+}
+
+export function getWigOutcomes(token: string) {
+  return getJson<OutcomesPayload>("/wig/outcomes/", token);
 }

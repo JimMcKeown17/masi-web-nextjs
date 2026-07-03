@@ -45,6 +45,28 @@ export interface ZaziPayload {
   measures: Record<string, MeasureValue>;
 }
 
+// --- Outcome (lag) measures for hero WIG rings (GET /api/wig/outcomes/) ---
+
+export interface OutcomeTermStat {
+  value: number; // fraction 0..1
+  numerator: number;
+  denominator: number;
+  term: string; // "Jan" | "Jun" | "Nov"
+}
+
+export interface WigOutcome extends OutcomeTermStat {
+  cohort_total: number; // full grade cohort on the roster (assessed or not)
+  baseline: OutcomeTermStat | null;
+  calculation_note?: string;
+}
+
+export interface OutcomesPayload {
+  available: boolean;
+  source_note: string | null;
+  outcomes: Record<string, WigOutcome | null>;
+  data_as_of?: string;
+}
+
 // --- Board configuration (defines what renders; see lib/wig/config.ts) ---
 
 export interface MeasureConfig {
@@ -62,7 +84,7 @@ export interface ProgrammeConfig {
   label: string;
   featured?: boolean;
   accent?: string; // hex accent for the WIG banner/tag
-  wig: { statement: string; awaitingLabel: string };
+  wig: { statement: string; awaitingLabel: string; target?: number };
   measures: MeasureConfig[];
 }
 
