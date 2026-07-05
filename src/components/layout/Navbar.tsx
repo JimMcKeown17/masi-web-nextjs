@@ -248,8 +248,11 @@ export function Navbar() {
                 {hasOpsAccess && (
                   <NavigationMenuItem>
                     <NavigationMenuTrigger className={triggerClass}>Operations</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <div className={opsGroups.length > 1 ? "p-3 md:w-[700px] lg:w-[900px]" : "p-3 md:w-[440px]"}>
+                    {/* Width lives on NavigationMenuContent itself: that is the
+                        element Radix measures for the shared viewport, so sizing
+                        an inner wrapper is not reliable. */}
+                    <NavigationMenuContent className={opsGroups.length > 1 ? "md:w-[700px] lg:w-[900px]" : "md:w-[440px]"}>
+                      <div className="p-3">
                         <div className={opsGroups.length > 1 ? "grid gap-2 md:grid-cols-2 lg:grid-cols-3" : "grid gap-2"}>
                           {opsGroups.map((group) => (
                             <div key={group.title}>
