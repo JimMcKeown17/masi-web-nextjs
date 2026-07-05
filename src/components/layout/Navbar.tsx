@@ -5,8 +5,9 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog, BookOpen, Newspaper, PlayCircle, Activity, Radio, CalendarOff } from "lucide-react"
+import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, BookOpen, Newspaper, PlayCircle, Activity } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
+import { opsGroupsForRole } from "@/lib/operations/nav"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
 import {
@@ -116,27 +117,6 @@ const mediaItems = [
   },
 ]
 
-const projectManagementItems = [
-  {
-    title: "Mentors",
-    href: "/operations/mentors",
-    description: "Manage mentor assignments and oversight.",
-    icon: UserCog,
-  },
-  {
-    title: "Youth Sessions",
-    href: "/operations/youth-sessions",
-    description: "Monitor youth session activity and school coverage.",
-    icon: Activity,
-  },
-  {
-    title: "Field App",
-    href: "/operations/field-app",
-    description: "Live view of the Masi mobile-app field activity.",
-    icon: Radio,
-  },
-]
-
 // Pages where the navbar starts transparent over a full-screen hero
 const HERO_PAGES = ['/about/our-team', '/about/where-we-work']
 
@@ -163,28 +143,10 @@ export function Navbar() {
     ? 'bg-transparent text-white hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white data-[state=open]:hover:bg-white/10'
     : ''
 
-  // Check if user has access to Project Management dropdown (using Django stored values)
-  const hasProjectManagementAccess = user?.role === 'ADMIN' || user?.role === 'PROJECT MANAGER' || user?.role === 'MENTOR'
-
-  // WIG is leadership-only: append it for ADMIN / PROJECT MANAGER (not Mentors).
-  const isAdminOrPm = user?.role === 'ADMIN' || user?.role === 'PROJECT MANAGER'
-  const pmItems = isAdminOrPm
-    ? [
-        ...projectManagementItems,
-        {
-          title: "WIG",
-          href: "/operations/wig",
-          description: "Wildly Important Goals scoreboard.",
-          icon: TrendingUp,
-        },
-        {
-          title: "Closure Calendar",
-          href: "/operations/closures",
-          description: "Manage school closures and staff absences.",
-          icon: CalendarOff,
-        },
-      ]
-    : projectManagementItems
+  // Internal tools, grouped and role-filtered from the shared config that
+  // also drives the /operations hub page (src/lib/operations/nav.ts).
+  const opsGroups = opsGroupsForRole(user?.role)
+  const hasOpsAccess = opsGroups.length > 0
 
   return (
     <nav className={`fixed top-0 left-0 right-0 z-50 transition-colors duration-300 ${isTransparent ? 'bg-transparent' : 'bg-background/95 backdrop-blur-sm shadow-sm border-b'}`}>
@@ -282,23 +244,48 @@ export function Navbar() {
                   </NavigationMenuContent>
                 </NavigationMenuItem>
 
-                {/* Project Management Dropdown - Only for Administrators, Project Managers, and Mentors */}
-                {hasProjectManagementAccess && (
+                {/* Operations Dropdown - internal tools, grouped, role-filtered */}
+                {hasOpsAccess && (
                   <NavigationMenuItem>
-                    <NavigationMenuTrigger className={triggerClass}>Project Management</NavigationMenuTrigger>
-                    <NavigationMenuContent>
-                      <ul className="grid gap-1 p-3 md:w-[440px] lg:w-[560px]">
-                        {pmItems.map((item) => (
-                          <ListItem
-                            key={item.title}
-                            title={item.title}
-                            href={item.href}
-                            icon={item.icon}
-                          >
-                            {item.description}
-                          </ListItem>
-                        ))}
-                      </ul>
+                    <NavigationMenuTrigger className={triggerClass}>Operations</NavigationMenuTrigger>
+                    {/* Width lives on NavigationMenuContent itself: that is the
+                        element Radix measures for the shared viewport, so sizing
+                        an inner wrapper is not reliable. */}
+                    <NavigationMenuContent className={opsGroups.length > 1 ? "md:w-[700px] lg:w-[900px]" : "md:w-[440px]"}>
+                      <div className="p-3">
+                        <div className={opsGroups.length > 1 ? "grid gap-2 md:grid-cols-2 lg:grid-cols-3" : "grid gap-2"}>
+                          {opsGroups.map((group) => (
+                            <div key={group.title}>
+                              <h3 className="px-3 pb-1.5 pt-2 text-[11px] uppercase tracking-[0.2em] text-gray-400">
+                                {group.title}
+                              </h3>
+                              <ul className="grid gap-1">
+                                {group.tools.map((item) => (
+                                  <ListItem
+                                    key={item.title}
+                                    title={item.title}
+                                    href={item.href}
+                                    icon={item.icon}
+                                  >
+                                    {item.description}
+                                  </ListItem>
+                                ))}
+                              </ul>
+                            </div>
+                          ))}
+                        </div>
+                        <div className="mt-2 border-t border-gray-100 pt-2">
+                          <NavigationMenuLink asChild>
+                            <Link
+                              href="/operations"
+                              className="flex flex-row items-center justify-between rounded-lg px-3 py-2 text-sm font-medium text-[#14181D] hover:bg-[#FAF7F2]"
+                            >
+                              Browse all tools
+                              <span aria-hidden>&rarr;</span>
+                            </Link>
+                          </NavigationMenuLink>
+                        </div>
+                      </div>
                     </NavigationMenuContent>
                   </NavigationMenuItem>
                 )}
@@ -421,19 +408,35 @@ export function Navbar() {
                     </ul>
                   </div>
 
-                  {/* Project Management Section - Only for Administrators, Project Managers, and Mentors */}
-                  {hasProjectManagementAccess && (
+                  {/* Operations Section - internal tools, grouped, role-filtered */}
+                  {hasOpsAccess && (
                     <div>
-                      <h3 className="text-xs uppercase tracking-[0.2em] mb-3 text-gray-400">Project Management</h3>
-                      <ul className="space-y-3">
-                        {pmItems.map((item) => (
-                          <MobileMenuItem
-                            key={item.title}
-                            item={item}
-                            onClick={() => setIsOpen(false)}
-                          />
+                      <h3 className="text-xs uppercase tracking-[0.2em] mb-3 text-gray-400">Operations</h3>
+                      <div className="space-y-5">
+                        {opsGroups.map((group) => (
+                          <div key={group.title}>
+                            <h4 className="text-[10px] uppercase tracking-[0.2em] mb-2 text-gray-400">
+                              {group.title}
+                            </h4>
+                            <ul className="space-y-3">
+                              {group.tools.map((item) => (
+                                <MobileMenuItem
+                                  key={item.title}
+                                  item={item}
+                                  onClick={() => setIsOpen(false)}
+                                />
+                              ))}
+                            </ul>
+                          </div>
                         ))}
-                      </ul>
+                        <Link
+                          href="/operations"
+                          onClick={() => setIsOpen(false)}
+                          className="block px-2 text-sm font-medium text-[#14181D] underline-offset-4 hover:underline"
+                        >
+                          Browse all tools &rarr;
+                        </Link>
+                      </div>
                     </div>
                   )}
                 </div>
