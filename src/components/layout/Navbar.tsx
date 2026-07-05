@@ -5,7 +5,7 @@ import * as React from "react"
 import Link from "next/link"
 import Image from "next/image"
 import { usePathname } from "next/navigation"
-import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog, BookOpen, Newspaper, PlayCircle, Activity, Radio, CalendarOff } from "lucide-react"
+import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, UserCog, BookOpen, Newspaper, PlayCircle, Activity, Radio, CalendarOff, Waypoints } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
@@ -182,6 +182,12 @@ export function Navbar() {
           href: "/operations/closures",
           description: "Manage school closures and staff absences.",
           icon: CalendarOff,
+        },
+        {
+          title: "Data Map",
+          href: "/operations/data-map",
+          description: "How our data flows from capture to dashboards.",
+          icon: Waypoints,
         },
       ]
     : projectManagementItems
