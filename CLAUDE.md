@@ -145,6 +145,7 @@ Pre-configured with path alias `@/components`. Common: Button, Card, Tabs, Selec
 - `documentation/frontend-backend-integration.md` — Data fetching patterns, design system
 - `documentation/recommended-backend-endpoints.md` — Endpoints to add
 - `documentation/future-improvements.md` — Deferred ideas / backlog. If the user asks what to build next, start here.
+- **Agentic fundraising system** (a new backend `fundraising` Django app, built alongside this frontend): plan `_plans/agentic-fundraising-system.md`, domain glossary `CONTEXT.md`, decisions `docs/adr/0001`..`0008`, build specs `_plans/fundraising-spine-spec.md` and `_plans/fundraising-e2e-tracer-spec.md`, photo setup `docs/fundraising-photo-pipeline-setup.md`. The relationship Spine and the newsletter Content Pipe (Airtable Success Stories to Mailchimp drafts) are built and committed on backend branch `feature/fundraising-spine`. For the latest state start from the session handoff `docs/handoff-2026-07-07-fundraising.md`.
 
 ## Known Issues
 

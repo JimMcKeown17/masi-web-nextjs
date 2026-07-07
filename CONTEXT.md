@@ -75,6 +75,14 @@ _Avoid_: post, article, case study
 One occasion of an asset appearing in a channel artifact — an Instagram post, a report page, a newsletter issue, a Personal Send. Replaces per-report columns.
 _Avoid_: usage flag, "Report Use" columns
 
+**Content Story** (the mirror):
+The Postgres row mirroring one Airtable Success Story into the `fundraising` app (`ContentStory`), holding just the fields a newsletter needs (headline, narrative, coach quote, category, school, date, photo links, and a cached `hero_image_url`). The durable, queryable copy agents read; the Airtable Story stays the staff workspace and source of truth.
+_Avoid_: treating it as the source of truth (Airtable is); mirroring every Airtable column
+
+**Hero Photo**:
+The single best photo for one Story, chosen once by a vision pass over the child's Google Drive folder and cached as a durable GCS URL on the Content Story (docs/adr/0008). What a newsletter embeds.
+_Avoid_: embedding raw Drive or Airtable image links (not email-safe; they expire)
+
 **Funder Package**:
 A customized, designed funder report (InDesign; designer-assigned; due-dated) produced by the design team — the production artifact that fulfils a report Deliverable. Lives in the Content Library's "Funder Packages" table; ~23 exist.
 _Avoid_: report (alone — ambiguous with grant reports as obligations)

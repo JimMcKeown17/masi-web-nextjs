@@ -1,6 +1,8 @@
 # Agentic Fundraising & Marketing System — Build Plan
 
-Status: scoped 2026-06-12 (grill session); revised 2026-06-13 (rev 2) after Jim's answers in `docs/plan-reviews/agentic-fundraising-improvement-review-2026-06-12.md`. Domain language: `CONTEXT.md`. Decisions: `docs/adr/0001-0007`. Visual: `docs/design/agentic-fundraising-operation.html`.
+Status: scoped 2026-06-12 (grill session); revised 2026-06-13 (rev 2) after Jim's answers in `docs/plan-reviews/agentic-fundraising-improvement-review-2026-06-12.md`. Domain language: `CONTEXT.md`. Decisions: `docs/adr/0001-0008`. Visual: `docs/design/agentic-fundraising-operation.html`.
+
+**BUILD STATUS (2026-07-07):** Layer 1 Spine BUILT (backend `fundraising` app, 10 models + admin + migrations, committed on backend branch `feature/fundraising-spine`, commit 97541f1). Layer 2 Agent 1 "Content Pipe" v1 BUILT end to end: Airtable Success Stories -> `ContentStory` mirror -> Anthropic compose (reads the Voice Guide) -> `Draft` -> Mailchimp draft campaign. Two real Mailchimp draft newsletters created 2026-07-07. Voice Guide distilled from Jim's real emails and newsletters (rules: no em dash, no emoji). Consent gate removed (assume consent for all, pending consent-file tracking). NEXT: hero photos (ADR 0008 + `docs/fundraising-photo-pipeline-setup.md`), then Tool Belt extraction, self-improving-loop wiring (final_body capture on send), Grant Studio. Session handoff: `docs/handoff-2026-07-07-fundraising.md`.
 
 ## The system in one paragraph
 
