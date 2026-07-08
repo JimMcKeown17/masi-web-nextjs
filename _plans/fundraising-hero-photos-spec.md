@@ -21,6 +21,7 @@ Do NOT commit.
 - **`is_active=True` gate: yes** (no-op today; future-proof; matches `draft_newsletter`).
 - **Drive-root ancestry check: deferred.** The service account can only read the one shared "Masi Media" folder (verified), so a stray link is either in-scope or unreadable (a problem row). Revisit if more folders are shared with the SA.
 - **Model-failure = problem, not success.** A single-candidate fallback stores (the only image, flagged amber); a multi-candidate fallback (model could not choose) is a problem row with NO upload/save, surfaced for a manual re-run.
+- **Hero optimized for email (added after the first live run).** The first full run stored full-res originals (3-11 MB, one 10.7 MB PNG), too heavy for a donor email header. `optimize_for_email` now downscales the chosen hero to ~1600px JPEG (a few hundred KB; PNG normalized to JPEG) before upload; the winner is re-encoded, not stored raw.
 
 ## Verified input data (masi_db snapshot, 2026-07-08)
 92 `ContentStory` rows; 87 have a `drive_link`. Shapes: **77 Drive folders** (flat, per-child, 1-7
@@ -114,7 +115,7 @@ Per selected story (skip those with `hero_image_url` unless `--force`):
 2. `list_candidate_images` → if `[]`: Problem `"no images (video-only / empty folder)"`; on `DriveAccessError`: Problem `"drive 404 (link not under Masi Media or deleted)"`.
 3. `download_bytes` each candidate ONCE; `downscale_jpeg` a copy for the vision thumb (skip unreadable candidates). Keep the full bytes for the winner.
 4. `pick_hero` over the thumbs. If it returns `fallback=True` AND there was more than one candidate, the model could not choose: Problem `"model could not pick a hero; needs manual choice"` — do NOT upload or save. (A single-candidate fallback is fine and proceeds.)
-5. Unless `--dry-run`: `upload_hero(chosen full bytes)`, set `story.hero_image_url`, `save(update_fields=["hero_image_url","updated_at"])`.
+5. Unless `--dry-run`: `optimize_for_email(chosen full bytes)` -> ~1600px JPEG (a few hundred KB; full-res originals are 3-11 MB, too heavy for email), `upload_hero(...)` as `image/jpeg`, set `story.hero_image_url`, `save(update_fields=["hero_image_url","updated_at"])`.
 6. Append a result record (below) for the sheet.
 
 Wrap steps 1-5 per story in try/except → unexpected errors become a Problem row (with the exception text), batch continues.
