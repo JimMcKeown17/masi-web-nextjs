@@ -30,3 +30,14 @@ plus model vision; a later refinement can let staff override by marking a hero i
 Considered: staff pick the hero in Airtable (zero AI cost, but adds the friction Jim wants
 removed); embed Drive or Airtable URLs directly (not possible, not email-safe, they expire);
 take the first image or a simple heuristic (low quality given how varied the raw photos are).
+
+## Refinement (2026-07-08): the rubric is subject-aware, not child-only
+
+The original rubric above says "single child ... skip group-only." Masi is a two-birds programme
+(women's employment + children's education), so a story's hero subject may be a woman, a child, or a
+woman together with her child(ren) — a lone child is not always right, and "many times we feature a
+woman" (Jim). The rubric is therefore subject-aware: the vision pass receives the story's own text
+(`feature_name`, `headline`, `narrative`, `category`) and picks the image that best features THAT
+story's subject; a woman with her children is on-message, not a group shot to reject. What the story
+is about drives the pick now; the future Campaign Calendar's meta-topic can bias it further later.
+See `_plans/fundraising-hero-photos-spec.md` (Piece 2, `pick_hero`).
