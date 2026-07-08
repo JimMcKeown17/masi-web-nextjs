@@ -41,3 +41,16 @@ woman" (Jim). The rubric is therefore subject-aware: the vision pass receives th
 story's subject; a woman with her children is on-message, not a group shot to reject. What the story
 is about drives the pick now; the future Campaign Calendar's meta-topic can bias it further later.
 See `_plans/fundraising-hero-photos-spec.md` (Piece 2, `pick_hero`).
+
+## Decision (2026-07-08): no consent gate on the hero backfill; scope is the SA share
+
+A Codex adversarial review flagged that hosting hero photos on a public bucket and embedding them
+in donor emails could expose non-consented child imagery. Decision (Jim): **process all active,
+linked stories with no consent gate.** Rationale: consent forms are barely tracked in Airtable (8
+of 87 stories), so a `has_consent` gate would kill the feature; the photos are also used in
+donor-facing newsletters already. Recorded revisit lever: gate on `social_published == "Published"`
+(86 of 87 today - photos Masi already made public on social media) if child-photo exposure becomes a
+concern. Read scope is constrained not by an ancestry check but by Drive sharing: the service
+account can only read the single shared "Masi Media" folder, so a stray link is either in-scope or
+unreadable. A single vision fallback stores only when it is the sole image; a multi-image fallback
+is a problem, never an auto-published hero.

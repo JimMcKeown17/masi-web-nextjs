@@ -18,6 +18,13 @@
 - Tests are SQLite-safe and network-free (all clients mocked). Run: `DATABASE_URL=sqlite:///db.sqlite3 python manage.py test fundraising`.
 - New tests append to `fundraising/tests.py` as new `TestCase`/`SimpleTestCase` classes (existing single-file convention; do not restructure into a package).
 
+## Review decisions (2026-07-08, after Codex adversarial review)
+
+- **Consent gate: intentionally NONE (Jim, 2026-07-08).** Process all active, linked stories. `has_consent` is untracked in Airtable (only 8 of 87 have a form), so gating on it kills the feature; Jim accepts the risk of publishing story photos (which are also embedded in donor newsletters). **Revisit lever if child-photo exposure becomes a concern:** gate on `social_published == "Published"` (86 of 87 today — photos Masi already made public on social).
+- **`is_active` gate: yes.** Filter `is_active=True` (a no-op today since all 87 are active; correct for the future, and consistent with `draft_newsletter`).
+- **Drive-root ancestry check: deferred (Jim, 2026-07-08).** The service account's read scope is the single shared "Masi Media" folder (verified 2026-07-08), so a stray `drive_link` either resolves in-scope (a legitimate Masi photo) or is unreadable and becomes a problem row. Revisit only if more folders get shared with the SA.
+- **Model-failure handling: hardened (Finding 2, adopted).** A single-candidate fallback (the only image) is stored + flagged amber. A multi-candidate fallback means the model could not choose — that is a **problem row with no upload/save**, so it resurfaces for a manual re-run rather than publishing an arbitrary image counted as success.
+
 ## File Structure
 
 - Modify `requirements.txt` — add `google-api-python-client`.
@@ -896,6 +903,26 @@ class BackfillCommandTests(TestCase):
         s.refresh_from_db()
         self.assertEqual(s.hero_image_url, "")
         self.assertTrue(os.path.exists(self.report))
+
+    @mock.patch("fundraising.services.photos.upload_hero")
+    @mock.patch("fundraising.services.photos.pick_hero", return_value={"chosen_index": 0, "reason": "no parseable choice", "rejected": [], "fallback": True})
+    @mock.patch("fundraising.services.photos.downscale_jpeg", return_value=b"T")
+    @mock.patch("fundraising.services.photos.download_bytes", return_value=b"R")
+    @mock.patch("fundraising.services.photos.list_candidate_images", return_value=[
+        {"id": "a", "name": "a.jpg", "mimeType": "image/jpeg"},
+        {"id": "b", "name": "b.jpg", "mimeType": "image/jpeg"}])
+    @mock.patch("fundraising.services.photos.gcs_bucket")
+    @mock.patch("fundraising.services.photos.anthropic_client")
+    @mock.patch("fundraising.services.photos.drive_client")
+    def test_multi_candidate_model_failure_is_problem_not_published(
+            self, m_drive, m_anthropic, m_bucket, m_list, m_download, m_downscale, m_pick, m_upload):
+        # Two images + a fallback pick means the model could not choose -> no upload, no save.
+        s = ContentStory.objects.create(source_airtable_id="recM", title="Two Photos",
+            drive_link="https://drive.google.com/drive/folders/FID")
+        self._run()
+        s.refresh_from_db()
+        self.assertEqual(s.hero_image_url, "")
+        m_upload.assert_not_called()
 ```
 
 - [ ] **Step 2: Run test to verify it fails**
@@ -926,7 +953,9 @@ class Command(BaseCommand):
 
     def handle(self, *args, **opts):
         dry = opts["dry_run"]
-        qs = ContentStory.objects.exclude(drive_link="").order_by("-date_published")
+        # is_active gate per review (all 87 are active today; future-proof). No consent
+        # gate by decision (Jim, 2026-07-08) - see "Review decisions" in the plan.
+        qs = ContentStory.objects.filter(is_active=True).exclude(drive_link="").order_by("-date_published")
         if opts["story"]:
             qs = qs.filter(source_airtable_id=opts["story"])
         elif not opts["force"]:
@@ -985,6 +1014,12 @@ class Command(BaseCommand):
             context = {"feature_name": story.feature_name, "headline": story.headline,
                        "narrative": (story.narrative or "")[:600], "category": story.category}
             pick = photos.pick_hero(client, thumbs, context)
+            # Multi-candidate fallback = the model could not choose. Do NOT publish an
+            # arbitrary image; surface as a problem for a manual re-run. Only the
+            # single-candidate fallback (the sole image) proceeds to store.
+            if pick["fallback"] and len(thumbs) > 1:
+                return {**base, "status": "problem",
+                        "problem_reason": f"model could not pick a hero ({pick['reason']}); needs manual choice"}
             idx = pick["chosen_index"]
             raw, mime = full[idx]
 
@@ -1015,7 +1050,7 @@ def _meta(story):
 - [ ] **Step 4: Run test to verify it passes**
 
 Run: `DATABASE_URL=sqlite:///db.sqlite3 python manage.py test fundraising.tests.BackfillCommandTests -v2`
-Expected: PASS (3 tests).
+Expected: PASS (4 tests).
 
 - [ ] **Step 5: Run the full fundraising suite**
 

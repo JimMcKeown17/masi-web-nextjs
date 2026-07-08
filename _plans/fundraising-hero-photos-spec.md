@@ -16,6 +16,12 @@ Do NOT commit.
 - Idempotent: stories with a `hero_image_url` are skipped unless `--force`; the GCS key is stable per story so re-runs overwrite in place, never duplicate.
 - Per-story try/except: one bad link never aborts the batch. Unusable links are skipped and reported, not fatal.
 
+## Review decisions (2026-07-08, after Codex adversarial review)
+- **No consent gate (deliberate, Jim).** Process all active, linked stories. `has_consent` is untracked (8 of 87), so gating on it kills the feature; the risk of publishing story photos (also embedded in donor newsletters) is accepted. Revisit lever: gate on `social_published == "Published"` (86 of 87) if child-photo exposure becomes a concern.
+- **`is_active=True` gate: yes** (no-op today; future-proof; matches `draft_newsletter`).
+- **Drive-root ancestry check: deferred.** The service account can only read the one shared "Masi Media" folder (verified), so a stray link is either in-scope or unreadable (a problem row). Revisit if more folders are shared with the SA.
+- **Model-failure = problem, not success.** A single-candidate fallback stores (the only image, flagged amber); a multi-candidate fallback (model could not choose) is a problem row with NO upload/save, surfaced for a manual re-run.
+
 ## Verified input data (masi_db snapshot, 2026-07-08)
 92 `ContentStory` rows; 87 have a `drive_link`. Shapes: **77 Drive folders** (flat, per-child, 1-7
 images each, no subfolders), **8 single files** (7 images + **1 video/mp4** → yields no image),
@@ -107,7 +113,7 @@ Per selected story (skip those with `hero_image_url` unless `--force`):
 1. `parse_drive_ref(story.drive_link)` → if `None` kind: Problem `"no usable link"` (search URL / empty).
 2. `list_candidate_images` → if `[]`: Problem `"no images (video-only / empty folder)"`; on `DriveAccessError`: Problem `"drive 404 (link not under Masi Media or deleted)"`.
 3. `download_bytes` each candidate ONCE; `downscale_jpeg` a copy for the vision thumb (skip unreadable candidates). Keep the full bytes for the winner.
-4. `pick_hero` over the thumbs.
+4. `pick_hero` over the thumbs. If it returns `fallback=True` AND there was more than one candidate, the model could not choose: Problem `"model could not pick a hero; needs manual choice"` — do NOT upload or save. (A single-candidate fallback is fine and proceeds.)
 5. Unless `--dry-run`: `upload_hero(chosen full bytes)`, set `story.hero_image_url`, `save(update_fields=["hero_image_url","updated_at"])`.
 6. Append a result record (below) for the sheet.
 
