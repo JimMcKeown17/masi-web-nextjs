@@ -46,6 +46,10 @@ Draft rows carry shell and source type. Final-body sync-back works identically f
 
 The story is the atom; newsletter issue, Personal Send, LinkedIn post, social caption are renderings for a channel x audience pair. Per-channel variation lives in swappable parts: one structure file per channel (LinkedIn is funder-voiced), one renderer per channel, audience-aware stat selection guidance in the structure file. Constant parts live in the kernel. `Draft.kind` already enumerates channel artifacts; new kinds are a one-line choices change when needed. Boundaries kept: Mailchimp email is the only built renderer for now; nothing outside `render_email` and the Mailchimp client may assume email; social remains propose-only (drafts feed the Content Calendar's "Proposed by AI" rows; staff post).
 
+### Surfaces (decided 2026-07-09, Jim's question)
+
+The Studio runs in Claude Code (terminal, desktop app, or claude.ai/code web app; same skill, no build) for now. The compounding loop lives in the kernel (editorial files, Draft diffs, Voice Guide), not in the surface, so any future surface that reads and writes the kernel inherits all accumulated learning. A website surface, if ever built, is a third shell and most likely a *review/approve* page over pending Drafts (small build, team-usable), not an authoring chat (that would rebuild Claude Code in Next.js and freeze the workflow before the loop has taught us what it is). Pattern: learn in the flexible medium, sediment stable behavior down into editorial files, tools, and eventually UI. Trigger for building the review page: drafts flowing to channels Mailchimp doesn't cover, someone other than Jim authoring/reviewing, or the autonomy dial rising enough that Jim's role is review-only.
+
 ### Guarantees
 
 Never-send: the belt has no send function, only draft creation. Never-fabricate: voice guide plus QA checklist, both shells. Numbers only from the stats catalog. Photos through the existing GCS pipeline (curated `heroes/`, one-offs `oneoff/`). Template chrome stays deterministic code.
