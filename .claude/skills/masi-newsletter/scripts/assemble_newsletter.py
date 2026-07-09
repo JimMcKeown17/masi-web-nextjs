@@ -28,8 +28,10 @@ import time
 
 def main():
     ap = argparse.ArgumentParser(description="Assemble a one-off Masi newsletter.")
-    ap.add_argument("--photos", nargs="+", required=True,
-                    help="Photo files; the FIRST is the lead (header) photo.")
+    ap.add_argument("--photos", nargs="+", default=[],
+                    help="Photo files to host; the FIRST is the lead (header) photo unless --lead-url is given.")
+    ap.add_argument("--lead-url", default="",
+                    help="Existing hosted lead photo URL (e.g. a GCS story hero); skips uploading a lead.")
     ap.add_argument("--body-file", required=True,
                     help="HTML body written in Masi voice (may reference extra photos by filename).")
     ap.add_argument("--cta-text", default=None, help='Donate button text (default "Donate").')
@@ -49,12 +51,15 @@ def main():
     from fundraising.services import photos
     from fundraising.services.email_template import render_email
 
+    if not args.photos and not args.lead_url:
+        ap.error("provide --photos and/or --lead-url")
+
     bucket_name = os.environ.get("GS_BUCKET_NAME", "masi-website").strip('"')
-    bucket = photos.gcs_bucket()
+    bucket = photos.gcs_bucket() if args.photos else None
     stamp = int(time.time())
 
     url_by_filename = {}
-    lead_url = ""
+    lead_url = args.lead_url
     for i, path in enumerate(args.photos):
         with open(path, "rb") as fh:
             optimized = photos.optimize_for_email(fh.read())  # ~1600px JPEG
@@ -63,7 +68,7 @@ def main():
         bucket.blob(key).upload_from_string(optimized, content_type="image/jpeg")
         url = f"https://storage.googleapis.com/{bucket_name}/{key}"
         url_by_filename[os.path.basename(path)] = url
-        if i == 0:
+        if i == 0 and not lead_url:
             lead_url = url
 
     with open(args.body_file, encoding="utf-8") as fh:

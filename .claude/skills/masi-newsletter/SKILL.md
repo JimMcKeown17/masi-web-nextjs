@@ -1,49 +1,91 @@
 ---
 name: masi-newsletter
-description: Create a one-off Masinyusane donor newsletter from a photo and a voice note (or typed notes), in Masi's voice and email template, without going through Airtable or the fundraising system. Use when Jim wants to quickly draft a Masi newsletter or donor email for a story not yet entered in Airtable, or mentions a one-off newsletter, a voice note, or a quick email with a photo.
+description: The Masi Newsletter Studio, the primary authoring surface for Masinyusane donor newsletters (ADR 0009). Compose an issue from any source, an Airtable Success Story, photos plus a voice note or typed notes, an Instagram post Jim loves, or a stats-led brief, in Masi's voice and email template, ending with a spine Draft row and a Mailchimp draft. Use when Jim wants to draft a Masi newsletter or donor email, mentions a one-off, a voice note, repurposing an Instagram post, or a stats-led donor update.
 ---
 
-# Masi one-off newsletter
+# Masi Newsletter Studio
 
-Produce an email-ready Masi donor newsletter from a photo (or a few) plus a short
-story, when the story is not in Airtable yet. The copy is written in Masi's voice;
-the photos are hosted on GCS and wrapped in the same email template the fundraising
-system uses (logo header, lead photo, inline photos, donate button, social footer),
-so a one-off looks identical to a system issue.
+Compose donor-facing Masi newsletters with Jim in the loop. The kernel (Django
+`fundraising` app) owns the guarantees: template chrome, voice and structure rules,
+stats catalog, spine recording, draft-only Mailchimp writes. This skill is a thin
+shell that composes those assets (docs/adr/0009 in the frontend repo).
 
 Paths (Jim's machine):
-- Backend (reused code + `.env` with `GOOGLE_CREDENTIALS`): `/Users/jimmckeown/Development/Masi_Website_2026/backend/Masi Web Main` (override with `MASI_BACKEND_DIR`). Run the script with its venv: `venv/bin/python`.
-- Canonical Voice Guide: `<backend>/fundraising/voice/voice_guide.md` — read it before writing.
+- Backend: `/Users/jimmckeown/Development/Masi_Website_2026/backend/Masi Web Main`
+  (override with `MASI_BACKEND_DIR`). Run backend commands from there with `venv/bin/python`.
+- Editorial Layer (read ALL that apply before writing a word):
+  `<backend>/fundraising/voice/voice_guide.md` (voice, hard rules),
+  `<backend>/fundraising/voice/structure-<type>.md` (issue shape),
+  `<backend>/fundraising/voice/qa_checklist.md` (pre-show check).
+- Stats catalog (the ONLY permitted source of numbers beyond the source story):
+  `GET https://masi-website-main.onrender.com/api/impact/published-stats/` (public JSON).
 
-## Workflow
+## Workflow: source, channel, type, draft, iterate, record
 
-1. **Gather inputs.** Ask for: the photo file(s) (the FIRST is the lead/header photo), and the story as either a voice-note audio file or typed notes/bullets. If given audio, transcribe it; if you cannot transcribe in this environment, ask Jim to paste a transcript or a few bullets.
+1. **Source.** Jim brings one of: an Airtable Success Story (look it up in local PG:
+   `ContentStory` via `venv/bin/python manage.py shell`, it carries narrative, quote,
+   school, and a hosted `hero_image_url`); photo file(s) plus a voice note or typed
+   notes (transcribe audio, or ask for a transcript); an Instagram post (ask for the
+   URL and the original asset, read the caption via the browser if needed); or a brief
+   ("stats-led issue about X"). The FIRST photo is the lead unless a story hero exists.
 
-2. **Read the Voice Guide** at `<backend>/fundraising/voice/voice_guide.md` and follow its hard rules.
+2. **Channel.** Default and only built channel: newsletter (Mailchimp). If Jim asks for
+   another channel artifact (LinkedIn post, social caption), draft text only and remind
+   him socials are staff-posted, propose-only; do not invent new renderers.
 
-3. **Write the newsletter BODY** as inline-styled HTML, in Masi's voice, and save it to `body.html`:
-   - Greeting ("Dear Masi Friends & Family,"), the story from the notes/transcript, a brief donate ask, and a warm thank-you close with a monthly-donor P.S.
-   - **Hard rules:** use ONLY the facts Jim gave (never invent numbers/names/outcomes); refer to any child or youth by FIRST NAME ONLY (never a surname); never an em dash; never an emoji.
-   - Do NOT add a logo, donate button, social links, or the lead photo — the template adds those.
-   - For any EXTRA photos (not the lead), embed them inline under the relevant paragraph as `<img src="EXACT_LOCAL_FILENAME.jpg" alt="" width="600" style="display:block;width:100%;max-width:560px;height:auto;margin:12px 0;border-radius:8px;">`. The script rewrites the filename to the hosted URL.
+3. **Type.** Infer which issue type fits and confirm in one line: child/youth story,
+   results/impact update, campaign/appeal, or news/milestone. Read the matching
+   `structure-<type>.md`. If that structure file does not exist yet, design the shape
+   WITH Jim in-session, then write the new structure file to the Editorial Layer before
+   drafting (that is how the system learns; keep it one page, in the style of
+   `structure-story.md`).
 
-4. **Assemble** (from the backend dir, with its venv):
+4. **Draft.** Read the voice guide and structure file, then write the newsletter BODY
+   as inline-styled HTML to `body.html`, following them exactly. Composition contract
+   (mechanical, must match the template code):
+   - Body only: no logo, donate button, social links, or lead photo (chrome adds them).
+   - Non-lead photos embed inline as
+     `<img src="FILENAME_OR_URL" alt="" width="420" style="display:block;width:100%;max-width:420px;height:auto;margin:12px auto;border-radius:8px;">`
+     (local filenames get rewritten to hosted URLs by the assemble script).
+   - Emit exactly one `<!--MID_CTA-->` marker where the structure file says; the
+     template turns it into the donate button.
+   - Stats: fetch the catalog first if the issue wants numbers; weave at most one or
+     two, as sentences, per the structure file. Tell Jim which stat keys you used.
+   - Run every line of `qa_checklist.md` against the draft and fix failures BEFORE
+     showing Jim.
 
+5. **Assemble and show.** From `<backend>` with its venv:
    ```bash
-   cd "<backend>" && venv/bin/python \
-     "<this-skill>/scripts/assemble_newsletter.py" \
-     --photos "lead.jpg" "extra1.jpg" \
-     --body-file body.html \
-     --cta-text "Give the Gift of Reading" \
-     --cta-url "https://masinyusane.org/donate" \
-     --out newsletter.html
+   venv/bin/python "<this-skill>/scripts/assemble_newsletter.py" \
+     --photos "extra1.jpg" --lead-url "https://storage.googleapis.com/masi-website/fundraising/heroes/<id>.jpg" \
+     --body-file body.html --cta-text "..." --cta-url "..." --out newsletter.html
    ```
-   The script optimizes each photo (~1600px JPEG), uploads to `gs://masi-website/fundraising/oneoff/`, and wraps the body in the Masi template. CTA text/url default to "Donate" -> the donate page if omitted.
+   Use `--photos` for new files (first becomes lead if no `--lead-url`); use
+   `--lead-url` when the story already has a GCS hero. Send Jim `newsletter.html`
+   rendered, and iterate.
 
-5. **Show Jim** the rendered `newsletter.html` (send it to him to view) and iterate on the copy or CTA.
+6. **Iterate: classify the red pen.** For each piece of feedback decide: one-off edit
+   (fix this draft only) or durable rule (should change every future draft). Write
+   durable rules into `voice_guide.md` or the structure file immediately, tell Jim
+   what you added, and apply it to the draft. Never leave a durable rule only in the
+   conversation.
 
-6. **Optional send.** To create a Mailchimp draft instead of hand-pasting, reuse the backend service in a `<backend>` `venv/bin/python manage.py shell`: `from fundraising.services import mailchimp; mailchimp.create_draft_campaign(subject, html, audience_id, title="[one-off] "+subject)` (draft only, never sends). Otherwise Jim pastes the HTML into a Mailchimp campaign.
+7. **Record (on Jim's explicit approval).** Every approved draft lands in the spine;
+   there is no bypass:
+   ```bash
+   venv/bin/python manage.py record_and_draft \
+     --subject "..." --body-file newsletter.html \
+     --shell studio --source-type <airtable|voice_note|instagram|stats_brief> \
+     [--story-ids <id> ...] [--no-mailchimp]
+   ```
+   This writes the Draft row and creates a Mailchimp draft campaign (status save,
+   NEVER sends) in one transaction. Use `--no-mailchimp` only if Jim wants to paste
+   the HTML himself; the Draft row is still required.
 
-## Notes
-- The template, voice rules, and photo optimization are the same durable assets as the fundraising system; this skill just feeds ad-hoc content through them.
-- One-off photos live under `fundraising/oneoff/` in the bucket (kept separate from curated story `heroes/`).
+## Boundaries
+- Never send email from anywhere; Mailchimp drafts only, and only via `record_and_draft`.
+- Every number comes from the stats catalog or the source story. No exceptions.
+- Voice and structure rules live in the Editorial Layer, never in this file. If a rule
+  seems missing, add it there, not here.
+- One-off photos upload to `gs://masi-website/fundraising/oneoff/`; curated story
+  heroes stay under `heroes/`.
