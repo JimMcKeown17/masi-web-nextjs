@@ -115,6 +115,26 @@ _Avoid_: conflating with the agents; "the API"; a place for business logic to sp
 The distilled, versioned artifact of how Jim writes — seeded from his high-open-rate direct emails, served by `voice_guide.read()`, read by every drafting agent, and updated quarterly by the self-improving loop. Authored once; improved forever.
 _Avoid_: style guide (broader); prompt (it is data the prompt reads)
 
+**Editorial Layer**:
+The markdown files in `fundraising/voice/` (`voice_guide.md`, one structure file per Issue Type or channel, `qa_checklist.md`) holding ALL voice and structure knowledge, read by both Authoring Shells (docs/adr/0009). Mental model: the recipe cards of the kitchen whose knives and pans are the Tool Belt.
+_Avoid_: editorial rules embedded in prompts or Python; a second copy anywhere
+
+**Authoring Shell**:
+A thin runtime that composes kernel assets (spine, Tool Belt, Editorial Layer) into channel artifacts. Two exist: the Newsletter Studio skill (primary, conversational, Jim in the loop) and the `draft_newsletter` cron (headless, organization-owned, reads editorial files as deployed, so deploys pin its behavior).
+_Avoid_: letting a shell own rules or guarantees (those live in the kernel)
+
+**Newsletter Studio**:
+The `masi-newsletter` Claude Code skill grown into the primary authoring surface: any source (Airtable Story, voice note plus photos, an Instagram post, a stats brief), any Issue Type, always ending in `record_and_draft` (spine Draft row plus Mailchimp draft campaign in one transaction).
+_Avoid_: producing send-ready HTML that bypasses the spine
+
+**Issue Type**:
+One of four editorial shapes an issue takes: child/youth story, results/impact update, campaign/appeal, news/milestone. Each has a structure file in the Editorial Layer.
+_Avoid_: hard-coding one shape into tools or commands
+
+**Channel Artifact**:
+One rendering of a Story (or brief) for a channel x audience pair: a newsletter issue, a Personal Send, a LinkedIn post, a social caption. Recorded as a Draft with a `kind`; eventually also a Content Use. The Story is the atom; artifacts are its renderings.
+_Avoid_: treating the Mailchimp newsletter as the system's unit; building renderers before a channel is actually used
+
 **Self-improving loop**:
 Capturing the diff between an agent's `draft_body` and the `final_body` Jim actually sent, classifying it (voice / facts / structure / killed), and feeding it back into the Voice Guide, the Answer Library, and the autonomy dial (docs/adr/0007). Mental model: an apprentice studying the editor's red pen — not model fine-tuning, not autonomous self-modification.
 _Avoid_: "training the model"; "the AI learns" (it updates curated artifacts, humans still decide)
