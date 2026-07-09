@@ -22,6 +22,7 @@ Do NOT commit.
 - **Drive-root ancestry check: deferred.** The service account can only read the one shared "Masi Media" folder (verified), so a stray link is either in-scope or unreadable (a problem row). Revisit if more folders are shared with the SA.
 - **Model-failure = problem, not success.** A single-candidate fallback stores (the only image, flagged amber); a multi-candidate fallback (model could not choose) is a problem row with NO upload/save, surfaced for a manual re-run.
 - **Hero optimized for email (added after the first live run).** The first full run stored full-res originals (3-11 MB, one 10.7 MB PNG), too heavy for a donor email header. `optimize_for_email` now downscales the chosen hero to ~1600px JPEG (a few hundred KB; PNG normalized to JPEG) before upload; the winner is re-encoded, not stored raw.
+- **`pick_hero` max_tokens 800 -> 2000 (proven via live diagnostic).** On a 15-image folder the per-candidate "rejected" list overflowed 800 output tokens and truncated the JSON (`stop_reason=max_tokens`, unparseable), which showed up as a variable 5-7 "model could not pick" problems per run. Confirmed by re-running one failing story at 800 (truncated) vs 1500 (`end_turn`, parses). Raised to 2000 for headroom.
 
 ## Verified input data (masi_db snapshot, 2026-07-08)
 92 `ContentStory` rows; 87 have a `drive_link`. Shapes: **77 Drive folders** (flat, per-child, 1-7
