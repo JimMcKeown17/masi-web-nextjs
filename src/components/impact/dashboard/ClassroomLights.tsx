@@ -1,21 +1,21 @@
 "use client";
 
-import { useRef, useState } from "react";
-import { motion, useMotionValueEvent, useReducedMotion, useScroll } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, motion, useInView, useReducedMotion } from "framer-motion";
 
 import { pick } from "@/lib/api/impact/selectors";
 import { PublishedStatsPayload } from "@/lib/types/impact";
 
 import { KidFigure } from "./KidFigure";
 
-// One school year told in five scroll beats. At each beat, the share of children at the
-// reading benchmark in a comparison vs a Masinyusane classroom.
-// PLACEHOLDER values (Masi, 2026-06-16): Jan / Jun / Nov are the stated anchors; Mar / Sep
-// are smoothed midpoints. Verify against the data portal before shipping.
-const MONTHS = ["Jan", "Mar", "Jun", "Sep", "Nov"];
+// One school year, played automatically in five beats: the share of children at the
+// reading benchmark in a comparison vs a Masinyusane classroom. Jan / Jun / Nov are
+// the stated anchors (confirmed 2026-07-10); Mar / Sep are smoothed midpoints.
 const MONTHS_FULL = ["January", "March", "June", "September", "November"];
 const COMP_PCT = [5, 7, 10, 18, 27];
 const MASI_PCT = [5, 17, 30, 50, 70];
+const LAST_BEAT = 4;
+const BEAT_INTERVAL_MS = 1600; // four advances: the year plays in about 6.5s
 
 function Room({
   title,
@@ -64,103 +64,124 @@ function Room({
 export function ClassroomLights({ payload }: { payload: PublishedStatsPayload | null }) {
   const ref = useRef<HTMLDivElement>(null);
   const reduced = useReducedMotion();
-  const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end end"] });
+  const inView = useInView(ref, { amount: 0.4, once: true });
   const [beat, setBeat] = useState(0);
+  const [playCount, setPlayCount] = useState(0); // bumped by the replay button
+  const playing = inView && !reduced;
 
-  useMotionValueEvent(scrollYProgress, "change", (progress) => {
-    setBeat(progress < 0.18 ? 0 : progress < 0.36 ? 1 : progress < 0.54 ? 2 : progress < 0.72 ? 3 : 4);
-  });
+  // Advance one beat per interval until November, restarting whenever replay bumps
+  // playCount (the replay handler resets beat to 0). Cleanup guards against unmount
+  // mid-play.
+  useEffect(() => {
+    if (!playing) return;
+    let current = 0;
+    const id = setInterval(() => {
+      current += 1;
+      setBeat(current);
+      if (current === LAST_BEAT) clearInterval(id);
+    }, BEAT_INTERVAL_MS);
+    return () => clearInterval(id);
+  }, [playing, playCount]);
 
   const total = pick(payload, "class_size")?.numeric_value ?? 42;
-  const b = reduced ? 4 : beat;
+  const b = reduced ? LAST_BEAT : beat;
   const compCount = Math.round((total * COMP_PCT[b]) / 100);
   const masiCount = Math.round((total * MASI_PCT[b]) / 100);
-  const monthFull = MONTHS_FULL[b];
+  const startCount = Math.round((total * MASI_PCT[0]) / 100);
+  const finalComp = Math.round((total * COMP_PCT[LAST_BEAT]) / 100);
+  const finalMasi = Math.round((total * MASI_PCT[LAST_BEAT]) / 100);
+  const done = !reduced && beat === LAST_BEAT;
 
-  // Three narrative beats keyed to the year: start, mid, end.
+  // One live sentence, three narrative moments: start, mid-year, year-end.
   const phase = b < 2 ? 0 : b < 4 ? 1 : 2;
-  const boxes = [
+  const sentences = [
     <>
-      At the start of the year, just <b className="text-white">5%</b> of children read at benchmark, about{" "}
-      <b className="text-white">2 of {total}</b>. Both classrooms begin in the same place.
+      January: both classrooms start in the same place, just{" "}
+      <b className="text-white">
+        {startCount} of {total}
+      </b>{" "}
+      reading.
     </>,
     <>
-      By mid-year the gap opens. A comparison class reaches <b className="text-white">10%</b> at benchmark. A Masinyusane
-      class is already at <b className="text-white">30%</b>.
+      By June, a Masinyusane class is already <b className="text-white">three times</b> ahead.
     </>,
     <>
-      By year-end, comparison classes sit at <b className="text-white">27%</b>. Masinyusane classes reach{" "}
-      <b className="text-white">70%</b>, about <b className="text-white">29 of {total}</b> children reading.
+      By November: <b className="text-white">{finalMasi} children reading</b>, versus{" "}
+      <b className="text-white">{finalComp}</b> next door.
     </>,
   ];
 
   return (
-    <div ref={ref} className={reduced ? "bg-[#0E1116]" : "h-[460vh] bg-[#0E1116]"}>
-      <div
-        className={`${reduced ? "" : "sticky top-0 h-screen"} relative flex flex-col justify-center px-6 py-16 text-white md:px-12 lg:px-[70px]`}
-      >
-        {!reduced && (
-          <motion.div
-            className="absolute left-0 top-0 h-[3px] w-full origin-left bg-[#E72D4D]"
-            style={{ scaleX: scrollYProgress }}
-          />
-        )}
-        <div className="mx-auto w-full max-w-[1180px]">
-          <div className="mb-5 flex items-center gap-3">
-            <span className="h-px w-10 bg-[#E72D4D]" />
-            <span className="text-xs uppercase tracking-[0.25em] text-white/60">Chapter 01 &middot; Literacy</span>
-          </div>
-          <h2 className="font-serif text-3xl font-medium leading-[1.12] tracking-tight md:text-[40px]">
-            Watch the <span className="font-light italic text-[#E72D4D]">lights come on</span> in two classrooms.
-          </h2>
-
-          {/* Calendar: months light up Jan to Nov as you scroll */}
-          <div className="mt-9 flex items-stretch">
-            {MONTHS.map((month, index) => {
-              const on = b >= index;
-              return (
-                <div key={month} className="flex flex-1 flex-col items-center">
-                  <div className="flex w-full items-center">
-                    <div className={`h-px flex-1 ${index > 0 ? (b >= index ? "bg-[#E72D4D]" : "bg-white/15") : "bg-transparent"}`} />
-                    <span
-                      className={`h-2.5 w-2.5 shrink-0 rounded-full transition-colors duration-500 ${on ? "bg-[#E72D4D]" : "bg-white/20"}`}
-                      style={on ? { boxShadow: "0 0 8px rgba(231,45,77,0.7)" } : undefined}
-                    />
-                    <div className={`h-px flex-1 ${index < MONTHS.length - 1 ? (b > index ? "bg-[#E72D4D]" : "bg-white/15") : "bg-transparent"}`} />
-                  </div>
-                  <span className={`mt-2 text-[11px] uppercase tracking-[0.18em] transition-colors duration-500 ${on ? "text-white" : "text-white/40"}`}>
-                    {month}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-9 flex flex-col gap-8 lg:flex-row lg:gap-10">
-            <div className="flex w-full flex-col justify-center gap-3 lg:w-[300px] lg:shrink-0">
-              {boxes.map((content, index) => (
-                <div
-                  key={index}
-                  className={`rounded-xl px-4 py-3.5 text-sm leading-relaxed transition-all duration-500 ${
-                    phase === index
-                      ? "border-l-[3px] border-[#E72D4D] bg-white/10 text-gray-50 opacity-100"
-                      : "bg-white/[0.04] text-gray-500 opacity-35"
-                  }`}
-                >
-                  {content}
-                </div>
-              ))}
-            </div>
-            <div className="flex flex-1 flex-col gap-5 sm:flex-row sm:gap-6">
-              <Room title="Comparison classroom" count={compCount} total={total} monthLabel={monthFull} />
-              <Room title="Masinyusane classroom" count={masiCount} total={total} monthLabel={monthFull} highlight />
-            </div>
-          </div>
-          <p className="mt-6 text-[12.5px] text-gray-500">
-            <b className="text-gray-400">A reader</b> = a child at the Grade 1 benchmark of 40 letter sounds per minute.
-            Class of {total} = average Eastern Cape Grade 1.
-          </p>
+    <div ref={ref} className="bg-[#0E1116] px-6 py-20 text-white md:px-12 md:py-24 lg:px-20">
+      <div className="mx-auto w-full max-w-[1180px]">
+        <div className="mb-5 flex items-center gap-3">
+          <span className="h-px w-10 bg-[#E72D4D]" />
+          <span className="text-xs uppercase tracking-[0.25em] text-white/60">Chapter 01 &middot; Literacy</span>
         </div>
+        <h2 className="font-serif text-3xl font-medium leading-[1.12] tracking-tight md:text-[40px]">
+          Watch the <span className="font-light italic text-[#E72D4D]">lights come on</span> in two classrooms.
+        </h2>
+
+        {/* The year: a single thin line, a red dot travelling Jan to Nov as it plays. */}
+        <div className="mt-10">
+          <div className="relative h-px bg-white/15">
+            <div
+              className="absolute left-0 top-0 h-px bg-[#E72D4D] transition-all ease-linear"
+              style={{ width: `${(b / LAST_BEAT) * 100}%`, transitionDuration: b === 0 ? "0ms" : `${BEAT_INTERVAL_MS}ms` }}
+            />
+            <span
+              className="absolute top-1/2 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#E72D4D] transition-all ease-linear"
+              style={{
+                left: `${(b / LAST_BEAT) * 100}%`,
+                transitionDuration: b === 0 ? "0ms" : `${BEAT_INTERVAL_MS}ms`,
+                boxShadow: "0 0 8px rgba(231,45,77,0.7)",
+              }}
+            />
+          </div>
+          <div className="mt-2.5 flex justify-between text-[11px] uppercase tracking-[0.18em] text-white/50">
+            <span>Jan</span>
+            <span>Nov</span>
+          </div>
+        </div>
+
+        <div className="mt-8 flex flex-col gap-5 sm:flex-row sm:gap-6">
+          <Room title="Comparison classroom" count={compCount} total={total} monthLabel={MONTHS_FULL[b]} />
+          <Room title="Masinyusane classroom" count={masiCount} total={total} monthLabel={MONTHS_FULL[b]} highlight />
+        </div>
+
+        <div className="mt-8 min-h-[24px] text-center text-[15px] leading-relaxed text-gray-300">
+          <AnimatePresence mode="wait">
+            <motion.p
+              key={phase}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.3 }}
+            >
+              {sentences[phase]}
+            </motion.p>
+          </AnimatePresence>
+        </div>
+
+        <div className="mt-4 flex h-7 items-center justify-center">
+          {done && (
+            <button
+              type="button"
+              onClick={() => {
+                setBeat(0);
+                setPlayCount((count) => count + 1);
+              }}
+              className="text-[12px] uppercase tracking-[0.18em] text-white/50 transition-colors hover:text-white"
+            >
+              Watch the year again
+            </button>
+          )}
+        </div>
+
+        <p className="mt-6 text-[12.5px] text-gray-500">
+          <b className="text-gray-400">A reader</b> = a child at the Grade 1 benchmark of 40 letter sounds per minute.
+          Class of {total} = average Eastern Cape Grade 1.
+        </p>
       </div>
     </div>
   );
