@@ -81,4 +81,6 @@ Stage 4: upgrade the skill into the Studio
 - [ ] Wire `record_and_draft` as the ending step
 - [ ] First live run on a real one-off (skill is still untested end-to-end by Jim)
 
-Deferred (unchanged from backlog): `metrics.compute` exposure; video pattern 1 (poster + play button); nightly hero cron; Editorial Campaign Calendar; LinkedIn/social structure files and renderers; team's 10 Airtable link fixes.
+Added 2026-07-10 (Jim's red pen on draft 06): full-width photos restored (Mailchimp default look; the 480/420 caps reverted); mid-CTA only in longer issues; natural donor-you, no announcing, nickname rule (voice guide); quote rules v2 (must not repeat copy; verbatim magazine-style excerpting); **Chart Library** (`fundraising/voice/chart-library.json` + hosted PNGs under `gs://masi-website/fundraising/assets/charts/`) — curated email-safe chart images both shells may embed (at most one per issue, exact caption; REVERSES the earlier "portal visuals stay out of emails" call, Jim 2026-07-10); category-aware rotating stat selection in the cron shell (up to 3 catalog stats passed, model weaves 1-2).
+
+Deferred (unchanged from backlog): `metrics.compute` exposure; video pattern 1 (poster + play button); nightly hero cron; Editorial Campaign Calendar; LinkedIn/social structure files and renderers; team's 10 Airtable link fixes; **per-child stats tool** (Jim's "perfect world": resolve a story's child via feature_name + school to CanonicalChild and pull real assessment numbers into the issue; blocked on identity friction, programme stats are the interim).

@@ -44,13 +44,19 @@ Paths (Jim's machine):
    as inline-styled HTML to `body.html`, following them exactly. Composition contract
    (mechanical, must match the template code):
    - Body only: no logo, donate button, social links, or lead photo (chrome adds them).
-   - Non-lead photos embed inline as
-     `<img src="FILENAME_OR_URL" alt="" width="420" style="display:block;width:100%;max-width:420px;height:auto;margin:12px auto;border-radius:8px;">`
+   - Non-lead photos embed inline, full width, as
+     `<img src="FILENAME_OR_URL" alt="" width="600" style="display:block;width:100%;max-width:600px;height:auto;margin:12px auto;border-radius:8px;">`
      (local filenames get rewritten to hosted URLs by the assemble script).
-   - Emit exactly one `<!--MID_CTA-->` marker where the structure file says; the
-     template turns it into the donate button.
+   - `<!--MID_CTA-->` marker only in longer issues, per the structure file; short
+     single-story issues get no marker (one bottom button).
    - Stats: fetch the catalog first if the issue wants numbers; weave at most one or
      two, as sentences, per the structure file. Tell Jim which stat keys you used.
+   - Charts: `<backend>/fundraising/voice/chart-library.json` holds curated, hosted,
+     email-safe chart images. If one matches the story's programme, embed at most one
+     (full-width img + its exact caption as a small gray line), per the structure file.
+     Never screenshot or build a new chart for an issue; to add one to the library,
+     host it under `fundraising/assets/charts/` on GCS and add a manifest entry with
+     Jim's sign-off.
    - Run every line of `qa_checklist.md` against the draft and fix failures BEFORE
      showing Jim.
 
