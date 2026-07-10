@@ -62,7 +62,9 @@ Paths (Jim's machine):
    ```
    Use `--photos` for new files (first becomes lead if no `--lead-url`); use
    `--lead-url` when the story already has a GCS hero. Send Jim `newsletter.html`
-   rendered, and iterate.
+   rendered, and iterate. Save the final render to the frontend repo's
+   `docs/renders/YYYY-MM-DD-draft-<id>-<subject-slug>.html` (id from step 7) so Jim
+   can reference it later.
 
 6. **Iterate: classify the red pen.** For each piece of feedback decide: one-off edit
    (fix this draft only) or durable rule (should change every future draft). Write
