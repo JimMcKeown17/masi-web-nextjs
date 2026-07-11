@@ -91,6 +91,7 @@ export function ClassroomLights({ payload }: { payload: PublishedStatsPayload | 
   const finalComp = Math.round((total * COMP_PCT[LAST_BEAT]) / 100);
   const finalMasi = Math.round((total * MASI_PCT[LAST_BEAT]) / 100);
   const done = !reduced && beat === LAST_BEAT;
+  const showPayoff = reduced || done;
 
   // One live sentence, three narrative moments: start, mid-year, year-end.
   const phase = b < 2 ? 0 : b < 4 ? 1 : 2;
@@ -161,6 +162,21 @@ export function ClassroomLights({ payload }: { payload: PublishedStatsPayload | 
               {sentences[phase]}
             </motion.p>
           </AnimatePresence>
+        </div>
+
+        {/* The payoff: the section's core claim lands only once the year has played. */}
+        <div className="mt-6 min-h-[76px] text-center md:min-h-[44px]">
+          {showPayoff && (
+            <motion.p
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.7, delay: 0.4 }}
+              className="mx-auto max-w-[640px] font-serif text-2xl leading-snug md:text-[30px]"
+            >
+              We <span className="font-light italic text-[#E2B53C]">double</span> the number of readers in every
+              classroom we enter.
+            </motion.p>
+          )}
         </div>
 
         <div className="mt-4 flex h-7 items-center justify-center">

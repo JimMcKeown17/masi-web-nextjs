@@ -39,9 +39,7 @@ export function WhyItMatters({ payload }: { payload: PublishedStatsPayload | nul
       <p className="mt-12 max-w-[640px] font-serif text-2xl leading-snug text-[#14181D]">
         So we build the foundation: <Accent>literacy and numeracy, from age four.</Accent>
       </p>
-      <p className="mt-3 text-[13px] text-gray-500">
-        In every classroom we enter, twice as many children learn to read. Watch it happen below.
-      </p>
+      <p className="mt-3 text-[13px] text-gray-500">Watch it happen below, in two classrooms.</p>
     </Section>
   );
 }

@@ -87,6 +87,18 @@
 - `useReducedMotion`: render the final November state immediately, no animation
   (same spirit as today).
 
+## Amendments (2026-07-11, requested by Jim after initial build)
+
+1. Payoff statement: when the year finishes playing (or immediately under reduced
+   motion), a large serif line fades in below the live sentence: "We *double* the
+   number of readers in every classroom we enter." ("double" in lifted gold
+   `#E2B53C`, tying it to the lit children). This is the section's core claim.
+2. To avoid repeating that claim verbatim in adjacent sections, the WhyItMatters
+   bridge line shrinks to a pointer: "Watch it happen below, in two classrooms."
+3. `KidFigure` gets childlike proportions (head wider than shoulders, small
+   rounded body), chosen from a visual comparison of three candidates. Applies
+   everywhere the figure is used (classroom grids + icon arrays).
+
 ## Verification
 
 - `pnpm build` and `pnpm lint` pass.

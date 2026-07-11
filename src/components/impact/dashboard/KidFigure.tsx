@@ -39,15 +39,16 @@ export function KidFigure({
         transitionDelay: `${delayMs}ms`,
       }}
     >
+      {/* Child proportions: head wider than the shoulders, small rounded body. */}
       <circle
         cx="9"
-        cy="4.5"
-        r="4.5"
+        cy="6"
+        r="5.5"
         fill={fill}
         style={{ transition: "fill 0.6s ease", transitionDelay: `${delayMs}ms` }}
       />
       <path
-        d="M2 26 L2 17 Q2 11 9 11 Q16 11 16 17 L16 26 Z"
+        d="M4 26 L4 20 Q4 14.5 9 14.5 Q14 14.5 14 20 L14 26 Z"
         fill={fill}
         style={{ transition: "fill 0.6s ease", transitionDelay: `${delayMs}ms` }}
       />
