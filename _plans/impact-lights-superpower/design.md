@@ -99,6 +99,17 @@
    rounded body), chosen from a visual comparison of three candidates. Applies
    everywhere the figure is used (classroom grids + icon arrays).
 
+## Amendments (2026-07-12, after Jim's browser review)
+
+1. The payoff line moves to an always-visible standfirst directly under the
+   headline (fast scrollers must see it; it no longer waits for the animation).
+2. Scroll-driven lighting is restored: autoplay felt video-like and skippable.
+   The section is pinned again (360vh, shorter than the original 460vh since the
+   chrome is gone) and scroll position drives the year. The timeline dot tracks
+   scroll continuously; counts and the live sentence quantise to five beats.
+   Replay button removed (scroll is the scrubber). All other simplifications
+   stand: no calendar row, no stacked boxes, no progress bar.
+
 ## Verification
 
 - `pnpm build` and `pnpm lint` pass.
