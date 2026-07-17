@@ -30,6 +30,10 @@ pnpm install  # from root or masi-website/
 - **Auth:** Clerk (`@clerk/nextjs`)
 - **Charts:** react-plotly.js | **Maps:** react-map-gl + MapLibre | **Forms:** react-hook-form + zod | **Animations:** framer-motion
 
+## Building
+
+Default build workflow for Claude: Claude/Fable owns design, spec, review, and verification; delegate non-trivial implementation to Codex via `codex-first`, then inspect the diff and tests before ship.
+
 ## Design System
 
 When doing ANY redesign work, or building or restyling website pages, sections, or
