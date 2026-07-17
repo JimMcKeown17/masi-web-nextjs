@@ -23,7 +23,7 @@ re-derive it. For deferred ideas rather than started work, see
 | [Impact Data Portal](#1-impact-data-portal) | `feature/impact-data-portal` | 1 | Slice 1 of 5 built and verified | Build Slice 2, or merge now (invisible, safe) |
 | [Agentic fundraising](#2-agentic-fundraising-system) | `feature/agentic-fundraising` (+ backend `feature/fundraising-spine`) | 15 (+17) | 1 of 4 agents working end to end | First live run of the newsletter skill |
 | [Impact page lights](#3-impact-page-lights--why-it-matters) | `feature/impact-lights-superpower` | 6 | Code complete, post-review edits in | Browser pass, then merge |
-| [Numeracy 2026 pipeline](#4-2026-numeracy-assessment-pipeline-backend) | none, **uncommitted** | 0 | ~2,000 lines with tests, unsaved | Commit it to its own branch |
+| [Numeracy 2026 pipeline](#4-2026-numeracy-assessment-pipeline-backend) | `feature/numeracy-2026-pipeline` | 2 | Committed, 92 tests green | Run the syncs locally, work the correction queue |
 | [Zazi reconciliation](#5-zazi-to-canonical-reconciliation-data-not-code) | `feature/zazi-reconciliation` | 1 | School side done, child side open | Staff work the Airtable worklists |
 
 Nothing above is pushed to any remote. See [Repo hygiene](#repo-hygiene).
@@ -122,9 +122,11 @@ still untested end to end by Jim.
 **Careful with two reversals** in the 2026-07-10 addendum: photo width caps were reverted to
 full-width, and "portal visuals stay out of emails" was reversed by the chart library.
 
-**Uncommitted in this worktree, and unrelated to fundraising:** a `codex-first` skill plus a
-CLAUDE.md "Building" section codifying the delegation split (Claude designs and reviews,
-Codex implements). Worth splitting to its own branch, since it is general dev workflow.
+**Riding this branch but unrelated to it:** commit `e93e460` adds the `codex-first` skill and
+a CLAUDE.md "Building" section codifying the delegation split (Claude designs and reviews,
+Codex implements). It is general dev workflow, committed here only because that is where it
+was written, and deliberately kept standalone. Cherry-pick it onto main whenever convenient:
+`git cherry-pick e93e460`.
 
 ---
 
@@ -156,26 +158,30 @@ commit. Do that pass, then merge. This is the closest branch to done.
 
 ## 4. 2026 numeracy assessment pipeline (backend)
 
-**Nowhere. Roughly 2,000 lines, uncommitted, sitting on `feature/fundraising-spine`.**
+**Branch:** `feature/numeracy-2026-pipeline`, 2 commits off `origin/main`, **not pushed**
 
-This is the most exposed work in the project. Last touched 2026-07-13. Sixteen files, all
-untracked or modified, including migration `0039`, `api/numeracy_2026.py`, four management
-commands (two syncs, a parquet exporter, a reconciler), and **eight test files**. It is
-carefully built and thoroughly documented in `documentation/airtable_pipeline_sync.md`
-section 7, and it is one `git checkout` away from being gone.
+Rescued 2026-07-17 from `feature/fundraising-spine`, where it had been sitting uncommitted.
+Now two commits, tree clean, **92 tests green**, no missing migrations.
 
-The design is worth keeping: identity resolution is entirely on `child_uid` (no reuse of the
-2025 name-based merge), publication fails closed on operational integrity failures but
+- `4b19344 feat(numeracy)`: the pipeline. Migration 0039, `api/numeracy_2026.py`, four
+  management commands (two syncs, parquet exporter, reconciler), the ETL preview surface,
+  and eight test files.
+- `7a60017 feat(wig)`: the numeracy outcome ring, which generalises `wig_outcomes` from
+  "Core Literacy + ECD Literacy" to any backend-owned programme.
+
+The design worth preserving: identity resolution is entirely on `child_uid` (no reuse of the
+2025 name-based merge). Publication fails closed on operational integrity failures but
 quarantines record-level data quality problems into a correction report rather than taking
-the whole dashboard down, and scores are never clipped or averaged.
+the dashboard down. Scores are never clipped or averaged. The WIG ring reuses the pipeline's
+own quality evaluation rather than restating it, so a quarantined assessment is excluded
+identically on the WIG board and in the data portal.
 
-**Next step, today:** `git checkout -b feature/numeracy-2026-pipeline` and commit it. It has
-nothing to do with fundraising and must not ride that branch.
+**Next step:** run the syncs and exporter locally against `masi_db`, reconcile with
+golden-row hand-traces, and work the correction queue. There is deliberately no cron, since
+assessment collection is window-based. Do not run the exporter on Render: its output target
+is the sibling local Streamlit repo.
 
-Then: run the syncs and exporter locally against `masi_db`, reconcile with golden-row
-hand-traces, and work the correction queue. There is deliberately no cron, because
-assessment collection is window-based. Do not run the exporter on Render, since its output
-target is the sibling local Streamlit repo.
+Documented in backend `documentation/airtable_pipeline_sync.md` section 7.
 
 ---
 
@@ -240,12 +246,18 @@ is the highest-value 10 minutes available right now.
 
 The backend's local `main` is also 1 commit behind `origin/main`.
 
-### The backend branch tangle
+### The backend branch tangle (mostly resolved)
 
-`feature/fundraising-spine` currently carries three unrelated things: the fundraising system
-(its actual job), a duplicate of the `fix/wig-assessment-gate` commit, and the entire
-uncommitted numeracy pipeline. `fix/wig-assessment-gate` is 1 commit ahead of main on its own
-and can merge independently.
+`feature/fundraising-spine` used to carry three unrelated things. The numeracy pipeline has
+been moved off to its own branch (2026-07-17), leaving:
+
+- The fundraising system, its actual job.
+- `fc12fc6`, a duplicate of the wig fix. **The fix is already on `origin/main`** as `52b7a3b`
+  (identical content), so `fc12fc6` is redundant and `fix/wig-assessment-gate` can be
+  deleted. `feature/fundraising-spine` should be rebased onto `origin/main`, which will drop
+  the duplicate.
+
+Local `main` is 1 behind `origin/main`, and that one commit is the wig fix. Fast-forward it.
 
 ### Merged branches, safe to delete (frontend)
 
