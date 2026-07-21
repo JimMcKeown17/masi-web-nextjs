@@ -35,6 +35,7 @@ import {
   getClosureLookups,
   listClosures,
   bulkCreateClosures,
+  bulkSetClosures,
   deleteClosure,
   listAbsences,
   bulkCreateAbsences,
@@ -46,6 +47,9 @@ import type {
   SchoolClosure,
   StaffAbsence,
   ClosureLookups,
+  ClosureBulkSetBody,
+  ClosureBulkSetPreview,
+  ClosureBulkSetRow,
 } from "@/lib/types/closures";
 
 function isoDate(d: Date): string {
@@ -216,6 +220,7 @@ export default function ClosureCalendarPage() {
 
         <TabsContent value="closures" className="space-y-6">
           <ClosureForm lookups={lookups} authToken={authToken} onDone={() => mutateClosures()} />
+          <BulkRescopePanel authToken={authToken} onDone={() => mutateClosures()} />
           <ClosureTable
             closures={closures}
             from={windowFrom}
@@ -424,6 +429,213 @@ function ClosureForm({
             {submitting ? "Saving…" : "Save closure"}
           </Button>
         </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+type Intent = "unchanged" | "set";
+type StatusIntent = "unchanged" | "closed" | "open";
+
+function sameIdentity(a: ClosureBulkSetRow, b: ClosureBulkSetRow): boolean {
+  return a.date === b.date && a.scope_key === b.scope_key && a.is_open === b.is_open
+    && a.updated_at === b.updated_at
+    && JSON.stringify([...a.applies_to_programmes].sort()) === JSON.stringify([...b.applies_to_programmes].sort());
+}
+
+function BulkRescopePanel({ authToken, onDone }: { authToken: () => Promise<string>; onDone: () => void }) {
+  const [dateFrom, setDateFrom] = useState(isoToday());
+  const [dateTo, setDateTo] = useState(isoToday());
+  const [preview, setPreview] = useState<ClosureBulkSetPreview | null>(null);
+  const [checked, setChecked] = useState<Set<number>>(new Set());
+  const [programmes, setProgrammes] = useState<string[]>([]);
+  const [progIntent, setProgIntent] = useState<Intent>("unchanged");
+  const [statusIntent, setStatusIntent] = useState<StatusIntent>("unchanged");
+  const [busy, setBusy] = useState(false);
+
+  const toggle = (id: number) =>
+    setChecked((s) => {
+      const n = new Set(s);
+      if (n.has(id)) {
+        n.delete(id);
+      } else {
+        n.add(id);
+      }
+      return n;
+    });
+
+  const doPreview = async () => {
+    setBusy(true);
+    try {
+      const res = (await bulkSetClosures(await authToken(), {
+        dry_run: true, date_from: dateFrom, date_to: dateTo, scope_type: "school",
+      })) as ClosureBulkSetPreview;
+      setPreview(res);
+      setChecked(new Set(res.ids));
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Preview failed.");
+    } finally { setBusy(false); }
+  };
+
+  const apply = async () => {
+    if (!preview) return;
+    const ids = [...checked];
+    if (ids.length === 0) { toast.error("Select at least one row."); return; }
+    if (progIntent === "unchanged" && statusIntent === "unchanged") {
+      toast.error("Choose a programme change and/or a status change."); return;
+    }
+    setBusy(true);
+    try {
+      const token = await authToken();
+      const re = (await bulkSetClosures(token, { dry_run: true, ids })) as ClosureBulkSetPreview;
+      // Guard: what we're about to commit must equal what the operator reviewed.
+      const reviewed = new Map(preview.rows.map((r) => [r.id, r]));
+      const changed = re.ids.length !== ids.length
+        || re.rows.some((r) => { const o = reviewed.get(r.id); return !o || !sameIdentity(o, r); });
+      if (changed) {
+        setPreview(re); setChecked(new Set(re.ids));
+        toast.error("These closures changed since you reviewed them — please re-check the list.");
+        return;
+      }
+      const body: ClosureBulkSetBody = { ids, digest: re.digest };
+      if (progIntent === "set") body.applies_to_programmes = programmes;   // [] = all (explicit)
+      if (statusIntent !== "unchanged") body.is_open = statusIntent === "open";
+      const res = (await bulkSetClosures(token, body)) as { updated: number };
+      toast.success(`Updated ${res.updated} closures.`);
+      setPreview(null); onDone();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Update failed — please preview again.");
+    } finally { setBusy(false); }
+  };
+
+  return (
+    <Card className="md:col-span-2">
+      <CardHeader>
+        <CardTitle>Bulk re-scope school closures</CardTitle>
+        <CardDescription>
+          Preview school-scoped closures, remove any rows that should stay unchanged, then apply an
+          explicit programme and/or status change.
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        <div className="grid gap-4 md:grid-cols-[1fr_1fr_auto] md:items-end">
+          <div className="space-y-2">
+            <Label htmlFor="bulk-rescope-from">From</Label>
+            <Input
+              id="bulk-rescope-from"
+              type="date"
+              value={dateFrom}
+              onChange={(e) => setDateFrom(e.target.value)}
+            />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="bulk-rescope-to">To</Label>
+            <Input
+              id="bulk-rescope-to"
+              type="date"
+              value={dateTo}
+              onChange={(e) => setDateTo(e.target.value)}
+            />
+          </div>
+          <Button onClick={doPreview} disabled={busy}>
+            {busy ? "Working…" : "Preview"}
+          </Button>
+        </div>
+
+        {preview && (
+          <>
+            <div className="space-y-1">
+              <p className="text-sm font-medium">{preview.count} matched</p>
+              <p className="text-xs text-muted-foreground">
+                Review every identity field and uncheck any closure that should not be changed.
+              </p>
+            </div>
+
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="w-10">Apply</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Scope key</TableHead>
+                  <TableHead>Source</TableHead>
+                  <TableHead>Reason</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Current programmes</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {preview.rows.map((row) => (
+                  <TableRow key={row.id}>
+                    <TableCell>
+                      <Checkbox
+                        checked={checked.has(row.id)}
+                        onCheckedChange={() => toggle(row.id)}
+                        aria-label={`Include closure ${row.id}`}
+                      />
+                    </TableCell>
+                    <TableCell className="whitespace-nowrap">{row.date}</TableCell>
+                    <TableCell className="font-mono text-xs">{row.scope_key}</TableCell>
+                    <TableCell>{row.source}</TableCell>
+                    <TableCell>{row.reason}</TableCell>
+                    <TableCell>{row.is_open ? "open" : "closed"}</TableCell>
+                    <TableCell>
+                      {row.applies_to_programmes.join(", ") || "all"}
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+
+            <div className="grid gap-4 md:grid-cols-2">
+              <div className="space-y-2">
+                <Label>Programme change</Label>
+                <Select value={progIntent} onValueChange={(v) => setProgIntent(v as Intent)}>
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unchanged">Leave unchanged</SelectItem>
+                    <SelectItem value="set">Set programme scope</SelectItem>
+                  </SelectContent>
+                </Select>
+                {progIntent === "set" && (
+                  <div className="space-y-2">
+                    <PickList
+                      options={PROGRAMMES}
+                      selected={programmes}
+                      onChange={setProgrammes}
+                      placeholder="All programmes"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      No programmes selected explicitly means all programmes.
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              <div className="space-y-2">
+                <Label>Status change</Label>
+                <Select
+                  value={statusIntent}
+                  onValueChange={(v) => setStatusIntent(v as StatusIntent)}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="unchanged">Leave unchanged</SelectItem>
+                    <SelectItem value="closed">Set closed</SelectItem>
+                    <SelectItem value="open">Set open</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+
+            <Button onClick={apply} disabled={busy}>
+              {busy ? "Working…" : `Apply to ${checked.size} selected`}
+            </Button>
+          </>
+        )}
       </CardContent>
     </Card>
   );
