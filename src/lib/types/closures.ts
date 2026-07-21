@@ -16,6 +16,7 @@ export interface SchoolClosure {
   is_open: boolean;
   source: ClosureSource;
   reason: string;
+  applies_to_programmes: string[];
   created_at: string;
   updated_at: string;
 }
@@ -37,6 +38,7 @@ export interface ClosureLookups {
   suburbs: string[];
   school_types: { value: string; label: string }[];
   youth: { youth_uid: string; name: string }[];
+  programmes: { value: string; label: string }[];
 }
 
 export interface ClosureBulkBody {
@@ -46,6 +48,35 @@ export interface ClosureBulkBody {
   scope_values?: (string | null)[];
   is_open?: boolean;
   reason?: string;
+  applies_to_programmes?: string[];
+}
+
+export interface ClosureBulkSetBody {
+  dry_run?: boolean;
+  ids?: number[];
+  date_from?: string;
+  date_to?: string;
+  scope_type?: ClosureScopeType;
+  digest?: string;
+  applies_to_programmes?: string[];
+  is_open?: boolean;
+}
+export interface ClosureBulkSetRow {
+  id: number;
+  date: string;
+  scope_key: string;
+  scope_type: ClosureScopeType;
+  is_open: boolean;
+  applies_to_programmes: string[];
+  source: ClosureSource;
+  reason: string;
+  updated_at: string | null;
+}
+export interface ClosureBulkSetPreview {
+  ids: number[];
+  rows: ClosureBulkSetRow[];
+  digest: string;
+  count: number;
 }
 
 export interface AbsenceBulkBody {

@@ -74,6 +74,18 @@ const ABSENCE_REASONS: { value: AbsenceReason; label: string }[] = [
   { value: "other", label: "Other" },
 ];
 
+const PROGRAMMES = [
+  { value: "zazi_izandi", label: "Zazi iZandi" },
+  { value: "masi_literacy", label: "Masi Literacy" },
+  { value: "numeracy", label: "Numeracy" },
+  { value: "thousand_stories", label: "1000 Stories" },
+  { value: "edutech", label: "EduTech" },
+  { value: "yebo", label: "Yebo" },
+  { value: "sport_arts", label: "Sport & Arts" },
+  { value: "homework", label: "Homework" },
+  { value: "preschool", label: "Preschool" },
+];
+
 // Filterable multi-select for suburbs / schools / youth.
 function PickList({
   options,
@@ -246,6 +258,7 @@ function ClosureForm({
   const [dateFrom, setDateFrom] = useState(isoToday());
   const [dateTo, setDateTo] = useState(isoToday());
   const [reason, setReason] = useState("");
+  const [programmes, setProgrammes] = useState<string[]>([]);
   const [isOpen, setIsOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
@@ -254,6 +267,7 @@ function ClosureForm({
     setTypeValue("");
     setSuburbs([]);
     setSchools([]);
+    setProgrammes([]);
   };
 
   const scopeValues = (): (string | null)[] | undefined => {
@@ -282,6 +296,7 @@ function ClosureForm({
         scope_values: values,
         is_open: isOpen,
         reason,
+        applies_to_programmes: programmes,
       });
       toast.success(`Saved: ${res.created} added, ${res.updated} updated.`);
       setReason("");
@@ -387,6 +402,12 @@ function ClosureForm({
             value={reason}
             onChange={(e) => setReason(e.target.value)}
           />
+        </div>
+
+        <div className="space-y-2 md:col-span-2">
+          <Label>Applies to programmes (none = all)</Label>
+          <PickList options={PROGRAMMES} selected={programmes} onChange={setProgrammes}
+            placeholder="All programmes" />
         </div>
 
         <label className="flex items-center gap-2 text-sm md:col-span-2">

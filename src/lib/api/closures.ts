@@ -5,6 +5,8 @@ import type {
   StaffAbsence,
   ClosureLookups,
   ClosureBulkBody,
+  ClosureBulkSetBody,
+  ClosureBulkSetPreview,
   AbsenceBulkBody,
 } from "@/lib/types/closures";
 
@@ -52,6 +54,13 @@ export function listClosures(token: string, dateFrom?: string, dateTo?: string) 
 
 export function bulkCreateClosures(token: string, body: ClosureBulkBody) {
   return request<{ created: number; updated: number }>("/closures/bulk/", token, {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export function bulkSetClosures(token: string, body: ClosureBulkSetBody) {
+  return request<ClosureBulkSetPreview | { updated: number }>("/closures/bulk-set/", token, {
     method: "POST",
     body: JSON.stringify(body),
   });
