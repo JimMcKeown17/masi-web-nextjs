@@ -25,8 +25,10 @@ re-derive it. For deferred ideas rather than started work, see
 | [Impact page lights](#3-impact-page-lights--why-it-matters) | `feature/impact-lights-superpower` | 6 | Code complete, post-review edits in | Browser pass, then merge |
 | [Numeracy 2026 pipeline](#4-2026-numeracy-assessment-pipeline-backend) | `feature/numeracy-2026-pipeline` | 2 | Committed, 92 tests green | Run the syncs locally, work the correction queue |
 | [Zazi reconciliation](#5-zazi-to-canonical-reconciliation-data-not-code) | `feature/zazi-reconciliation` | 1 | School side done, child side open | Staff work the Airtable worklists |
+| [Youth budget calculator](#6-youth-budget-calculator) | none yet | - | Scoped 2026-07-27, not built | Phase 0 data tasks, then build per plan |
+| [Duplicate school rows bug](#7-duplicate-school-rows-bug-prod) | none yet | - | Diagnosed 2026-07-27, unfixed | Fix sync + re-point youth FKs (own branch) |
 
-Nothing above is pushed to any remote. See [Repo hygiene](#repo-hygiene).
+All branches were pushed to remotes on 2026-07-27. See [Repo hygiene](#repo-hygiene).
 
 ---
 
@@ -234,17 +236,49 @@ is why this is one-time only and not a repeatable engine.
 
 ---
 
+## 6. Youth budget calculator
+
+**Branch:** none yet | **Scoped:** 2026-07-27 | **Plan:** `_plans/youth-budget-calculator.md`
+
+A "Budget" tab on the school-programme grid answering "are we on, over, or under budget
+given the youth we've hired and plan to hire?" Verdict: remaining funding pots
+(R1,523,777.96 as of late July) minus projected cost of all active non-Yebo youth through
+30 November, at assumption-based costing (ADR 0002). The grid's editable `youth_planned`
+doubles as the hiring sandbox (ADR 0001). Domain language in `CONTEXT.md` at repo root.
+
+**State:** fully scoped via grill session, nothing built. Reconciliation engine, funder
+windows, mentor costing, and rural pots all explicitly deferred (see plan).
+
+**Next:** Phase 0 data tasks (staff verify Airtable subsidy columns, fix 3 stale mentor
+titles), then backend models + `api/youth_budget.py`, then the tab.
+
+---
+
+## 7. Duplicate school rows bug (PROD)
+
+**Branch:** none yet | **Found:** 2026-07-27 during calculator scoping
+
+`sync_airtable_youth` attaches some youth to legacy `is_active=false` School rows (no
+`school_uid`) while grid cells hang off canonical rows. 16 active youth are stranded
+invisible (Lingelethu 7, Msobomvu 6, Nceduluntu 2, Lukhanyiso 1) plus 3 school-less, so
+the grid shows 428 of 438 true actives and the **Act First panel reports fake gaps** —
+Lingelethu "0 of 8 in post" while 7 literacy coaches work there. (The hero's 339 vs 428 is
+filled-post `min(active, planned)` semantics, by design, not part of the bug.)
+
+**Fix (own branch, before or with calculator Phase 0):** re-point stranded youths' school
+FKs to canonical rows, make the sync match canonical schools only, add a GridHealthPanel
+check for youth on inactive school rows.
+
+---
+
 ## Repo hygiene
 
-### Nothing is pushed
+### Everything is pushed (resolved 2026-07-27)
 
-Every unmerged branch across both repos exists **only on this laptop**. There are no open
-PRs, and no unmerged remote branches. A disk failure loses: 15 commits of fundraising design,
-17 commits of fundraising code, the data portal, the impact page rework, the reconciliation
-record, and ~2,000 uncommitted lines of numeracy pipeline. Pushing branches costs nothing and
-is the highest-value 10 minutes available right now.
-
-The backend's local `main` is also 1 commit behind `origin/main`.
+Originally nothing was pushed anywhere; all unmerged branches across both repos were
+pushed to their remotes on 2026-07-27, so a disk failure no longer loses work. The
+backend's local `main` may still trail `origin/main` by the wig-fix commit; fast-forward
+when convenient.
 
 ### The backend branch tangle (mostly resolved)
 
