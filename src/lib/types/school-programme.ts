@@ -66,6 +66,15 @@ export interface GridHealth {
   };
   schools_missing_uid: string[];
   site_assigned_no_school: Record<string, number>;
+  // Active youth whose school FK points at a row outside the grid (a legacy
+  // is_active=false duplicate, or a non-grid-eligible type). Optional: reports
+  // persisted before 2026-07-27 predate the flag.
+  youth_on_nongrid_schools?: {
+    school: string;
+    school_id: number;
+    school_is_active: boolean | null;
+    youth: number;
+  }[];
   unmapped_job_titles: Record<string, number>;
   unresolved_zazi_participants: number;
   unmapped_zazi_schools: string[];
