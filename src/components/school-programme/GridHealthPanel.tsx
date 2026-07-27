@@ -68,10 +68,13 @@ export function GridHealthPanel({
   const reach = health.reach_without_identities;
   const unplacedYouth = sumValues(health.site_assigned_no_school);
   const blankTitles = sumValues(health.unmapped_job_titles);
+  const stranded = health.youth_on_nongrid_schools ?? [];
+  const strandedYouth = stranded.reduce((a, e) => a + e.youth, 0);
 
   const toReview =
     health.schools_missing_uid.length +
     unplacedYouth +
+    strandedYouth +
     reach.buckets.masi_staffing.length +
     reach.buckets.manual_count.length;
 
@@ -105,6 +108,13 @@ export function GridHealthPanel({
               label="Youth at an unknown school"
               count={unplacedYouth}
               help="Their Site Placement doesn't match any school — usually a typo in Airtable."
+            />
+          )}
+          {strandedYouth > 0 && (
+            <Row
+              label="Youth on retired school rows"
+              count={strandedYouth}
+              help={`${stranded.map((e) => `${e.school} (${e.youth})`).join(", ")} — attached to a school row the grid doesn't read, so its cells undercount. The nightly youth sync re-points these; if one persists, the school rows need merging.`}
             />
           )}
           {reach.buckets.masi_staffing.length > 0 && (
