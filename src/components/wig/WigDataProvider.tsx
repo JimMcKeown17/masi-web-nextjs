@@ -39,6 +39,7 @@ export function WigDataProvider({ children }: { children: ReactNode }) {
       outcomes: {
         zazi_izandi: { kind: "unavailable", note: "outcomes request failed" },
         zazi_izandi_ecd: { kind: "unavailable", note: "outcomes request failed" },
+        numeracy: { kind: "unavailable", note: "outcomes request failed" },
       },
     };
     const [lead, dq, zazi, outcomes] = await Promise.all([

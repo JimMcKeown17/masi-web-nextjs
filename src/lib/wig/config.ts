@@ -249,6 +249,7 @@ export const PROGRAMMES: ProgrammeConfig[] = [
     wig: {
       statement: "50% of learners count to 30 by end of 2026",
       awaitingLabel: "Awaiting baseline assessment",
+      target: 0.5,
     },
     measures: [
       {
