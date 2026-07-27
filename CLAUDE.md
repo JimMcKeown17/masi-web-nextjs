@@ -139,7 +139,9 @@ Pre-configured with path alias `@/components`. Common: Button, Card, Tabs, Selec
 
 ## Key Documentation
 
-
+- `documentation/roadmap.md` — All in-flight work: unmerged branches, worktrees, and what each
+  needs before merging. Read this before starting a branch or asking "what was this for?".
+  Status in `_plans/*.md` checkboxes is unreliable; the roadmap explains why.
 - `documentation/data-architecture.md` — THREE backends/data sources (Zazi iZandi backend via Teampact, Main Masi backend, Airtable) + sync topology + the Airtable→PG audit gap. Read this before assuming where data lives.
 - `documentation/api-endpoints.md` — All backend API endpoints
 - `documentation/frontend-backend-integration.md` — Data fetching patterns, design system

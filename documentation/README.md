@@ -6,6 +6,15 @@ This folder contains documentation and guidelines for the MASI Web project. Thes
 
 ## 📚 Documentation Index
 
+### 0. [Roadmap](./roadmap.md)
+Everything started but not finished: in-flight branches, worktrees, and what each needs
+before it can merge. Spans the frontend, the Masi backend, and the Zazi backend.
+
+**When to use**: Picking up work cold, deciding what to finish next, or working out what a
+stale branch was for. For ideas not yet started, see [future-improvements.md](./future-improvements.md).
+
+---
+
 ### 1. [API Endpoints Reference](./api-endpoints.md)
 Complete documentation of all available backend API endpoints.
 
