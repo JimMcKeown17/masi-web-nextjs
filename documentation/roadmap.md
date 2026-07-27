@@ -23,7 +23,7 @@ re-derive it. For deferred ideas rather than started work, see
 | [Impact Data Portal](#1-impact-data-portal) | `feature/impact-data-portal` | 1 | Slice 1 of 5 built and verified | Build Slice 2, or merge now (invisible, safe) |
 | [Agentic fundraising](#2-agentic-fundraising-system) | `feature/agentic-fundraising` (+ backend `feature/fundraising-spine`) | 15 (+17) | 1 of 4 agents working end to end | First live run of the newsletter skill |
 | [Impact page lights](#3-impact-page-lights--why-it-matters) | `feature/impact-lights-superpower` | 6 | Code complete, post-review edits in | Browser pass, then merge |
-| [Numeracy 2026 pipeline](#4-2026-numeracy-assessment-pipeline-backend) | `feature/numeracy-2026-pipeline` | 2 | Committed, 92 tests green | Run the syncs locally, work the correction queue |
+| [Numeracy 2026 pipeline](#4-2026-numeracy-assessment-pipeline-backend) | merged to main 2026-07-27 (both repos) | - | Backend + WIG ring frontend live in code | Ops: run migration 0040 + first syncs on Render, work the correction queue |
 | [Zazi reconciliation](#5-zazi-to-canonical-reconciliation-data-not-code) | `feature/zazi-reconciliation` | 1 | School side done, child side open | Staff work the Airtable worklists |
 | [Youth budget calculator](#6-youth-budget-calculator) | none yet | - | Scoped 2026-07-27, not built | Phase 0 data tasks, then build per plan |
 | [Duplicate school rows bug](#7-duplicate-school-rows-bug-prod) | merged to main (both repos) | - | Fixed in code 2026-07-27; data self-heals overnight | Verify Lingelethu 7/8 + empty health flag after next refresh |
