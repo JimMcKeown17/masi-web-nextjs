@@ -90,6 +90,13 @@ export function outcomeKind(o: WigOutcomeEntry): "single" | "multi" | "unavailab
   return o.kind ?? "single";
 }
 
+// The payload's top-level `available` flag predates per-programme availability
+// and still describes only the two Masi literacy sources. New outcome sources
+// report failures as explicit `unavailable` entries instead.
+export function usesGlobalOutcomeAvailability(programmeKey: string): boolean {
+  return programmeKey === "core_literacy" || programmeKey === "ecd_literacy";
+}
+
 export interface OutcomesPayload {
   available: boolean;
   source_note: string | null;

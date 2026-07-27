@@ -1,7 +1,7 @@
 "use client";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-import { outcomeKind } from "@/lib/types/wig";
+import { outcomeKind, usesGlobalOutcomeAvailability } from "@/lib/types/wig";
 import type {
   MeasureConfig,
   MeasureValue,
@@ -193,11 +193,9 @@ function HeroWig({
   const accent = programme.accent ?? "#0a84ff";
   const entry = outcomes.outcomes[programme.key] ?? null;
   const kind = entry ? outcomeKind(entry) : null;
-  // Literacy programmes (wig.target in config) are gated by the global
-  // literacy source flag; Zazi failures arrive as explicit unavailable entries.
-  const literacyWired = programme.wig.target !== undefined;
   const unavailable =
-    kind === "unavailable" || (literacyWired && !outcomes.available && kind === null);
+    kind === "unavailable" ||
+    (usesGlobalOutcomeAvailability(programme.key) && !outcomes.available && kind === null);
   const single = entry && kind === "single" ? (entry as WigOutcomeSingle) : null;
   const multi = entry && kind === "multi" ? (entry as WigOutcomeMulti) : null;
   const target = single ? single.target ?? programme.wig.target : undefined;

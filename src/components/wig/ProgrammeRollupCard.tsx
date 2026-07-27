@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { outcomeKind } from "@/lib/types/wig";
+import { outcomeKind, usesGlobalOutcomeAvailability } from "@/lib/types/wig";
 import type {
   MeasureValue,
   ProgrammeConfig,
@@ -37,9 +37,9 @@ export function ProgrammeRollupCard({
   const multi = entry && kind === "multi" ? (entry as WigOutcomeMulti) : null;
   const g1 = multi?.metrics.find((m) => m.key === "grade_1") ?? null;
   const multiLabel = multi ? TERM_LABELS[multi.term] ?? multi.term : null;
-  const literacyWired = programme.wig.target !== undefined;
   const outcomeUnavailable =
-    kind === "unavailable" || (literacyWired && !outcomes.available && kind === null);
+    kind === "unavailable" ||
+    (usesGlobalOutcomeAvailability(programme.key) && !outcomes.available && kind === null);
 
   return (
     <Link
