@@ -26,7 +26,7 @@ re-derive it. For deferred ideas rather than started work, see
 | [Numeracy 2026 pipeline](#4-2026-numeracy-assessment-pipeline-backend) | `feature/numeracy-2026-pipeline` | 2 | Committed, 92 tests green | Run the syncs locally, work the correction queue |
 | [Zazi reconciliation](#5-zazi-to-canonical-reconciliation-data-not-code) | `feature/zazi-reconciliation` | 1 | School side done, child side open | Staff work the Airtable worklists |
 | [Youth budget calculator](#6-youth-budget-calculator) | none yet | - | Scoped 2026-07-27, not built | Phase 0 data tasks, then build per plan |
-| [Duplicate school rows bug](#7-duplicate-school-rows-bug-prod) | none yet | - | Diagnosed 2026-07-27, unfixed | Fix sync + re-point youth FKs (own branch) |
+| [Duplicate school rows bug](#7-duplicate-school-rows-bug-prod) | merged to main (both repos) | - | Fixed in code 2026-07-27; data self-heals overnight | Verify Lingelethu 7/8 + empty health flag after next refresh |
 
 All branches were pushed to remotes on 2026-07-27. See [Repo hygiene](#repo-hygiene).
 
@@ -256,7 +256,7 @@ titles), then backend models + `api/youth_budget.py`, then the tab.
 
 ## 7. Duplicate school rows bug (PROD)
 
-**Branch:** none yet | **Found:** 2026-07-27 during calculator scoping
+**Branch:** merged to main in both repos | **Found + fixed in code:** 2026-07-27
 
 `sync_airtable_youth` attaches some youth to legacy `is_active=false` School rows (no
 `school_uid`) while grid cells hang off canonical rows. 16 active youth are stranded
@@ -265,9 +265,12 @@ the grid shows 428 of 438 true actives and the **Act First panel reports fake ga
 Lingelethu "0 of 8 in post" while 7 literacy coaches work there. (The hero's 339 vs 428 is
 filled-post `min(active, planned)` semantics, by design, not part of the bug.)
 
-**Fix (own branch, before or with calculator Phase 0):** re-point stranded youths' school
-FKs to canonical rows, make the sync match canonical schools only, add a GridHealthPanel
-check for youth on inactive school rows.
+**Fixed 2026-07-27** (backend `0fc0a18`, frontend `237b255`): `build_school_map()` now
+prefers canonical rows deterministically (active > has school_uid > newest), the refresh
+emits a `youth_on_nongrid_schools` integrity flag, and the health panel renders it. Data
+self-heals when the nightly youth sync re-points school FKs (school_id is in the
+bulk_update fields). **Remaining:** verify after the next nightly run that Lingelethu
+shows ~7/8, the grid total rises to ~435, and the new flag is empty.
 
 ---
 
