@@ -81,9 +81,12 @@ mentors (employee_ids 1691, 2078, 2045) sit wrongly Active under stale coach tit
 team to correct in Airtable.
 _Avoid_: mentor (the separate staff Mentor concept in the youth DB)
 
-**Committed Projection**:
+**Currently Employed Projection**:
 Projected cost of current Active Youth riding to the horizon with no new hires and no
-attrition assumed (conservative; nightly cron self-corrects as youth leave).
+attrition assumed (conservative; nightly cron self-corrects as youth leave). The API
+field is still `committed`; the UI says "Currently Employed" because that is the team's
+language (Jim, 2026-07-28).
+_Avoid_: committed (in UI copy)
 
 **At-Plan Projection**:
 Committed Projection plus the cost of filling every open Planned Post from a chosen
@@ -188,9 +191,13 @@ programmes via job title.
   programme keys (zazi_izandi? preschool?) unconfirmed.
 - **Wage Rate history**: Jim first quoted R30.42/hr; payslip proves R32.01 as of June 2026.
   Rate changes over time, so it is an input, not a constant.
-- **Rural youth funding**: exists but deliberately excluded from the R1,523,777.96; to be
-  added later. Rural spend (wind-farm funders Amakhala Emoyeni, Tsitsikamma, Kouga:
-  R182k Jan-June) must likewise be excluded from reconciliation against urban pots.
+- **Rural youth funding**: PARTIALLY RESOLVED 2026-07-28. Three wind-farm Funding Pots
+  seeded at R0 with school restrictions (Kouga: Sandwater, Living Ubuntu, Kokkewiet;
+  Tsitsikamma: Bambino, Clarkson, Vukani Daycare, Msobomvu Full Service, Siyazama;
+  Amakhala Emoyeni: Lingelethu, Nceduluntu Edu-care, Mzamomhle Edu-care). Amounts still
+  TBC by Jim; verdict overstates the shortfall until entered. Two names Jim must confirm:
+  "Vukani" (Daycare vs Vukanibantu) and "Msobomvu Primary School" (no such row; closest
+  is Msobomvu Preschool).
 - **Pot semantics**: RESOLVED 2026-07-27. Pot amounts are REMAINING balances as of entry
   (each entry needs an explicit as_of date). Proper funder funding-window/budget tracking
   is future scope, deliberately out of v1.

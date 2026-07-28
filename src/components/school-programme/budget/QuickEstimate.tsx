@@ -187,7 +187,7 @@ export function QuickEstimate({
                       }
                     />
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="px-3 py-2 text-right">
                     <Input
                       aria-label={`${bucket.label} people`}
                       type="number"
@@ -201,10 +201,10 @@ export function QuickEstimate({
                           Number(event.target.value),
                         )
                       }
-                      className="ml-auto w-24 text-right tabular-nums"
+                      className="inline-flex w-24 text-right tabular-nums"
                     />
                   </td>
-                  <td className="px-3 py-2">
+                  <td className="px-3 py-2 text-right">
                     <Input
                       aria-label={`${bucket.label} monthly rate`}
                       type="number"
@@ -218,7 +218,7 @@ export function QuickEstimate({
                           Number(event.target.value),
                         )
                       }
-                      className="ml-auto w-32 text-right tabular-nums"
+                      className="inline-flex w-32 text-right tabular-nums"
                     />
                   </td>
                   <td className="px-3 py-2 text-right font-medium tabular-nums">
@@ -283,7 +283,7 @@ export function QuickEstimate({
         </div>
         <div className="rounded-lg border bg-white p-4">
           <p className="text-[11px] uppercase tracking-[0.18em] text-gray-500">
-            Model committed total
+            Model total, currently employed youth
           </p>
           <p className="mt-2 font-serif text-3xl tabular-nums text-[#14181D]">
             {formatRand(modelCommittedTotal)}

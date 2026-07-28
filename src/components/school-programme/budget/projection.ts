@@ -109,6 +109,14 @@ export function calculateCommittedWhatIf(
       months.reduce((total, month) => total + month.net, 0) +
         Math.max(0, scenario.holiday_pay),
     ),
+    costed_youth: cohorts.reduce(
+      (total, cohort) =>
+        cohort.programme === "yebo"
+          ? total
+          : total + Math.max(0, cohort.headcount),
+      0,
+    ),
+    open_posts: 0,
   };
 }
 
