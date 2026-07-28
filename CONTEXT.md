@@ -28,6 +28,16 @@ rural funders + their schools later. No per-pot allocation engine in v1.
 **Fungible Pot**:
 A Funding Pot spendable on youth or mentors, at Masi's discretion. 2026: HCI (R200,000).
 
+**Ringfenced Pot**:
+A Funding Pot whose money is locked to its listed schools, with underspend rolling over
+to next year; its surplus must NEVER appear as available in the main verdict. Boundary is
+school-based: every youth at its schools is its cost, regardless of programme, and open
+posts there cost against it, not core at-plan. 2026: the three wind farms (Kouga,
+Tsitsikamma, Amakhala Emoyeni). Distinct from School Restriction: United Through Sport is
+restricted-but-core (focus schools, some spending autonomy, no rollover). Resolved with
+Jim 2026-07-28.
+_Avoid_: restricted (that means the softer UTS case)
+
 **Subsidy**:
 An external party (NYS or SEF) paying the first ~R1,600/month of a youth's wage directly to
 the youth (never through Masi payroll); Masi pays only the Top-Up. Tracked per youth with

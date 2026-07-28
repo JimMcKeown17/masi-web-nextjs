@@ -51,16 +51,16 @@ export function BudgetHeadline({ summary }: { summary: YouthBudgetSummary }) {
   const activePotDates = Array.from(
     new Set(
       summary.pots
-        .filter((pot) => pot.is_active)
+        .filter((pot) => pot.is_active && !pot.is_ringfenced)
         .map((pot) => pot.as_of),
     ),
   ).sort();
   const potDateProvenance =
     activePotDates.length === 0
-      ? "No active Funding Pot balances are recorded."
+      ? "No active core Funding Pot balances are recorded."
       : activePotDates.length === 1
-        ? `Active Funding Pot balances dated ${formatBudgetDate(activePotDates[0])}.`
-        : `Funding Pot balance dates range from ${formatBudgetDate(
+        ? `Active core Funding Pot balances dated ${formatBudgetDate(activePotDates[0])}.`
+        : `Core Funding Pot balance dates range from ${formatBudgetDate(
             activePotDates[0],
           )} to ${formatBudgetDate(activePotDates[activePotDates.length - 1])}.`;
 
@@ -87,12 +87,14 @@ export function BudgetHeadline({ summary }: { summary: YouthBudgetSummary }) {
             {atPlanLanguage.phrase}
           </h2>
           <p className="mt-4 max-w-2xl text-sm leading-relaxed text-gray-600">
-            {formatRand(summary.pots_total)} in active Funding Pots, less a{" "}
-            {formatRand(summary.scenario.mentor_reserve)} Mentor Reserve, leaves{" "}
+            {formatRand(summary.pots_total)} in active core Funding Pots, less
+            a {formatRand(summary.scenario.mentor_reserve)} Mentor Reserve,
+            leaves{" "}
             <strong className="text-[#14181D]">{formatRand(available)}</strong>{" "}
-            available for youth wages.
+            available for core youth wages.
           </p>
           <p className="mt-2 text-xs text-gray-500">
+            Core pots only; ringfenced funders are tracked separately below.{" "}
             {potDateProvenance} Projection as of{" "}
             {formatBudgetDate(summary.as_of)}.
           </p>
