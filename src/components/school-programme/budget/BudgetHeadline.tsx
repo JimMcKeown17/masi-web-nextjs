@@ -10,10 +10,12 @@ function VerdictCard({
   label,
   cost,
   verdict,
+  detail,
 }: {
   label: string;
   cost: number;
   verdict: number;
+  detail: string;
 }) {
   const language = verdictLanguage(verdict);
   return (
@@ -36,6 +38,7 @@ function VerdictCard({
       <p className="mt-1 text-sm text-gray-600">
         {formatRand(cost)} projected cost
       </p>
+      <p className="mt-0.5 text-xs text-gray-500">{detail}</p>
     </div>
   );
 }
@@ -97,14 +100,16 @@ export function BudgetHeadline({ summary }: { summary: YouthBudgetSummary }) {
 
         <div className="grid gap-3 sm:grid-cols-2">
           <VerdictCard
-            label="Committed"
+            label="Currently employed"
             cost={summary.projections.committed.total}
             verdict={summary.projections.verdict_committed}
+            detail={`${summary.projections.committed.costed_youth} youth costed`}
           />
           <VerdictCard
             label="At plan"
             cost={summary.projections.at_plan.total}
             verdict={summary.projections.verdict_at_plan}
+            detail={`${summary.projections.at_plan.costed_youth} jobs incl. ${summary.projections.at_plan.open_posts} open posts`}
           />
         </div>
       </div>

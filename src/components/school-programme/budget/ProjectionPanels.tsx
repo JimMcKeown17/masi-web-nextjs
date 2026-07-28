@@ -106,7 +106,7 @@ export function ProjectionPanels({
 
       <div className="mb-4 rounded-lg border border-[#1D4ED8]/20 bg-[#1D4ED8]/5 px-4 py-3 text-center">
         <span className="text-xs uppercase tracking-[0.18em] text-gray-500">
-          Cost of the remaining hiring plan
+          Cost of the remaining hiring plan &middot; {atPlan.open_posts} open posts
         </span>
         <strong className="ml-3 font-serif text-xl text-[#1D4ED8]">
           {formatRand(hiringPlanCost)}
@@ -115,14 +115,14 @@ export function ProjectionPanels({
 
       <div className="grid gap-5 xl:grid-cols-2">
         <ProjectionPanel
-          label="A. Committed"
-          description="Current Active Youth through the November horizon."
+          label="A. Currently Employed Youth"
+          description={`${committed.costed_youth} youth on payroll today, costed through the November horizon.`}
           projection={committed}
           holidayPay={holidayPay}
         />
         <ProjectionPanel
           label="B. At plan"
-          description="Committed team plus every open Planned Post."
+          description={`Those ${committed.costed_youth} youth plus ${atPlan.open_posts} open Planned Posts = ${atPlan.costed_youth} costed jobs.`}
           projection={atPlan}
           holidayPay={holidayPay}
         />

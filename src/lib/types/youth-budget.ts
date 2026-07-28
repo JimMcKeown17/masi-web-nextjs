@@ -64,6 +64,10 @@ export interface ProjectionMonth {
 export interface BudgetProjection {
   months: ProjectionMonth[];
   total: number;
+  // Costed population, so the UI can explain why at-plan exceeds the
+  // currently-employed projection (the job numbers).
+  costed_youth: number;
+  open_posts: number;
 }
 
 export interface YouthBudgetProjections {

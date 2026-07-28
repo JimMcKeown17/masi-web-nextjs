@@ -153,7 +153,7 @@ function VerdictTile({
       </p>
       <p className="mt-2 font-serif text-2xl leading-tight">{language.phrase}</p>
       <p className={cn("mt-1 text-xs", live ? "text-white/70" : "text-gray-500")}>
-        {formatRand(cost)} committed cost
+        {formatRand(cost)} currently employed cost
       </p>
     </div>
   );
@@ -371,7 +371,7 @@ export function LeversPanel({
               Move the <span className="italic text-[#93B4FF]">levers</span>
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/70">
-              Every control recalculates committed cost in this browser. Nothing
+              Every control recalculates the currently employed cost in this browser. Nothing
               is shared with the team until an authorised user saves.
             </p>
           </div>
@@ -385,7 +385,7 @@ export function LeversPanel({
       <div className="space-y-8 p-5 md:p-6">
         <div className="grid gap-3 md:grid-cols-2">
           <VerdictTile
-            eyebrow="Saved committed verdict"
+            eyebrow="Saved verdict, currently employed"
             verdict={savedVerdictCommitted}
             cost={savedCommitted.total}
           />
@@ -400,9 +400,9 @@ export function LeversPanel({
         <div className="rounded-lg border border-dashed border-[#1D4ED8]/30 bg-[#1D4ED8]/5 px-4 py-3 text-sm text-gray-700">
           <strong className="text-[#14181D]">Saved at plan:</strong>{" "}
           {verdictLanguage(savedVerdictAtPlan).phrase} at{" "}
-          {formatRand(savedAtPlan.total)}. Live what-if shows committed cost
-          only because vacancy cohort rows are not in this payload. Save to
-          recompute at-plan.
+          {formatRand(savedAtPlan.total)}. Live what-if covers currently
+          employed youth only because vacancy cohort rows are not in this
+          payload. Save to recompute at-plan.
         </div>
 
         <div>
