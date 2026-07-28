@@ -52,6 +52,12 @@ function prefilledBuckets(
       count: Math.max(0, nonYeboHeadcount - subsidisedCount),
       rate: fullRate,
     },
+    {
+      id: 3,
+      label: "Subsidy-only part-timers",
+      count: 0,
+      rate: 0,
+    },
   ];
 }
 
@@ -66,7 +72,7 @@ export function QuickEstimate({
   remainingMonths: number;
   modelCommittedTotal: number;
 }) {
-  const nextId = useRef(3);
+  const nextId = useRef(4);
   const [buckets, setBuckets] = useState(() =>
     prefilledBuckets(scenario, cohorts),
   );

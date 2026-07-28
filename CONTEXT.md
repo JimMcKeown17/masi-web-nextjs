@@ -99,6 +99,14 @@ The back-of-envelope mode mirroring staff mental math: editable cohort buckets
 source of truth. Prefill (while no subsidies are applied in Airtable): assume all 200 NYS
 Slots utilised — one bucket of ~200 subsidised at top-up rate, remainder at full rate.
 
+**Subsidy-Only Youth**:
+A part-time youth who works only the hours SEF/NYS pays for and never touches Masi
+payroll; costs Masi exactly R0 (no gross, no UIF). They DO occupy grid Planned Posts.
+Interim: modelled via the "of which subsidy-only" split on the NYS Conversion lever;
+real fix is an Employment Basis column in Airtable (Full Time / Subsidy Only), team
+discussion pending (2026-07-28). Candidates are reverse-engineerable from the payments
+ledger: employed but never paid = Yebo or subsidy-only.
+
 **NYS Conversion**:
 Moving an existing eligible youth onto an NYS Slot so their cost drops to the Top-Up.
 State as of 2026-07-27: SEF has ENDED (151 of the 438 actives were on it, making them
