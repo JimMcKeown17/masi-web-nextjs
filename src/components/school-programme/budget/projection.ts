@@ -79,10 +79,13 @@ export function calculateCommittedWhatIf(
   cohorts: YouthBudgetCohort[],
   savedMonths: ProjectionMonth[],
 ): BudgetProjection {
+  // Additive split: total conversions = FT + PT, of which PT cost R0.
+  const nysFullTime = Math.max(0, Math.trunc(scenario.nys_full_time_count || 0));
+  const nysPartTime = Math.max(0, Math.trunc(scenario.nys_part_time_count || 0));
   const conversions = allocateNysConversions(
     cohorts,
-    scenario.nys_conversion_count,
-    scenario.nys_subsidy_only_count,
+    nysFullTime + nysPartTime,
+    nysPartTime,
   );
 
   const months = savedMonths.map((savedMonth) => {
@@ -177,8 +180,8 @@ export function editableScenarioFields(scenario: BudgetScenario) {
     wage_rate: scenario.wage_rate,
     subsidy_contribution: scenario.subsidy_contribution,
     hours_matrix: scenario.hours_matrix,
-    nys_conversion_count: scenario.nys_conversion_count,
-    nys_subsidy_only_count: scenario.nys_subsidy_only_count,
+    nys_full_time_count: scenario.nys_full_time_count,
+    nys_part_time_count: scenario.nys_part_time_count,
     nys_conversion_start_month: scenario.nys_conversion_start_month,
     vacancy_start_month: scenario.vacancy_start_month,
     holiday_pay: scenario.holiday_pay,

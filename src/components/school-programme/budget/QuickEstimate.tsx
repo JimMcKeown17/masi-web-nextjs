@@ -29,7 +29,9 @@ function prefilledBuckets(
     nonYeboHeadcount += cohort.headcount;
     nysEligible += cohort.nys_eligible_count;
   }
-  const subsidisedCount = Math.min(200, nysEligible);
+  const nysFullTime = Math.max(0, Math.trunc(scenario.nys_full_time_count || 0));
+  const nysPartTime = Math.max(0, Math.trunc(scenario.nys_part_time_count || 0));
+  const subsidisedCount = Math.min(nysFullTime, nysEligible);
   const fullRate = Math.round(4.5 * 20 * scenario.wage_rate * 1.01);
   const subsidisedRate = Math.max(
     0,
@@ -55,7 +57,7 @@ function prefilledBuckets(
     {
       id: 3,
       label: "Subsidy-only part-timers",
-      count: 0,
+      count: nysPartTime,
       rate: 0,
     },
   ];

@@ -100,6 +100,23 @@ export default function YouthBudgetPage() {
             holidayPay={data.scenario.holiday_pay}
           />
 
+          <PotsPanel
+            pots={data.pots}
+            potsTotal={data.pots_total}
+            feasibility={data.feasibility}
+            schoolOptions={data.school_options}
+            asOf={data.as_of}
+            canEdit={canEdit}
+            onCreate={onPotCreate}
+            onUpdate={onPotUpdate}
+            onDelete={onPotDelete}
+          />
+
+          <RingfencedFunders
+            pots={data.ringfenced.pots}
+            totalAmount={data.ringfenced.total_amount}
+          />
+
           <LeversPanel
             key={`${data.year}-${data.scenario.updated_at}`}
             scenario={data.scenario}
@@ -120,23 +137,6 @@ export default function YouthBudgetPage() {
             cohorts={data.cohorts}
             remainingMonths={data.projections.committed.months.length}
             modelCommittedTotal={data.projections.committed.total}
-          />
-
-          <PotsPanel
-            pots={data.pots}
-            potsTotal={data.pots_total}
-            feasibility={data.feasibility}
-            schoolOptions={data.school_options}
-            asOf={data.as_of}
-            canEdit={canEdit}
-            onCreate={onPotCreate}
-            onUpdate={onPotUpdate}
-            onDelete={onPotDelete}
-          />
-
-          <RingfencedFunders
-            pots={data.ringfenced.pots}
-            totalAmount={data.ringfenced.total_amount}
           />
         </div>
       ) : null}
