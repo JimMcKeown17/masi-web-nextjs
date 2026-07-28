@@ -78,6 +78,11 @@ export default function YouthBudgetPage() {
           <BudgetHeadline summary={data} />
           <NotesStrip notes={data.notes} />
 
+          <ExpenditureChart
+            expenditure={data.expenditure}
+            committed={data.projections.committed}
+          />
+
           {data.cohorts.length === 0 ? (
             <Alert>
               <AlertDescription>
@@ -126,11 +131,6 @@ export default function YouthBudgetPage() {
             onCreate={onPotCreate}
             onUpdate={onPotUpdate}
             onDelete={onPotDelete}
-          />
-
-          <ExpenditureChart
-            expenditure={data.expenditure}
-            committed={data.projections.committed}
           />
         </div>
       ) : null}
