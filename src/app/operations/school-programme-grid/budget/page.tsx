@@ -12,6 +12,7 @@ import { NotesStrip } from "@/components/school-programme/budget/NotesStrip";
 import { PotsPanel } from "@/components/school-programme/budget/PotsPanel";
 import { ProjectionPanels } from "@/components/school-programme/budget/ProjectionPanels";
 import { QuickEstimate } from "@/components/school-programme/budget/QuickEstimate";
+import { RingfencedFunders } from "@/components/school-programme/budget/RingfencedFunders";
 import { useYouthBudget } from "@/components/school-programme/budget/useYouthBudget";
 
 function BudgetPageSkeleton() {
@@ -86,9 +87,9 @@ export default function YouthBudgetPage() {
           {data.cohorts.length === 0 ? (
             <Alert>
               <AlertDescription>
-                No active youth cohorts are available for this year. Funding
-                Pots and scenario controls remain visible, but the committed
-                projection is empty.
+                No active core youth cohorts are available for this year.
+                Funding Pots and scenario controls remain visible, but the
+                core committed projection is empty.
               </AlertDescription>
             </Alert>
           ) : null}
@@ -131,6 +132,11 @@ export default function YouthBudgetPage() {
             onCreate={onPotCreate}
             onUpdate={onPotUpdate}
             onDelete={onPotDelete}
+          />
+
+          <RingfencedFunders
+            pots={data.ringfenced.pots}
+            totalAmount={data.ringfenced.total_amount}
           />
         </div>
       ) : null}

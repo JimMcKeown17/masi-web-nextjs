@@ -33,6 +33,7 @@ interface PotDraft {
   note: string;
   schoolIds: number[];
   isActive: boolean;
+  isRingfenced: boolean;
 }
 
 function blankDraft(asOf: string): PotDraft {
@@ -43,6 +44,7 @@ function blankDraft(asOf: string): PotDraft {
     note: "",
     schoolIds: [],
     isActive: true,
+    isRingfenced: false,
   };
 }
 
@@ -54,6 +56,7 @@ function draftFromPot(pot: FundingPot): PotDraft {
     note: pot.note,
     schoolIds: pot.schools.map((school) => school.id),
     isActive: pot.is_active,
+    isRingfenced: pot.is_ringfenced,
   };
 }
 
@@ -140,6 +143,7 @@ export function PotsPanel({
       note: draft.note,
       schools: draft.schoolIds,
       is_active: draft.isActive,
+      is_ringfenced: draft.isRingfenced,
     };
     setSaving(true);
     try {
@@ -266,6 +270,14 @@ export function PotsPanel({
                           {!pot.is_active ? (
                             <Badge variant="outline">Inactive</Badge>
                           ) : null}
+                          {pot.is_ringfenced ? (
+                            <Badge
+                              variant="outline"
+                              className="border-[#1D4ED8]/30 bg-[#1D4ED8]/5 text-[#1740b0]"
+                            >
+                              Ringfenced
+                            </Badge>
+                          ) : null}
                         </div>
                       </td>
                       <td className="px-3 py-3 text-right font-medium tabular-nums">
@@ -332,13 +344,13 @@ export function PotsPanel({
               })}
               <tr className="border-t-2 bg-[#14181D] text-white">
                 <td className="px-5 py-3 font-medium">
-                  Active Funding Pots total
+                  Active CORE Funding Pots total
                 </td>
                 <td className="px-3 py-3 text-right font-serif text-lg tabular-nums">
                   {formatPreciseRand(potsTotal)}
                 </td>
                 <td colSpan={canEdit ? 4 : 3} className="px-3 py-3 text-xs text-white/60">
-                  Inactive pots are excluded from the verdict.
+                  Inactive and ringfenced pots are excluded from the main verdict.
                 </td>
               </tr>
             </tbody>
@@ -359,8 +371,8 @@ export function PotsPanel({
                 {editing ? "Edit Funding Pot" : "Add Funding Pot"}
               </DialogTitle>
               <DialogDescription>
-                A blank school restriction means this pot can be spent across
-                all schools.
+                School restrictions define where a pot can be spent. A
+                ringfenced pot is segregated from the core verdict.
               </DialogDescription>
             </DialogHeader>
 
@@ -421,7 +433,19 @@ export function PotsPanel({
                     }))
                   }
                 />
-                Include in the active total
+                Mark this Funding Pot active
+              </label>
+              <label className="flex items-center gap-2 rounded-md border px-3 py-2 text-sm sm:col-span-2">
+                <Checkbox
+                  checked={draft.isRingfenced}
+                  onCheckedChange={(checked) =>
+                    setDraft((current) => ({
+                      ...current,
+                      isRingfenced: checked === true,
+                    }))
+                  }
+                />
+                Ringfence this pot from the core budget
               </label>
             </div>
 
@@ -444,7 +468,9 @@ export function PotsPanel({
               <div>
                 <Label>School restriction</Label>
                 <p className="text-xs text-muted-foreground">
-                  Select every school where this Funding Pot can be spent.
+                  Select every school where this Funding Pot can be spent. For
+                  ringfenced pots, these schools also define the youth and open
+                  posts charged to the pot.
                 </p>
               </div>
               {schoolOptions.length === 0 ? (

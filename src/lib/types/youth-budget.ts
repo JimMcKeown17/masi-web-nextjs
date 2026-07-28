@@ -14,6 +14,7 @@ export interface FundingPot {
   note: string;
   schools: YouthBudgetSchool[];
   is_active: boolean;
+  is_ringfenced: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -99,10 +100,22 @@ export interface FundingFeasibility {
   schools: string[];
 }
 
+export interface RingfencedPot {
+  funder_name: string;
+  amount: number;
+  schools: string[];
+  costed_youth: number;
+  open_posts: number;
+  projected_committed: number;
+  projected_at_plan: number;
+  surplus: number;
+}
+
 export interface YouthBudgetNotes {
   active_total: number;
   school_less: number;
   yebo_shown_only: number;
+  ringfenced: number;
 }
 
 export interface YouthBudgetSummary {
@@ -115,6 +128,11 @@ export interface YouthBudgetSummary {
   projections: YouthBudgetProjections;
   expenditure: MonthlyYouthExpenditure[];
   feasibility: FundingFeasibility[];
+  ringfenced: {
+    pots: RingfencedPot[];
+    total_amount: number;
+    youth: number;
+  };
   notes: YouthBudgetNotes;
   school_options: YouthBudgetSchool[];
 }
@@ -143,6 +161,7 @@ export interface FundingPotCreate {
   note?: string;
   schools?: number[];
   is_active?: boolean;
+  is_ringfenced?: boolean;
 }
 
 export type FundingPotUpdate = Partial<FundingPotCreate>;

@@ -19,6 +19,12 @@ export function NotesStrip({ notes }: { notes: YouthBudgetNotes }) {
       <Badge variant="outline" className="bg-white">
         {notes.yebo_shown_only} Yebo shown, not costed
       </Badge>
+      <Badge
+        variant="outline"
+        className="border-[#1D4ED8]/30 bg-[#1D4ED8]/5 text-[#1740b0]"
+      >
+        {notes.ringfenced} rural youth ringfenced
+      </Badge>
     </section>
   );
 }
