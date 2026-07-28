@@ -42,6 +42,7 @@ type NumberField =
   | "subsidy_contribution"
   | "nys_conversion_count"
   | "nys_subsidy_only_count"
+  | "utilisation_pct"
   | "holiday_pay"
   | "mentor_reserve";
 
@@ -290,7 +291,9 @@ export function LeversPanel({
 
   function updateNumber(field: NumberField, value: number) {
     const normalized =
-      field === "nys_conversion_count" || field === "nys_subsidy_only_count"
+      field === "nys_conversion_count" ||
+      field === "nys_subsidy_only_count" ||
+      field === "utilisation_pct"
         ? Math.trunc(value)
         : value;
     setDraft((current) => ({
@@ -432,6 +435,14 @@ export function LeversPanel({
               onChange={(value) => updateNumber("subsidy_contribution", value)}
               step={1}
               prefix="R"
+            />
+            <NumberLever
+              id="budget-utilisation"
+              label="Utilisation %"
+              value={draft.utilisation_pct}
+              onChange={(value) => updateNumber("utilisation_pct", value)}
+              step={1}
+              help="Average share of full-cap hours actually worked. 100 is the conservative full-attendance assumption; calibrate from post-SEF ledger months."
             />
             <NumberLever
               id="budget-nys-count"

@@ -41,6 +41,8 @@ export interface BudgetScenario {
   vacancy_start_month: number;
   holiday_pay: number;
   mentor_reserve: number;
+  // Average share of full-cap hours actually worked (absenteeism etc.), 1-120.
+  utilisation_pct: number;
   updated_by: string;
   updated_at: string;
 }
@@ -128,6 +130,7 @@ type ScenarioEditableFields = Pick<
   | "vacancy_start_month"
   | "holiday_pay"
   | "mentor_reserve"
+  | "utilisation_pct"
 >;
 
 export type BudgetScenarioUpdate = { year: number } & Partial<ScenarioEditableFields>;
