@@ -102,11 +102,14 @@ export function calculateCommittedWhatIf(
         headcount = Math.max(0, headcount - conversions.zeroCost[index]);
       }
       if (headcount === 0) return;
+      const utilisation =
+        Math.max(1, Math.min(120, scenario.utilisation_pct || 100)) / 100;
       const grossPerHead =
         hoursPerDay *
         savedMonth.school_days *
         (daysPerWeek / 5) *
-        Math.max(0, scenario.wage_rate);
+        Math.max(0, scenario.wage_rate) *
+        utilisation;
       const rowGross = grossPerHead * headcount;
       const rowUif = rowGross * (UIF_FACTOR - 1);
       let subsidisedHeads = Math.max(0, cohort.subsidised_count);
@@ -180,5 +183,6 @@ export function editableScenarioFields(scenario: BudgetScenario) {
     vacancy_start_month: scenario.vacancy_start_month,
     holiday_pay: scenario.holiday_pay,
     mentor_reserve: scenario.mentor_reserve,
+    utilisation_pct: scenario.utilisation_pct,
   };
 }

@@ -129,6 +129,13 @@ reserve). ADMIN/PM edits; everyone sees the same verdict. Live what-if twiddling
 client-side and always snaps back to the saved scenario. Stored in Postgres, edited via
 the frontend CRUD panel (not Django admin).
 
+**Utilisation**:
+The average share of full-cap hours youth actually work (absenteeism, cancelled school
+days, late starts). Scenario lever, default 100%. May/June ledger medians (39-68% by
+programme) are LOWER BOUNDS only: SEF top-ups contaminate them until the subsidy columns
+sync; August is the first clean calibration month. Zazi hours confirmed 3.5/day by the
+full-attendance payment cluster (R2,218 = 3.5 x ~20 x R32.01).
+
 **Mentor Reserve**:
 Manual deduction from available funding for Youth Mentor salaries (fungible pots like HCI
 can legally fund mentors); default R0. Prevents v1's mentor exclusion overstating youth money.
