@@ -336,3 +336,25 @@ Interactive API documentation available at:
 - Boolean fields default to `false`
 - For large datasets or complex aggregations, prefer backend endpoints over frontend processing
 
+
+
+## Youth Budget Calculator (added 2026-07-28)
+
+Base: authenticated reads; writes require ADMIN or PROJECT MANAGER.
+
+- `GET /youth-budget/?year=2026` - full calculator payload: pots (+ pots_total,
+  school_options directory), shared BudgetScenario (auto-created with defaults on first
+  read), cohort primitives (site_type x job_title: headcount / subsidised / NYS-eligible),
+  committed + at-plan projections with per-month school_days and verdicts, expenditure
+  history, restricted-pot feasibility, population notes.
+- `PATCH /youth-budget/scenario/` - partial update of the shared scenario (wage_rate,
+  subsidy_contribution, hours_matrix, nys_conversion_count/start_month,
+  vacancy_start_month, holiday_pay, mentor_reserve).
+- `POST /youth-budget/pots/`, `PATCH|DELETE /youth-budget/pots/<id>/` - FundingPot CRUD;
+  `schools` is a list of numeric School ids (empty = unrestricted).
+- `POST /youth-budget/expenditure/`, `PATCH /youth-budget/expenditure/<id>/` - manual
+  monthly expenditure rows (core/mentor/rural).
+
+Seeds: `seed_funding_pots_2026`, `seed_youth_expenditure_2026` (idempotent).
+Formula and domain language: `_plans/youth-budget-calculator.md`, `CONTEXT.md`,
+`docs/adr/0001`, `docs/adr/0002`.

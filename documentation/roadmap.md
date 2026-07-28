@@ -25,8 +25,8 @@ re-derive it. For deferred ideas rather than started work, see
 | [Impact page lights](#3-impact-page-lights--why-it-matters) | `feature/impact-lights-superpower` | 6 | Code complete, post-review edits in | Browser pass, then merge |
 | [Numeracy 2026 pipeline](#4-2026-numeracy-assessment-pipeline-backend) | merged to main 2026-07-27 (both repos) | - | Backend + WIG ring frontend live in code | Ops: run migration 0040 + first syncs on Render, work the correction queue |
 | [Zazi reconciliation](#5-zazi-to-canonical-reconciliation-data-not-code) | `feature/zazi-reconciliation` | 1 | School side done, child side open | Staff work the Airtable worklists |
-| [Youth budget calculator](#6-youth-budget-calculator) | none yet | - | Scoped 2026-07-27, not built | Phase 0 data tasks, then build per plan |
-| [Duplicate school rows bug](#7-duplicate-school-rows-bug-prod) | merged to main (both repos) | - | Fixed in code 2026-07-27; data self-heals overnight | Verify Lingelethu 7/8 + empty health flag after next refresh |
+| [Youth budget calculator](#6-youth-budget-calculator) | merged to main (both repos) | - | SHIPPED + E2E-verified live 2026-07-28 | Team: verify Airtable subsidy columns; Jim: rural pots + mentor reserve |
+| [Duplicate school rows bug](#7-duplicate-school-rows-bug-prod) | merged to main (both repos) | - | FIXED + self-heal VERIFIED in prod 2026-07-28 (Lingelethu off gaps list, 443 visible actives) | Done |
 
 All branches were pushed to remotes on 2026-07-27. See [Repo hygiene](#repo-hygiene).
 
@@ -246,11 +246,16 @@ given the youth we've hired and plan to hire?" Verdict: remaining funding pots
 30 November, at assumption-based costing (ADR 0002). The grid's editable `youth_planned`
 doubles as the hiring sandbox (ADR 0001). Domain language in `CONTEXT.md` at repo root.
 
-**State:** fully scoped via grill session, nothing built. Reconciliation engine, funder
-windows, mentor costing, and rural pots all explicitly deferred (see plan).
+**State:** SHIPPED 2026-07-28. Backend (models + migration 0041, `api/youth_budget.py`,
+endpoints, seeds; 519 tests) and frontend (Budget tab: headline verdict, levers with
+editable hours matrix, quick estimate, pots CRUD, expenditure chart, affordability strip
+on Youth staffing) merged to main in both repos, prod seeded, E2E-verified in the browser:
+committed R1,539,399 over budget / at-plan R2,596,157 over, matching the policy module to
+the rand. Reconciliation engine, funder windows, mentor costing, rural pots still deferred.
 
-**Next:** Phase 0 data tasks (staff verify Airtable subsidy columns, fix 3 stale mentor
-titles), then backend models + `api/youth_budget.py`, then the tab.
+**Next:** team verifies Airtable subsidy columns (Funder = SEF/NYS) and fixes the 3
+stale-Active mentor titles (1691, 2078, 2045); Jim adds rural pots + mentor reserve when
+numbers are ready. Verdict overstates the shortfall until rural funding is entered.
 
 ---
 
