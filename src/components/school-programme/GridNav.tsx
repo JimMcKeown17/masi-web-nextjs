@@ -6,10 +6,11 @@ import { cn } from "@/lib/utils";
 const TABS = [
   { href: "/operations/school-programme-grid", label: "Children served" },
   { href: "/operations/school-programme-grid/youth", label: "Youth staffing" },
+  { href: "/operations/school-programme-grid/budget", label: "Budget" },
 ];
 
-// Switches between the two projections of the grid. Shared across both pages via
-// the section layout so the tab bar is identical on each.
+// Switches between the three school-programme operations views. Shared through
+// the section layout so the tab bar is identical on each page.
 export function GridNav() {
   const pathname = usePathname();
   return (

@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { YouthGrid } from "@/components/school-programme/YouthGrid";
 import { LeadershipBoard } from "@/components/school-programme/LeadershipBoard";
 import { GridHealthPanel } from "@/components/school-programme/GridHealthPanel";
+import { BudgetAffordabilityStrip } from "@/components/school-programme/budget/BudgetAffordabilityStrip";
 import {
   YearSelect,
   EmptyState,
@@ -47,6 +48,8 @@ export default function YouthStaffingPage() {
           <YearSelect year={year} setYear={setYear} />
         </div>
       </header>
+
+      <BudgetAffordabilityStrip year={year} />
 
       {isLoading && <Skeleton className="h-96 w-full rounded-lg" />}
       {error && (
