@@ -26,8 +26,10 @@ cost(m)   = gross(m) x 1.01           # employer UIF
   (normalize_site_type(School.type), job_title lower). Stored ON BudgetScenario (JSONField),
   seeded defaults: 4.5 primary, 5.5 ecd/preschool, 4.5 fallback, 5 days. Togglable per
   programme in the calculator UI (Jim 2026-07-27) with bulk "apply days to all".
-- `school_days(m)`: config per month (EC school calendar, verify Term 3/4 2026 dates at
-  build). Current month uses remaining school days only.
+- `school_days(m)`: computed from term ranges (verified 2026-07-27, national calendar):
+  Term 3 = 2026-07-21..2026-09-23, Term 4 = 2026-10-06..2026-12-09, public holiday
+  2026-08-10 (Women's Day observed). Expected: Aug 20, Sep 17, Oct 19, Nov 21 school
+  days. Current month uses remaining school days from today only. Horizon cap 2026-11-30.
 - Subsidised = (a) actuals: `subsidy_status` active from synced Airtable columns, or
   (b) intention: the NYS Conversion lever (count + start month) applied to eligible
   unsubsidised youth (never-SEF rule; ~287 eligible, ~200 to convert).
@@ -56,7 +58,10 @@ R2,528.79), pots R1,523,777.96, ~438 actives of which ~90 Yebo, 0 currently subs
 - [ ] Team: correct job titles for stale-Active mentors (employee_ids 1691, 2078, 2045).
 - [x] Team: confirm Hours Matrix values (Jim 2026-07-27: primary 4.5 / ECD 5.5 correct;
       matrix is UI-togglable anyway).
-- [ ] Verify EC 2026 Term 3/4 dates -> school_days config (web check at build time).
+- [x] Verify EC 2026 Term 3/4 dates (2026-07-27: national calendar, ranges above).
+- [ ] Seed command for the 8 known pots (WoC 0, GWP 195930.47, TDH ERGI 54065.15,
+      TDH 2026 610310.80, DGMT 325000, UTS 138471.54 restricted to Astra / Isaac Booi /
+      Green Apple / Noluthando, HCI 200000 fungible-note, Yard 0; as_of 2026-07-27).
 - [x] Jim: as-of date for the R1,523,777.96 pot balances = 2026-07-27.
 
 ## Phase 1 — backend (Django)
@@ -68,8 +73,9 @@ R2,528.79), pots R1,523,777.96, ~438 actives of which ~90 Yebo, 0 currently subs
         unrestricted), is_active.
       - `BudgetScenario`: year (unique), wage_rate (32.01), subsidy_contribution (1600),
         hours_matrix (JSONField: {site_type}.{job_title} -> {hours_per_day, days_per_week},
-        seeded defaults), nys_conversion_count (200), nys_conversion_start_month,
-        vacancy_start_month, holiday_pay (0), mentor_reserve (0), updated_by, updated_at.
+        seeded defaults), nys_conversion_count (200), nys_conversion_start_month
+        (default 8 = August 2026, per Jim), vacancy_start_month (default 8),
+        holiday_pay (0), mentor_reserve (0), updated_by, updated_at.
       - `MonthlyYouthExpenditure`: year, month, core_amount, mentor_amount, rural_amount,
         note. (History display only — reconciliation engine stays deferred.)
 - [ ] `api/youth_budget.py` policy module (pure functions, mirroring school_programme.py):
@@ -80,7 +86,9 @@ R2,528.79), pots R1,523,777.96, ~438 actives of which ~90 Yebo, 0 currently subs
 - [ ] Endpoints (reads authenticated, writes IsAdminOrProjectManager, atomic):
       - `GET /youth-budget/?year=` -> pots, scenario, cohort primitives, saved-scenario
         projections + verdict, expenditure history, feasibility warnings, data-health notes
-        (school-less youth, stale mentors).
+        (active_total, school-less youth, Yebo shown-only). Stale mentors deliberately NOT
+        a code check: their titles are indistinguishable from real coaches in data, so a
+        hardcoded ID list would rot. Fixing their titles is the Phase 0 team task.
       - `POST/PATCH/DELETE /youth-budget/pot/<pk>/`
       - `PATCH /youth-budget/scenario/`
       - `POST/PATCH /youth-budget/expenditure/<pk>/`
