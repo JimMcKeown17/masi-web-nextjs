@@ -40,8 +40,8 @@ const SITE_TYPES: YouthBudgetSiteType[] = ["primary", "ecd"];
 type NumberField =
   | "wage_rate"
   | "subsidy_contribution"
-  | "nys_conversion_count"
-  | "nys_subsidy_only_count"
+  | "nys_full_time_count"
+  | "nys_part_time_count"
   | "utilisation_pct"
   | "holiday_pay"
   | "mentor_reserve";
@@ -291,8 +291,8 @@ export function LeversPanel({
 
   function updateNumber(field: NumberField, value: number) {
     const normalized =
-      field === "nys_conversion_count" ||
-      field === "nys_subsidy_only_count" ||
+      field === "nys_full_time_count" ||
+      field === "nys_part_time_count" ||
       field === "utilisation_pct"
         ? Math.trunc(value)
         : value;
@@ -445,22 +445,33 @@ export function LeversPanel({
               help="Average share of full-cap hours actually worked. 100 is the conservative full-attendance assumption; calibrate from post-SEF ledger months."
             />
             <NumberLever
-              id="budget-nys-count"
-              label="NYS Conversion count"
-              value={draft.nys_conversion_count}
-              onChange={(value) => updateNumber("nys_conversion_count", value)}
+              id="budget-nys-full-time"
+              label="NYS Full Time"
+              value={draft.nys_full_time_count}
+              onChange={(value) => updateNumber("nys_full_time_count", value)}
               step={1}
+              help="Full-time youth subsidised by NYS; Masi pays their wages minus the contribution."
             />
             <NumberLever
-              id="budget-nys-subsidy-only"
-              label="Of which subsidy-only (cost R0)"
-              value={draft.nys_subsidy_only_count}
-              onChange={(value) =>
-                updateNumber("nys_subsidy_only_count", value)
-              }
+              id="budget-nys-part-time"
+              label="NYS Part-Time"
+              value={draft.nys_part_time_count}
+              onChange={(value) => updateNumber("nys_part_time_count", value)}
               step={1}
               help="Part-timers who earn only their SEF/NYS funding and never touch Masi payroll."
             />
+            <div>
+              <p className="text-sm font-medium text-[#14181D]">
+                Total subsidised jobs
+              </p>
+              <p className="mt-1 font-serif text-3xl tabular-nums text-[#1D4ED8]">
+                {Math.max(0, Math.trunc(draft.nys_full_time_count || 0)) +
+                  Math.max(0, Math.trunc(draft.nys_part_time_count || 0))}
+              </p>
+              <p className="mt-1 text-xs text-gray-500">
+                Full time plus part time, out of the NYS slots granted.
+              </p>
+            </div>
             <MonthLever
               id="budget-nys-start"
               label="NYS Conversion start"
