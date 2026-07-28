@@ -41,6 +41,7 @@ type NumberField =
   | "wage_rate"
   | "subsidy_contribution"
   | "nys_conversion_count"
+  | "nys_subsidy_only_count"
   | "holiday_pay"
   | "mentor_reserve";
 
@@ -289,7 +290,9 @@ export function LeversPanel({
 
   function updateNumber(field: NumberField, value: number) {
     const normalized =
-      field === "nys_conversion_count" ? Math.trunc(value) : value;
+      field === "nys_conversion_count" || field === "nys_subsidy_only_count"
+        ? Math.trunc(value)
+        : value;
     setDraft((current) => ({
       ...current,
       [field]: Number.isFinite(normalized) ? Math.max(0, normalized) : 0,
@@ -436,6 +439,16 @@ export function LeversPanel({
               value={draft.nys_conversion_count}
               onChange={(value) => updateNumber("nys_conversion_count", value)}
               step={1}
+            />
+            <NumberLever
+              id="budget-nys-subsidy-only"
+              label="Of which subsidy-only (cost R0)"
+              value={draft.nys_subsidy_only_count}
+              onChange={(value) =>
+                updateNumber("nys_subsidy_only_count", value)
+              }
+              step={1}
+              help="Part-timers who earn only their SEF/NYS funding and never touch Masi payroll."
             />
             <MonthLever
               id="budget-nys-start"

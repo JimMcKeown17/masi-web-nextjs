@@ -35,6 +35,8 @@ export interface BudgetScenario {
   subsidy_contribution: number;
   hours_matrix: HoursMatrix;
   nys_conversion_count: number;
+  // Of the conversions, subsidy-only part-timers who cost Masi R0.
+  nys_subsidy_only_count: number;
   nys_conversion_start_month: number;
   vacancy_start_month: number;
   holiday_pay: number;
@@ -121,6 +123,7 @@ type ScenarioEditableFields = Pick<
   | "subsidy_contribution"
   | "hours_matrix"
   | "nys_conversion_count"
+  | "nys_subsidy_only_count"
   | "nys_conversion_start_month"
   | "vacancy_start_month"
   | "holiday_pay"

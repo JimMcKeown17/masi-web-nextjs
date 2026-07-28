@@ -11,20 +11,17 @@ function roundMoney(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-function allocateNysConversions(
-  cohorts: YouthBudgetCohort[],
+function allocateProportionally(
+  eligible: number[],
   requested: number,
 ): number[] {
-  const eligible = cohorts.map((row) =>
-    row.programme === "yebo" ? 0 : Math.max(0, row.nys_eligible_count),
-  );
   const eligibleTotal = eligible.reduce((total, count) => total + count, 0);
   const target = Math.min(
     Math.max(0, Math.trunc(requested || 0)),
     eligibleTotal,
   );
   if (eligibleTotal === 0 || target === 0) {
-    return cohorts.map(() => 0);
+    return eligible.map(() => 0);
   }
 
   const allocated = eligible.map((count) =>
@@ -32,7 +29,7 @@ function allocateNysConversions(
   );
   let remaining =
     target - allocated.reduce((total, count) => total + count, 0);
-  const order = cohorts
+  const order = eligible
     .map((_, index) => ({
       index,
       remainder: (target * eligible[index]) % eligibleTotal,
@@ -49,6 +46,34 @@ function allocateNysConversions(
   return allocated;
 }
 
+// Mirrors the backend's two-pass split: subsidy-only converts (cost R0, they
+// leave the costed population) are allocated first, then top-up conversions
+// over the eligibility that remains.
+function allocateNysConversions(
+  cohorts: YouthBudgetCohort[],
+  requested: number,
+  subsidyOnly: number,
+): { zeroCost: number[]; relief: number[] } {
+  const eligible = cohorts.map((row) =>
+    row.programme === "yebo" ? 0 : Math.max(0, row.nys_eligible_count),
+  );
+  const requestedTotal = Math.max(0, Math.trunc(requested || 0));
+  const zeroTarget = Math.min(
+    Math.max(0, Math.trunc(subsidyOnly || 0)),
+    requestedTotal,
+  );
+  const zeroCost = allocateProportionally(eligible, zeroTarget);
+  const remainingEligible = eligible.map(
+    (count, index) => count - zeroCost[index],
+  );
+  const zeroAllocated = zeroCost.reduce((total, count) => total + count, 0);
+  const relief = allocateProportionally(
+    remainingEligible,
+    requestedTotal - zeroAllocated,
+  );
+  return { zeroCost, relief };
+}
+
 export function calculateCommittedWhatIf(
   scenario: BudgetScenario,
   cohorts: YouthBudgetCohort[],
@@ -57,6 +82,7 @@ export function calculateCommittedWhatIf(
   const conversions = allocateNysConversions(
     cohorts,
     scenario.nys_conversion_count,
+    scenario.nys_subsidy_only_count,
   );
 
   const months = savedMonths.map((savedMonth) => {
@@ -70,7 +96,12 @@ export function calculateCommittedWhatIf(
         scenario.hours_matrix[cohort.site_type]?.[cohort.job_title];
       const hoursPerDay = Math.max(0, matrixEntry?.hours_per_day ?? 4.5);
       const daysPerWeek = Math.max(0, matrixEntry?.days_per_week ?? 5);
-      const headcount = Math.max(0, cohort.headcount);
+      let headcount = Math.max(0, cohort.headcount);
+      // Subsidy-only converts leave the costed population from their month.
+      if (savedMonth.month >= scenario.nys_conversion_start_month) {
+        headcount = Math.max(0, headcount - conversions.zeroCost[index]);
+      }
+      if (headcount === 0) return;
       const grossPerHead =
         hoursPerDay *
         savedMonth.school_days *
@@ -80,7 +111,7 @@ export function calculateCommittedWhatIf(
       const rowUif = rowGross * (UIF_FACTOR - 1);
       let subsidisedHeads = Math.max(0, cohort.subsidised_count);
       if (savedMonth.month >= scenario.nys_conversion_start_month) {
-        subsidisedHeads += conversions[index];
+        subsidisedHeads += conversions.relief[index];
       }
       subsidisedHeads = Math.min(headcount, subsidisedHeads);
       const reliefPerHead = Math.min(
@@ -144,6 +175,7 @@ export function editableScenarioFields(scenario: BudgetScenario) {
     subsidy_contribution: scenario.subsidy_contribution,
     hours_matrix: scenario.hours_matrix,
     nys_conversion_count: scenario.nys_conversion_count,
+    nys_subsidy_only_count: scenario.nys_subsidy_only_count,
     nys_conversion_start_month: scenario.nys_conversion_start_month,
     vacancy_start_month: scenario.vacancy_start_month,
     holiday_pay: scenario.holiday_pay,
