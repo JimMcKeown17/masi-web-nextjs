@@ -2,11 +2,13 @@
 
 Date prepared: 10 August 2026
 
-## 14 August 2026 rollout progress at 18:17 UTC
+## 14 August 2026 rollout progress at 18:32 UTC
 
 The backend portion is now committed, deployed, migrated, bootstrapped, and exercised through both local-to-production and Render-managed incremental runs. Backend `main` is at `efbb946`. Full bootstrap logs 915 and 916 succeeded, production contains 25,128 literacy and 6,647 numeracy rows, managed incremental logs 919 and 920 succeeded, and the protected freshness route is live. The separate Render jobs are enabled at `0,15,30,45 * * * *` for literacy and `5,20,35,50 * * * *` for numeracy; the existing `0 4,12 * * *` full reconciliation remains in place.
 
-The frontend implementation remains local on `main` at `89a8436`. Its source review and API-reference update are in progress; commit, push, deployment, authenticated browser verification, and handoff closure remain outstanding.
+Frontend commit `08764bb` is on `main` and both linked Vercel deployments succeeded. The protected production route resolves and redirects unauthenticated users to Clerk with the dashboard return URL preserved. Authenticated freshness presentation, responsive light/dark review, open-page automatic revalidation, and handoff closure remain outstanding because the available Chrome session is not signed into Masi.
+
+The enabled cron schedules have also fired automatically: numeracy log 921 succeeded at 18:20 UTC and literacy log 922 succeeded at 18:30 UTC. Both were no-op incremental runs with clean exits. The retained full cron now runs both feed commands while preserving a failure flag and exits non-zero if either failed, closing the prior notification-masking gap; its next scheduled full run is the Render runtime check of that wrapper.
 
 During Render environment repair, a private failed cron log exposed the production database connection string. The value was corrected and both managed jobs subsequently succeeded, but the production database credential still requires an explicitly authorized coordinated rotation across every consumer. Do not reproduce the credential in documentation or messages.
 
@@ -24,11 +26,11 @@ The revalidated starting point is:
 
 ## Required opening in the next conversation
 
-Before making changes or taking release actions, explicitly bring this unfinished work to Jim’s attention. A useful opening is:
+Before taking remaining release actions, explicitly bring this unfinished work to Jim’s attention. A useful opening is:
 
-> We still have the Youth Sessions incremental Airtable sync, freshness banner, and automatic dashboard revalidation work from 4 August in both working trees. It was locally green then, but it is still uncommitted and has not been migrated, scheduled, deployed, or verified live. Let’s review the current diffs and decide whether to finalize and release it now.
+> The Youth Sessions backend and frontend are deployed, and both incremental schedules have succeeded automatically. We still need an authenticated production dashboard check, an open-page revalidation check, coordinated database credential rotation, and handoff closure.
 
-Do not silently commit, deploy, migrate, run production syncs, or alter Render schedules. Those require current user direction.
+Do not reproduce the exposed credential, claim authenticated browser proof without a signed-in session, or rotate the database credential without explicit current authorization.
 
 ## Current state verified on 10 August 2026
 

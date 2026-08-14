@@ -4,9 +4,9 @@ Last updated: 14 August 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
 
-## 14 August 2026 — Backend live and incremental cadence enabled; frontend release pending
+## 14 August 2026 — Both repositories deployed; authenticated verification pending
 
-Status at 18:17 UTC: the backend dependency is live and production ingestion is healthy. The frontend freshness banner and automatic revalidation source remain local and uncommitted while their final documentation, commit, deployment, and authenticated browser verification are completed.
+Status at 18:32 UTC: backend ingestion is healthy, the incremental schedules are active, and the frontend freshness banner and automatic revalidation are deployed. Authenticated dashboard acceptance, database credential rotation, and handoff closure remain open.
 
 ### Backend and production evidence now available
 
@@ -17,6 +17,7 @@ Status at 18:17 UTC: the backend dependency is live and production ingestion is 
 - Production now contains 25,128 literacy and 6,647 numeracy rows. The difference from the current Airtable counts is historical source-deletion residue; deletion reconciliation is intentionally not part of this release.
 - Direct production incremental smoke logs 917 and 918 both completed successfully with zero fetched records, proving the PostgreSQL lock, Airtable filter, transaction, and cursor paths.
 - Render-managed literacy log 919 and numeracy log 920 both completed successfully with zero fetched records. The separate Starter jobs now run on staggered 15-minute schedules: literacy at `0,15,30,45 * * * *` and numeracy at `5,20,35,50 * * * *`. Workspace-default failure notifications remain enabled.
+- The schedules then fired without manual intervention. Numeracy log 921 succeeded at 18:20 UTC and literacy log 922 succeeded at 18:30 UTC, both with zero fetched, created, updated, or skipped records.
 - The retained full reconciliation cron remains at `0 4,12 * * *` so Airtable edits and FK repairs continue to be upserted. Its command now preserves the intent to run both feeds while recording any failure and exiting non-zero if either command fails. Render settings show the saved command; its next scheduled full execution remains the runtime verification of the wrapper.
 - An unauthenticated request to `/api/youth-sessions/freshness/` now returns `403`, replacing the pre-deploy `404` and proving the route is live and protected. Authenticated response and dashboard presentation still require frontend deployment and browser verification.
 
@@ -29,11 +30,18 @@ Status at 18:17 UTC: the backend dependency is live and production ingestion is 
 - `git diff --check` — passed in both the frontend and backend repositories.
 - The first `pnpm build` attempt was unable to reach the repository's configured Google Fonts from the sandbox and failed before compilation completed. The network-enabled rerun passed: compilation completed in 13.1 seconds, TypeScript passed, all 27 static pages generated, and `/operations/youth-sessions` appeared in the route manifest. The pre-existing duplicate-lockfile/workspace-root and `middleware` deprecation warnings remain.
 
+### Source publication and deployment
+
+- Frontend commit `08764bb` (`feat: add youth sessions freshness`) was pushed directly to `main`; `HEAD`, `origin/main`, and `origin/HEAD` matched after the push.
+- Both linked Vercel contexts, `masi-web-nextjs` and `masi-web-nextjs-dqdn`, reported successful deployments for `08764bb`.
+- The production route `https://www.masinyusane.org/operations/youth-sessions` resolves and redirects an unauthenticated browser to Clerk sign-in with the dashboard URL preserved as `redirect_url`. This proves deployment and route protection, not authenticated dashboard behavior.
+- The available Chrome session is not signed into Masi. Freshness payload presentation, responsive light/dark review, and open-page automatic revalidation remain unverified until an authenticated staff session is available.
+
 ### Credential incident and release boundary
 
 While repairing a stale shared Render `DATABASE_URL`, one failed private cron log included the production database connection string. The shared variable was immediately replaced with the correct value and both managed incremental jobs subsequently connected successfully. The database credential must still be rotated across Render and the local production-only configuration; rotation is intentionally pending explicit authorization because missing a consumer could interrupt production services.
 
-No frontend commit, push, deploy, or live-dashboard claim has been made yet. The next release step is to finish the current source/documentation review, rerun the scoped frontend gates, commit and push the intended files, wait for deployment, and perform authenticated responsive light/dark and automatic-revalidation checks.
+Frontend commit, push, and Vercel deployment are complete. The remaining acceptance work is to sign into the production dashboard, verify the authenticated freshness payload and responsive light/dark presentation, leave the page open across a successful scheduled sync to confirm version-driven revalidation, rotate the exposed database credential after explicit authorization, and close the handoff.
 
 ## 14 August 2026 — Full Youth Sessions rollout authorized; frontend held behind backend
 
@@ -61,7 +69,7 @@ Every material frontend change must update this file in the same change. Each en
 - Runtime: Next.js 16.1.2, React 19, TypeScript, Tailwind CSS 4, SWR, Clerk.
 - Protected Youth Sessions route: `/operations/youth-sessions`.
 - Session data source: authenticated Django REST endpoints under `/api/youth-sessions/`.
-- Release state of the latest entry: implemented and locally reverified; full rollout is authorized, but the frontend is intentionally held behind the backend and is not yet committed, deployed, or verified live.
+- Release state of the latest entry: backend and frontend committed, pushed, and deployed; production schedules verified automatically. Authenticated dashboard behavior and database credential rotation remain open.
 
 ## 4 August 2026 — Youth Sessions freshness and automatic revalidation
 
