@@ -1,4 +1,5 @@
 import { getImageUrl } from '@/lib/imageUrl';
+import Image from 'next/image';
 
 type Align = "left" | "center" | "right";
 
@@ -15,12 +16,13 @@ export default function StaffPhoto({
   align = "center",
   className = "",
 }: StaffPhotoProps) {
-  const alignClass =
+  const resolvedImageSrc = imageSrc.startsWith('/') ? imageSrc : getImageUrl(imageSrc);
+  const objectPositionClass =
     align === "left"
-      ? "left-6"
+      ? "object-left-bottom"
       : align === "right"
-      ? "right-6"
-      : "left-1/2 -translate-x-1/2";
+      ? "object-right-bottom"
+      : "object-bottom";
 
   return (
     <div
@@ -30,12 +32,16 @@ export default function StaffPhoto({
       <div className="absolute inset-x-[6%] top-16 bottom-0 rounded-[28px] bg-[#E8E2D6]" />
 
       {/* Foreground cutout image - taller to extend above panel */}
-      <img
-        src={getImageUrl(imageSrc)}
-        alt={alt}
-        className={`absolute z-10 bottom-0 h-[102%] w-auto max-w-full object-contain object-bottom drop-shadow-sm ${alignClass}`}
-        draggable={false}
-      />
+      <div className="absolute z-10 bottom-0 h-[102%] w-full">
+        <Image
+          src={resolvedImageSrc}
+          alt={alt}
+          fill
+          sizes="(min-width: 1280px) 414px, (min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+          className={`object-contain drop-shadow-sm ${objectPositionClass}`}
+          draggable={false}
+        />
+      </div>
     </div>
   );
 }

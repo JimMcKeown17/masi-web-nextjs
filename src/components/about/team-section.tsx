@@ -4,6 +4,7 @@ import { FadeUp } from '@/components/animations/FadeAnimations';
 
 const teamMembers = [
   { id: 4, firstName: 'Chombe', lastName: 'Ncandana', role: 'Programmes Manager', image: 'images/staff/chombe-mask.webp' },
+  { id: 9, firstName: 'Stanford', lastName: 'Ndlovu', role: 'Senior Project Manager', image: '/images/staff/stanford-ndlovu.png' },
   { id: 1, firstName: 'Noxolo', lastName: 'Mkutswana', role: 'Data & HR', image: 'images/staff/Noxolo-Mkutswana.webp' },
   { id: 2, firstName: 'Buyiswa', lastName: 'Xaba', role: 'ZZ Programme Manager', image: 'images/staff/buyi-mask.webp' },
   { id: 3, firstName: 'Zola', lastName: 'Mbusi', role: 'Chief Operating Officer', image: 'images/staff/zola-mask.webp' },
@@ -27,9 +28,13 @@ export default function TeamSection() {
           </h2>
         </FadeUp>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-10 max-w-7xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-6 gap-y-10 max-w-7xl mx-auto">
           {teamMembers.map((member, i) => (
-            <FadeUp key={member.id} delay={0.05 * (i % 4)} className="flex flex-col items-center">
+            <FadeUp
+              key={member.id}
+              delay={0.05 * (i % 3)}
+              className="flex flex-col items-center sm:last:col-span-2 lg:last:col-span-1"
+            >
               <StaffPhoto
                 imageSrc={member.image}
                 alt={`${member.firstName} ${member.lastName}`}
