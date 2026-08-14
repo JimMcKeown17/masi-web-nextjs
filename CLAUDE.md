@@ -1,10 +1,14 @@
 # Frontend - Next.js Application
 
-Next.js 15 website for Masinyusane (MASI). Communicates with a Django REST Framework backend. Both frontend and backend are fully under your control — add endpoints, modify models, or change auth as needed.
+Next.js 16 website for Masinyusane (MASI). Communicates with a Django REST Framework backend. Both frontend and backend are fully under your control — add endpoints, modify models, or change auth as needed.
 
 **Git repo:** `https://github.com/JimMcKeown17/masi-web-nextjs`
 **Local path:** `/Users/jimmckeown/Development/Masi_Website_2026/frontend/masi-website/`
 Always run git commands from this directory — parent directories are NOT git repos.
+
+## Active cross-repository handoff
+
+At the start of the next conversation about Youth Sessions or Airtable session sync, read `documentation/handoffs/2026-08-10-youth-sessions-sync-finalization.md` and proactively raise it with Jim. The backend is deployed and the incremental schedules are enabled, but the frontend source, live dashboard verification, handoff closure, and production database credential rotation remain open; the handoff defines the remaining release sequence.
 
 # Coding Standards
 
@@ -24,7 +28,7 @@ pnpm install  # from root or masi-website/
 
 ## Tech Stack
 
-- **Framework:** Next.js 15 (App Router) + React 19
+- **Framework:** Next.js 16 (App Router) + React 19
 - **Styling:** Tailwind CSS v4 + shadcn/ui
 - **Data Fetching:** SWR + native fetch
 - **Auth:** Clerk (`@clerk/nextjs`)
@@ -69,7 +73,7 @@ src/
 └── lib/
     ├── api/
     │   ├── mentors/         # Mentor dashboard API functions
-    │   └── youth-sessions/  # Youth sessions API functions (7 endpoints)
+    │   └── youth-sessions/  # Youth sessions API functions
     ├── types/         # TypeScript type definitions
     ├── server/        # Server-side utilities
     ├── imageUrl.ts    # GCS image/asset URL helper
@@ -147,11 +151,12 @@ Pre-configured with path alias `@/components`. Common: Button, Card, Tabs, Selec
 - `documentation/frontend-backend-integration.md` — Data fetching patterns, design system
 - `documentation/recommended-backend-endpoints.md` — Endpoints to add
 - `documentation/future-improvements.md` — Deferred ideas / backlog. If the user asks what to build next, start here.
+- `documentation/build-log.md` — Current implementation, verification, deployment state, and open release work. Update it with every material change.
 
 ## Known Issues
 
 - Visit frequency chart fetches all visits — should use backend aggregation
 - No pagination (needed as data grows)
-- No real-time updates (manual refresh required)
+- Most pages require normal SWR focus/manual revalidation; Youth Sessions revalidates when its backend sync version advances
 - Youth sessions "today" stats show 0 after 10pm SAST — Render server runs UTC, not Africa/Johannesburg
 - Youth sessions dashboard currently filters to Literacy Coach + Numeracy Coach only — other job titles (Zazi iZandi, ZZ ECD, etc.) excluded pending next version

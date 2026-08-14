@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import { useAuth } from '@clerk/nextjs';
 import useSWR, { useSWRConfig } from 'swr';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -14,6 +14,7 @@ import { YouthActivityHeatmap } from '@/components/youth-sessions/YouthActivityH
 import { InactiveYouthPanel } from '@/components/youth-sessions/InactiveYouthPanel';
 import { SchoolCoverageGrid } from '@/components/youth-sessions/SchoolCoverageGrid';
 import { YouthDetailSheet } from '@/components/youth-sessions/YouthDetailSheet';
+import { SessionFreshnessBanner } from '@/components/youth-sessions/SessionFreshnessBanner';
 
 import {
   getYouthSessionsSummary,
@@ -23,22 +24,33 @@ import {
   getSchoolCoverage,
   getYouthDetail,
   getLookups,
+  getYouthSessionFreshness,
 } from '@/lib/api/youth-sessions';
 
 import type { YouthSessionsFilters } from '@/lib/types/youth-sessions';
 
+
+const FRESHNESS_KEY = 'youth-sessions-freshness';
+const FRESHNESS_POLL_INTERVAL_MS = 60_000;
+
+
+function isYouthSessionDataKey(key: unknown): key is string {
+  return (
+    typeof key === 'string' &&
+    key !== FRESHNESS_KEY &&
+    (key.startsWith('youth-sessions-') || key.startsWith('youth-detail-'))
+  );
+}
+
 export default function YouthSessionsDashboardPage() {
   const { getToken } = useAuth();
   const { mutate } = useSWRConfig();
+  const previousFreshnessVersion = useRef<string | null>(null);
 
   // Absence writes change the denominator across heatmap, detail, inactive, and
   // summary -- revalidate every youth-sessions cache so "None" cells flip to "Off".
   const refreshYouthData = useCallback(() => {
-    mutate(
-      (key) =>
-        typeof key === 'string' &&
-        (key.startsWith('youth-sessions-') || key.startsWith('youth-detail-')),
-    );
+    void mutate(isYouthSessionDataKey);
   }, [mutate]);
 
   const [filters, setFilters] = useState<YouthSessionsFilters>({
@@ -65,6 +77,38 @@ export default function YouthSessionsDashboardPage() {
     school_uid: filters.school_uid,
     mentor_id: filters.mentor_id,
   });
+
+  // Poll only the tiny control-plane resource. When either importer records a
+  // new successful version, invalidate the heavier dashboard queries once.
+  const {
+    data: freshness,
+    error: freshnessError,
+    isLoading: freshnessLoading,
+  } = useSWR(
+    FRESHNESS_KEY,
+    async () => {
+      const token = await getToken();
+      if (!token) throw new Error('Not authenticated');
+      return getYouthSessionFreshness(token);
+    },
+    {
+      refreshInterval: FRESHNESS_POLL_INTERVAL_MS,
+      refreshWhenHidden: false,
+      refreshWhenOffline: false,
+      revalidateOnFocus: true,
+    },
+  );
+
+  useEffect(() => {
+    const nextVersion = freshness?.version;
+    if (!nextVersion) return;
+
+    const previousVersion = previousFreshnessVersion.current;
+    previousFreshnessVersion.current = nextVersion;
+    if (previousVersion && previousVersion !== nextVersion) {
+      void mutate(isYouthSessionDataKey);
+    }
+  }, [freshness?.version, mutate]);
 
   // Lookups (no filters needed)
   const { data: lookups, error: lookupsError } = useSWR(
@@ -230,6 +274,11 @@ export default function YouthSessionsDashboardPage() {
           <p className="text-lg text-slate-600 dark:text-slate-400">
             Monitor session activity, spot inactive youth, and track school coverage
           </p>
+          <SessionFreshnessBanner
+            freshness={freshness}
+            error={freshnessError}
+            isLoading={freshnessLoading}
+          />
           <div className="flex items-start gap-2 mt-2 px-4 py-3 rounded-xl bg-slate-100/60 dark:bg-slate-800/40 border border-slate-200/50 dark:border-slate-700/50 max-w-2xl">
             <Info className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-slate-500 dark:text-slate-400">

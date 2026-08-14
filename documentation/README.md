@@ -6,6 +6,9 @@ This folder contains documentation and guidelines for the MASI Web project. Thes
 
 ## 📚 Documentation Index
 
+### [Build Log](./build-log.md)
+Current implementation state, verification evidence, deployment dependencies, and open release work. Read this before starting material work and update it in the same change.
+
 ### 0. [Roadmap](./roadmap.md)
 Everything started but not finished: in-flight branches, worktrees, and what each needs
 before it can merge. Spans the frontend, the Masi backend, and the Zazi backend.
@@ -81,7 +84,7 @@ Prioritized list of backend endpoints that should be implemented.
 ## 🎯 Quick Reference
 
 ### Current Frontend Stack
-- **Framework**: Next.js 15 (App Router)
+- **Framework**: Next.js 16 (App Router)
 - **UI**: React 19 + Tailwind CSS
 - **Data Fetching**: SWR
 - **Auth**: Clerk
@@ -192,10 +195,10 @@ For questions about:
 ## 🔄 Keeping This Updated
 
 When you:
+- Complete material implementation work → Update `build-log.md`
 - Add a new endpoint → Update `api-endpoints.md`
 - Change a pattern → Update relevant doc
 - Solve a common problem → Document the solution
 - Add a recommendation → Add to `recommended-backend-endpoints.md`
 
 These docs are living documents. Keep them current!
-

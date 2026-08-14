@@ -5,3 +5,4 @@ export { getInactiveYouth } from './inactive';
 export { getSchoolCoverage } from './school-coverage';
 export { getYouthDetail } from './youth-detail';
 export { getLookups } from './lookups';
+export { getYouthSessionFreshness } from './freshness';

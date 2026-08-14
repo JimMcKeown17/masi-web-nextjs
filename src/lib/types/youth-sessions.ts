@@ -9,6 +9,30 @@ export interface YouthSessionsFilters {
   mentor_id?: string;
 }
 
+export type SessionSyncStatus = 'fresh' | 'syncing' | 'stale' | 'failed' | 'never';
+
+export interface SessionSyncSourceHealth {
+  status: SessionSyncStatus;
+  last_successful_sync: string | null;
+  last_attempt_started_at: string | null;
+  last_attempt_completed_at: string | null;
+  error_message: string | null;
+}
+
+export interface YouthSessionFreshness {
+  status: SessionSyncStatus;
+  is_stale: boolean;
+  cadence_minutes: number;
+  stale_after_minutes: number;
+  last_successful_sync: string | null;
+  checked_at: string;
+  version: string;
+  sources: {
+    literacy: SessionSyncSourceHealth;
+    numeracy: SessionSyncSourceHealth;
+  };
+}
+
 export interface YouthSessionsSummary {
   total_sessions_today: number;
   total_sessions_this_week: number;

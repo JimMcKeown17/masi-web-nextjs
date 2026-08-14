@@ -188,6 +188,46 @@ GET /api/dashboard-summary/
 
 ---
 
+### Youth Sessions Freshness
+
+#### GET /api/youth-sessions/freshness/
+
+Authenticated control-plane resource for the literacy and numeracy Airtable feeds behind the Youth Sessions dashboard. It reports current trust state without returning session records.
+
+**Response**:
+
+```typescript
+{
+  status: 'fresh' | 'syncing' | 'stale' | 'failed' | 'never';
+  is_stale: boolean;
+  cadence_minutes: number;
+  stale_after_minutes: number;
+  last_successful_sync: string | null;
+  checked_at: string;
+  version: string;
+  sources: {
+    literacy: {
+      status: 'fresh' | 'syncing' | 'stale' | 'failed' | 'never';
+      last_successful_sync: string | null;
+      last_attempt_started_at: string | null;
+      last_attempt_completed_at: string | null;
+      error_message: string | null;
+    };
+    numeracy: {
+      status: 'fresh' | 'syncing' | 'stale' | 'failed' | 'never';
+      last_successful_sync: string | null;
+      last_attempt_started_at: string | null;
+      last_attempt_completed_at: string | null;
+      error_message: string | null;
+    };
+  };
+}
+```
+
+The frontend polls only this bounded resource. When `version` advances after a successful import, it revalidates the heavier Youth Sessions resources. Timestamps are UTC ISO strings from Django and must be formatted explicitly as `Africa/Johannesburg` for staff-facing SAST presentation.
+
+---
+
 ### WIG Endpoints
 
 #### GET /api/wig/outcomes/
