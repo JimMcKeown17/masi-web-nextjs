@@ -92,10 +92,11 @@ R2,528.79), pots R1,523,777.96, ~438 actives of which ~90 Yebo, 0 currently subs
       - `POST/PATCH/DELETE /youth-budget/pot/<pk>/`
       - `PATCH /youth-budget/scenario/`
       - `POST/PATCH /youth-budget/expenditure/<pk>/`
-- [ ] `seed_youth_expenditure_2026` command: parse the ledger CSV
-      (staticfiles/data/youth-payments-jan-june-2026.csv) with normalisations (BOM, R-amounts,
-      trailing-space months) into MonthlyYouthExpenditure, split core/mentor/rural by
-      Category 2/3 rules (Mentor in Cat3 -> mentor; Wind Farm / Rural -> rural).
+- [ ] `seed_youth_expenditure_2026` command: retain the original ledger CSV importer as
+      a bootstrap path. Operational updates use `sync_youth_expenditure`, which selects
+      the newest dated management workbook, filters its `Expenditure` tab, and restates
+      the complete year-to-date MonthlyYouthExpenditure snapshot. Split core/mentor/rural
+      by Category 2/3 rules (Mentor in Cat3 -> mentor; Wind Farm / Rural -> rural).
 - [ ] Tests: subsidy floor at 0, Yebo exclusion, days_per_week ratio, November horizon,
       current-month partial days, NYS lever eligibility cap, at-plan vacancy costing,
       feasibility check, endpoint permissions.
@@ -117,8 +118,8 @@ R2,528.79), pots R1,523,777.96, ~438 actives of which ~90 Yebo, 0 currently subs
         all 200 NYS slots utilised (~200 at top-up rate, remainder full rate) until real
         subsidy data lands in Airtable.
       - `PotsPanel` — pot CRUD + total + feasibility warnings.
-      - `ExpenditureChart` — actual bars (Jan-Jul, from MonthlyYouthExpenditure) flowing
-        into projected bars (Aug-Nov) in one continuous chart.
+      - `ExpenditureChart` — actual bars through the latest MonthlyYouthExpenditure month
+        flowing into only later projected months in one continuous chart.
 - [ ] Affordability strip on Youth staffing tab (saved verdict one-liner -> links to tab).
 - [ ] E2E in browser via Clerk login as staff would use it; pixel pass.
 

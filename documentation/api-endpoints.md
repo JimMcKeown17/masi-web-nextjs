@@ -395,6 +395,17 @@ Base: authenticated reads; writes require ADMIN or PROJECT MANAGER.
 - `POST /youth-budget/expenditure/`, `PATCH /youth-budget/expenditure/<id>/` - manual
   monthly expenditure rows (core/mentor/rural).
 
-Seeds: `seed_funding_pots_2026`, `seed_youth_expenditure_2026` (idempotent).
+Actuals publication: backend command `sync_youth_expenditure --year 2026` dynamically
+selects the newest `YYYYMMDD - *Management Accounts*.xlsx` file from
+`masi-finance/management_sheets` (or `MASI_MANAGEMENT_SHEETS_DIR`), reads the
+`Expenditure` tab, and previews a complete January-through-latest-month restatement.
+It is a dry run unless `--apply` is supplied. Excel category-error rows are reported and
+excluded; an apply with any such rows additionally requires
+`--allow-category-errors`. Each published month records the source filename, SHA-256,
+and classified-row count. `--path` and `--workbook-dir` provide explicit source
+overrides.
+
+Seeds: `seed_funding_pots_2026`; `seed_youth_expenditure_2026` remains an idempotent
+legacy/bootstrap importer for the original CSV.
 Formula and domain language: `_plans/youth-budget-calculator.md`, `CONTEXT.md`,
 `docs/adr/0001`, `docs/adr/0002`.

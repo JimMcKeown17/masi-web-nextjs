@@ -2,24 +2,8 @@ import type {
   BudgetProjection,
   MonthlyYouthExpenditure,
 } from "@/lib/types/youth-budget";
+import { buildExpenditureChartData } from "./expenditureChartData";
 import { formatCompactRand, formatMonth, formatRand } from "./format";
-
-interface ActualBar {
-  kind: "actual";
-  month: number;
-  core: number;
-  mentor: number;
-  rural: number;
-  total: number;
-}
-
-interface ProjectedBar {
-  kind: "projected";
-  month: number;
-  total: number;
-}
-
-type ChartBar = ActualBar | ProjectedBar;
 
 export function ExpenditureChart({
   expenditure,
@@ -28,15 +12,13 @@ export function ExpenditureChart({
   expenditure: MonthlyYouthExpenditure[];
   committed: BudgetProjection;
 }) {
-  const actualByMonth = new Map(
-    expenditure
-      .filter((row) => row.month >= 1 && row.month <= 6)
-      .map((row) => [row.month, row]),
+  const { bars, lastActualMonth } = buildExpenditureChartData(
+    expenditure,
+    committed,
   );
-  const hasActuals = actualByMonth.size > 0;
-  const projectedRows = committed.months.filter((row) => row.month >= 7);
+  const hasActuals = lastActualMonth !== null;
 
-  if (!hasActuals && projectedRows.length === 0) {
+  if (bars.length === 0) {
     return (
       <section className="rounded-xl border border-dashed p-10 text-center">
         <h2 className="font-serif text-2xl text-[#14181D]">
@@ -49,30 +31,6 @@ export function ExpenditureChart({
     );
   }
 
-  const bars: ChartBar[] = [
-    ...Array.from({ length: 6 }, (_, index): ActualBar => {
-      const month = index + 1;
-      const row = actualByMonth.get(month);
-      const core = row?.core_amount ?? 0;
-      const mentor = row?.mentor_amount ?? 0;
-      const rural = row?.rural_amount ?? 0;
-      return {
-        kind: "actual",
-        month,
-        core,
-        mentor,
-        rural,
-        total: core + mentor + rural,
-      };
-    }),
-    ...projectedRows.map(
-      (row): ProjectedBar => ({
-        kind: "projected",
-        month: row.month,
-        total: row.net,
-      }),
-    ),
-  ];
   const maxValue = Math.max(...bars.map((bar) => bar.total), 1);
   const chartHeight = 154;
   const baseline = 190;
@@ -97,8 +55,9 @@ export function ExpenditureChart({
             Actual into <span className="italic text-[#1D4ED8]">projected</span>
           </h2>
           <p className="mt-1 text-sm text-gray-600">
-            Actual nett spend from January to June, followed by the saved
-            committed projection.
+            {hasActuals
+              ? `Actual nett spend from January to ${formatMonth(lastActualMonth, "long")}, followed by the saved currently-employed projection.`
+              : "Saved currently-employed projection."}
           </p>
         </div>
         <div className="flex flex-wrap gap-3 text-xs text-gray-600">
@@ -186,10 +145,7 @@ export function ExpenditureChart({
                     strokeWidth="1.5"
                     strokeDasharray="4 3"
                   >
-                    <title>
-                      {formatMonth(bar.month, "long")} projected:{" "}
-                      {formatRand(bar.total)}
-                    </title>
+                    <title>{`${formatMonth(bar.month, "long")} projected: ${formatRand(bar.total)}`}</title>
                   </rect>
                   <text
                     x={x + barWidth / 2}
@@ -232,10 +188,7 @@ export function ExpenditureChart({
                   rx="2"
                   fill="#1D4ED8"
                 >
-                  <title>
-                    {formatMonth(bar.month, "long")} core:{" "}
-                    {formatRand(bar.core)}
-                  </title>
+                  <title>{`${formatMonth(bar.month, "long")} core: ${formatRand(bar.core)}`}</title>
                 </rect>
                 <rect
                   x={x}
@@ -244,7 +197,7 @@ export function ExpenditureChart({
                   height={mentorHeight}
                   fill="#14181D"
                 >
-                  <title>Mentor: {formatRand(bar.mentor)}</title>
+                  <title>{`Mentor: ${formatRand(bar.mentor)}`}</title>
                 </rect>
                 <rect
                   x={x}
@@ -254,7 +207,7 @@ export function ExpenditureChart({
                   rx="2"
                   fill="#9CA3AF"
                 >
-                  <title>Rural: {formatRand(bar.rural)}</title>
+                  <title>{`Rural: ${formatRand(bar.rural)}`}</title>
                 </rect>
                 <text
                   x={x + barWidth / 2}

@@ -75,9 +75,14 @@ for cost projection; the per-youth Hours Cap is not. The site-type axis is `norm
 programme-membership list.
 
 **Monthly Expenditure History**:
-Actual nett youth spend per month (core / mentors / rural), kept as a small manually-
-appended table seeded from the Jan-June 2026 ledger; charted as actual bars flowing into
-projected bars. Not a reconciliation engine (that stays deferred).
+Actual nett youth spend per month (core / mentors / rural), published as a complete
+year-to-date snapshot from the newest dated management workbook in the ignored
+`masi-finance/management_sheets` directory. The `Expenditure` tab is filtered to the
+selected accounting year and Category 3 values containing `Youth Jobs:`. Re-running the
+import restates every historical month in the snapshot rather than freezing previously
+published figures. The chart derives its actual/projected boundary from the latest
+published month. This is a bounded publication workflow, not a general reconciliation
+engine.
 
 **Days per Week**:
 Working days youth are scheduled, per Hours Matrix entry (not org-wide). Default 5;

@@ -1,8 +1,73 @@
 # Frontend Build Log
 
-Last updated: 14 August 2026
+Last updated: 31 August 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
+
+## 31 August 2026 - Youth Budget actuals publication and dynamic chart boundary
+
+Status: backend and frontend changes are implemented and verified locally. No source was
+committed or pushed, no production database row was changed, and neither application was
+deployed or verified in an authenticated production browser.
+
+### Source decision and finance evidence
+
+- Jim designated the newest dated workbook in the ignored
+  `/Users/jimmckeown/Development/masi-finance/management_sheets` directory as the complete
+  source of truth. Historical website months are restated from that workbook; missing
+  rows are not recovered from another workbook or an older database value.
+- The selected file was `20260829 - Masinyusane Management Accounts.xlsx`, SHA-256
+  `81ed709ff0506f574d00e3c9f9852a28b87b421383282135c382d32882262fe6`. Filtering the
+  `Expenditure` tab to 2026 rows whose Category 3 contains `Youth Jobs:` classified 2,020
+  rows through August.
+- Published-source totals are July R172,852.53 and August R882,963.85. January through
+  August totals R3,009,253.32. The workbook also has three 2026 rows with Excel errors in
+  all category columns: July R700, August R700, and August R275. They remain excluded from
+  the Youth Jobs totals and visible as import warnings; the apply path requires explicit
+  acknowledgement of that exclusion.
+
+### Implementation
+
+- The backend now owns workbook selection, validation, Youth Jobs classification,
+  core/mentor/rural aggregation, historical restatement, and source provenance. The
+  command is dry-run by default and refuses an apply when category errors are present
+  unless the operator passes `--allow-category-errors`.
+- The frontend no longer hardcodes June as the last actual month. It derives the boundary
+  from the latest `MonthlyYouthExpenditure` row, renders every actual month through that
+  boundary, and includes projections only after it. With the August source snapshot, the
+  chart displays January through August as actual and starts projections in September.
+- Added small pure chart-series tests and a server-rendered component test. SVG tooltip
+  titles were converted to single text children so React 19 server rendering retains the
+  accessible descriptions.
+
+### Verification
+
+- Backend focused command and budget suites: 62 tests passed.
+- Backend full API suite: 554 tests passed.
+- Backend `manage.py check`, `makemigrations --check --dry-run`, and `pip check` passed;
+  no migration is required.
+- A new temporary SQLite database was migrated, then the real selected workbook was
+  applied twice. The first run wrote eight January-through-August rows totalling
+  R3,009,253.32 with matching source hashes; the second run reported zero monthly deltas.
+  This proves the local database write path and idempotence, not production publication.
+- `pnpm test:unit` passed all 4 chart tests.
+- `pnpm exec tsc --noEmit --incremental false` passed.
+- `pnpm lint` passed with zero errors and one pre-existing
+  `@next/next/no-img-element` warning in `src/app/image-debug/page.tsx`.
+- The network-enabled `pnpm build` passed: compilation and TypeScript completed, all 27
+  pages generated, and `/operations/school-programme-grid/budget` appeared in the route
+  manifest. The existing duplicate-lockfile/workspace-root and `middleware` deprecation
+  warnings remain.
+
+### Release work still required
+
+1. Review and publish the paired backend and frontend source changes.
+2. After the backend deployment, run the production command without `--apply` and review
+   the exact source hash, category warnings, and database deltas.
+3. With explicit production-write authorization, re-run with
+   `--apply --allow-category-errors` to publish the full January-through-August snapshot.
+4. Deploy the frontend and verify the authenticated budget page, chart labels, values,
+   horizontal overflow, light mode, and dark mode against the published API response.
 
 ## 14 August 2026 — Both repositories deployed; authenticated verification pending
 
