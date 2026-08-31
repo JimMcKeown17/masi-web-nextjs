@@ -10,9 +10,10 @@ Status: backend commit `ca97504` and frontend commit `7076c04` are on their resp
 `main` and `origin/main` branches. Render deployed the backend successfully as live
 deployment `dep-dab0c50ae00c73dfdvh0`, and both linked Vercel projects deployed the
 frontend successfully. The production expenditure dry run succeeded and changed no
-database rows. The authenticated production page was reloaded and verified to render the
-new dynamic-chart copy and accessible SVG descriptions; it correctly remains
-January-through-June actual until the database apply is separately authorized.
+database rows. Jim then explicitly authorized the guarded production apply, which
+restated all eight January-through-August rows. Independent database readback and
+authenticated desktop and mobile browser checks confirmed the published figures and
+actual/projected boundary.
 
 ### Source decision and finance evidence
 
@@ -73,15 +74,29 @@ January-through-June actual until the database apply is separately authorized.
   `saved currently-employed projection` copy and readable SVG title descriptions. The
   API still returned January-through-June actuals, proving deployed code against the
   intentionally unchanged production data, not the pending August publication result.
+- Before the authorized apply, the operator preflight reconfirmed that the selected
+  workbook was still the newest dated file and retained SHA-256
+  `81ed709ff0506f574d00e3c9f9852a28b87b421383282135c382d32882262fe6`.
+- The production apply completed transactionally with eight restated months. A separate
+  readback returned months 1 through 8, aggregate R3,009,253.32, and matching source
+  provenance on every row.
+- The authenticated live page now states `Actual nett spend from January to August`,
+  renders eight actual bars, and starts projections in September. Every displayed
+  core/mentor/rural description and total matched the database readback.
+- Desktop light-mode rendering passed. At the mobile breakpoint, the page body remained
+  viewport-width while the 760-pixel chart used an internal 360-pixel horizontal scroller;
+  both January-May and July-November views were inspected successfully.
+- The deployed application shell has no dark-theme control or dark class and reports the
+  normal color scheme, so no dark-mode verification claim is made.
 
-### Release work still required
+### Operational follow-ups
 
-1. Obtain explicit production-write authorization before re-running the command with
-   `--apply --allow-category-errors` to publish January through August.
-2. Read back the production rows and source provenance after an authorized apply.
-3. Reload the authenticated page and verify January-through-August actuals,
-   September-through-November projections, chart labels, values, horizontal overflow,
-   light mode, and dark mode against the published API response.
+- Correct the three Excel category-error rows in the management workbook when their
+  intended categories are known; this publication intentionally excluded their R1,675.
+- Repeat the dry-run, explicit-authorization, apply, readback, and authenticated-page
+  sequence for future monthly publications.
+- If the application later introduces a dark theme, add and verify a dark-state treatment
+  for this page; the current shell is light-only.
 
 ## 14 August 2026 — Both repositories deployed; authenticated verification pending
 
