@@ -6,9 +6,13 @@ This is the project-level implementation and release log for the Next.js reposit
 
 ## 31 August 2026 - Youth Budget actuals publication and dynamic chart boundary
 
-Status: backend and frontend changes are implemented and verified locally. No source was
-committed or pushed, no production database row was changed, and neither application was
-deployed or verified in an authenticated production browser.
+Status: backend commit `ca97504` and frontend commit `7076c04` are on their respective
+`main` and `origin/main` branches. Render deployed the backend successfully as live
+deployment `dep-dab0c50ae00c73dfdvh0`, and both linked Vercel projects deployed the
+frontend successfully. The production expenditure dry run succeeded and changed no
+database rows. The authenticated production page was reloaded and verified to render the
+new dynamic-chart copy and accessible SVG descriptions; it correctly remains
+January-through-June actual until the database apply is separately authorized.
 
 ### Source decision and finance evidence
 
@@ -58,16 +62,26 @@ deployed or verified in an authenticated production browser.
   pages generated, and `/operations/school-programme-grid/budget` appeared in the route
   manifest. The existing duplicate-lockfile/workspace-root and `middleware` deprecation
   warnings remain.
+- Render reports `ca97504` as the live backend commit; its automatic deployment completed
+  successfully in 1m36s.
+- The production dry run selected the expected workbook SHA-256, classified 2,020 rows,
+  reported the same three category errors, reproduced all local totals and production
+  deltas, and ended with `DRY RUN: no database rows changed`.
+- GitHub deployment statuses for both `Vercel - masi-web-nextjs` and
+  `Vercel - masi-web-nextjs-dqdn` are successful for `7076c04`.
+- An authenticated reload of the production budget route rendered the new
+  `saved currently-employed projection` copy and readable SVG title descriptions. The
+  API still returned January-through-June actuals, proving deployed code against the
+  intentionally unchanged production data, not the pending August publication result.
 
 ### Release work still required
 
-1. Review and publish the paired backend and frontend source changes.
-2. After the backend deployment, run the production command without `--apply` and review
-   the exact source hash, category warnings, and database deltas.
-3. With explicit production-write authorization, re-run with
-   `--apply --allow-category-errors` to publish the full January-through-August snapshot.
-4. Deploy the frontend and verify the authenticated budget page, chart labels, values,
-   horizontal overflow, light mode, and dark mode against the published API response.
+1. Obtain explicit production-write authorization before re-running the command with
+   `--apply --allow-category-errors` to publish January through August.
+2. Read back the production rows and source provenance after an authorized apply.
+3. Reload the authenticated page and verify January-through-August actuals,
+   September-through-November projections, chart labels, values, horizontal overflow,
+   light mode, and dark mode against the published API response.
 
 ## 14 August 2026 — Both repositories deployed; authenticated verification pending
 
