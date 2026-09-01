@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { RotateCcw, Save } from "lucide-react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -19,11 +19,9 @@ import type {
   BudgetScenario,
   BudgetScenarioUpdate,
   HoursMatrixEntry,
-  YouthBudgetCohort,
   YouthBudgetSiteType,
 } from "@/lib/types/youth-budget";
 import {
-  calculateCommittedWhatIf,
   cloneScenario,
   editableScenarioFields,
 } from "./projection";
@@ -251,43 +249,40 @@ function HoursMatrixTable({
 
 export function LeversPanel({
   scenario,
-  cohorts,
+  draft,
   savedCommitted,
   savedAtPlan,
   savedVerdictCommitted,
   savedVerdictAtPlan,
-  potsTotal,
+  liveCommitted,
+  liveAtPlan,
+  liveVerdictCommitted,
+  liveVerdictAtPlan,
   asOf,
   canEdit,
+  dirty,
+  previewing,
+  onDraftChange,
   onSave,
 }: {
   scenario: BudgetScenario;
-  cohorts: YouthBudgetCohort[];
+  draft: BudgetScenario;
   savedCommitted: BudgetProjection;
   savedAtPlan: BudgetProjection;
   savedVerdictCommitted: number;
   savedVerdictAtPlan: number;
-  potsTotal: number;
+  liveCommitted: BudgetProjection;
+  liveAtPlan: BudgetProjection;
+  liveVerdictCommitted: number;
+  liveVerdictAtPlan: number;
   asOf: string;
   canEdit: boolean;
+  dirty: boolean;
+  previewing: boolean;
+  onDraftChange: (draft: BudgetScenario) => void;
   onSave: (fields: Omit<BudgetScenarioUpdate, "year">) => Promise<void>;
 }) {
-  const [draft, setDraft] = useState(() => cloneScenario(scenario));
   const [saving, setSaving] = useState(false);
-
-  const whatIf = useMemo(
-    () =>
-      calculateCommittedWhatIf(
-        draft,
-        cohorts,
-        savedCommitted.months,
-      ),
-    [draft, cohorts, savedCommitted.months],
-  );
-  const whatIfVerdict = potsTotal - draft.mentor_reserve - whatIf.total;
-  const dirty =
-    JSON.stringify(editableScenarioFields(draft)) !==
-    JSON.stringify(editableScenarioFields(scenario));
 
   function updateNumber(field: NumberField, value: number) {
     const normalized =
@@ -296,17 +291,17 @@ export function LeversPanel({
       field === "utilisation_pct"
         ? Math.trunc(value)
         : value;
-    setDraft((current) => ({
-      ...current,
+    onDraftChange({
+      ...draft,
       [field]: Number.isFinite(normalized) ? Math.max(0, normalized) : 0,
-    }));
+    });
   }
 
   function updateMonth(
     field: "nys_conversion_start_month" | "vacancy_start_month",
     value: number,
   ) {
-    setDraft((current) => ({ ...current, [field]: value }));
+    onDraftChange({ ...draft, [field]: value });
   }
 
   function updateHours(
@@ -315,39 +310,39 @@ export function LeversPanel({
     field: keyof HoursMatrixEntry,
     value: number,
   ) {
-    setDraft((current) => ({
-      ...current,
+    onDraftChange({
+      ...draft,
       hours_matrix: {
-        ...current.hours_matrix,
+        ...draft.hours_matrix,
         [siteType]: {
-          ...current.hours_matrix[siteType],
+          ...draft.hours_matrix[siteType],
           [title]: {
-            ...current.hours_matrix[siteType][title],
+            ...draft.hours_matrix[siteType][title],
             [field]: Number.isFinite(value) ? Math.max(0, value) : 0,
           },
         },
       },
-    }));
+    });
   }
 
   function setAllDays(value: 4 | 5) {
-    setDraft((current) => ({
-      ...current,
+    onDraftChange({
+      ...draft,
       hours_matrix: {
         primary: Object.fromEntries(
-          Object.entries(current.hours_matrix.primary).map(([title, entry]) => [
+          Object.entries(draft.hours_matrix.primary).map(([title, entry]) => [
             title,
             { ...entry, days_per_week: value },
           ]),
         ),
         ecd: Object.fromEntries(
-          Object.entries(current.hours_matrix.ecd).map(([title, entry]) => [
+          Object.entries(draft.hours_matrix.ecd).map(([title, entry]) => [
             title,
             { ...entry, days_per_week: value },
           ]),
         ),
       },
-    }));
+    });
   }
 
   async function saveScenario() {
@@ -377,8 +372,9 @@ export function LeversPanel({
               Move the <span className="italic text-[#93B4FF]">levers</span>
             </h2>
             <p className="mt-2 max-w-2xl text-sm leading-relaxed text-white/70">
-              Every control recalculates the currently employed cost in this browser. Nothing
-              is shared with the team until an authorised user saves.
+              Every control asks the backend to recalculate both currently
+              employed and at-plan costs. Nothing is shared with the team until
+              an authorised user saves.
             </p>
           </div>
           <div className="text-right text-xs text-white/60">
@@ -389,27 +385,32 @@ export function LeversPanel({
       </div>
 
       <div className="space-y-8 p-5 md:p-6">
-        <div className="grid gap-3 md:grid-cols-2">
+        <div className="grid gap-3 lg:grid-cols-3">
           <VerdictTile
             eyebrow="Saved verdict, currently employed"
             verdict={savedVerdictCommitted}
             cost={savedCommitted.total}
           />
           <VerdictTile
-            eyebrow={dirty ? "Live what-if verdict" : "Live what-if matches saved"}
-            verdict={whatIfVerdict}
-            cost={whatIf.total}
+            eyebrow={dirty ? "Live currently employed" : "Live matches saved"}
+            verdict={liveVerdictCommitted}
+            cost={liveCommitted.total}
             live
+          />
+          <VerdictTile
+            eyebrow={dirty ? "Live at plan" : "Saved at plan"}
+            verdict={dirty ? liveVerdictAtPlan : savedVerdictAtPlan}
+            cost={dirty ? liveAtPlan.total : savedAtPlan.total}
+            live={dirty}
           />
         </div>
 
-        <div className="rounded-lg border border-dashed border-[#1D4ED8]/30 bg-[#1D4ED8]/5 px-4 py-3 text-sm text-gray-700">
-          <strong className="text-[#14181D]">Saved at plan:</strong>{" "}
-          {verdictLanguage(savedVerdictAtPlan).phrase} at{" "}
-          {formatRand(savedAtPlan.total)}. Live what-if covers currently
-          employed youth only because vacancy cohort rows are not in this
-          payload. Save to recompute at-plan.
-        </div>
+        {previewing ? (
+          <div className="rounded-lg border border-dashed border-[#1D4ED8]/30 bg-[#1D4ED8]/5 px-4 py-3 text-sm text-gray-700">
+            Recalculating core, rural, mentor, currently employed, and at-plan
+            figures from the draft scenario.
+          </div>
+        ) : null}
 
         <div>
           <h3 className="text-sm font-semibold text-[#14181D]">
@@ -417,7 +418,7 @@ export function LeversPanel({
           </h3>
           <p className="mt-1 text-xs text-gray-500">
             The calculation uses {formatBudgetDate(asOf)} as its start date and
-            the school-day counts supplied by the backend.
+            exact school dates supplied by the backend.
           </p>
           <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <NumberLever
@@ -485,7 +486,7 @@ export function LeversPanel({
               label="Vacancy Start Month"
               value={draft.vacancy_start_month}
               onChange={(value) => updateMonth("vacancy_start_month", value)}
-              help="This changes saved at-plan only. Save to ask the backend to recompute it."
+              help="The live backend preview includes this change in at-plan immediately."
             />
             <NumberLever
               id="budget-holiday-pay"
@@ -558,7 +559,7 @@ export function LeversPanel({
             <Button
               type="button"
               variant="outline"
-              onClick={() => setDraft(cloneScenario(scenario))}
+              onClick={() => onDraftChange(cloneScenario(scenario))}
               disabled={!dirty || saving}
             >
               <RotateCcw />

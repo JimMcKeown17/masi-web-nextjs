@@ -1,5 +1,11 @@
 import type { BudgetProjection } from "@/lib/types/youth-budget";
-import { formatMonth, formatRand } from "./format";
+import { formatBudgetDate, formatMonth, formatRand } from "./format";
+
+function workingDateTitle(dates: string[]) {
+  return dates.length === 0
+    ? "No eligible working dates"
+    : `Eligible working dates: ${dates.map(formatBudgetDate).join(", ")}`;
+}
 
 function ProjectionPanel({
   label,
@@ -30,7 +36,7 @@ function ProjectionPanel({
             <thead>
               <tr className="border-b text-left text-[11px] uppercase tracking-wide text-gray-500">
                 <th className="px-4 py-2 font-medium">Month</th>
-                <th className="px-3 py-2 text-right font-medium">School days</th>
+                <th className="px-3 py-2 text-right font-medium">Working days</th>
                 <th className="px-3 py-2 text-right font-medium">Gross</th>
                 <th className="px-3 py-2 text-right font-medium">Subsidy relief</th>
                 <th className="px-4 py-2 text-right font-medium">Nett</th>
@@ -43,7 +49,14 @@ function ProjectionPanel({
                     {formatMonth(row.month, "long")}
                   </td>
                   <td className="px-3 py-2.5 text-right tabular-nums text-gray-600">
-                    {row.school_days}
+                    <span
+                      tabIndex={0}
+                      title={workingDateTitle(row.working_dates)}
+                      aria-label={`${row.school_days} eligible school days. ${workingDateTitle(row.working_dates)}`}
+                      className="cursor-help border-b border-dotted border-gray-400"
+                    >
+                      {row.school_days}
+                    </span>
                   </td>
                   <td className="px-3 py-2.5 text-right tabular-nums text-gray-600">
                     {formatRand(row.gross)}
@@ -83,10 +96,14 @@ export function ProjectionPanels({
   committed,
   atPlan,
   holidayPay,
+  lastPaidProgrammeDate,
+  live = false,
 }: {
   committed: BudgetProjection;
   atPlan: BudgetProjection;
   holidayPay: number;
+  lastPaidProgrammeDate: string;
+  live?: boolean;
 }) {
   const hiringPlanCost = Math.max(0, atPlan.total - committed.total);
 
@@ -96,7 +113,7 @@ export function ProjectionPanels({
         <div className="flex items-center gap-3">
           <span className="h-px w-10 bg-[#1D4ED8]" />
           <span className="text-xs uppercase tracking-[0.25em] text-gray-500">
-            Saved projections
+            {live ? "Live what-if projections" : "Saved projections"}
           </span>
         </div>
         <h2 className="mt-2 font-serif text-3xl text-[#14181D]">
@@ -116,7 +133,7 @@ export function ProjectionPanels({
       <div className="grid gap-5 xl:grid-cols-2">
         <ProjectionPanel
           label="A. Currently Employed Youth"
-          description={`${committed.costed_youth} youth on payroll today, costed through the November horizon.`}
+          description={`${committed.costed_youth} youth on payroll today, costed through ${formatBudgetDate(lastPaidProgrammeDate)}.`}
           projection={committed}
           holidayPay={holidayPay}
         />

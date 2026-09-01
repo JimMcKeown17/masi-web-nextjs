@@ -41,6 +41,7 @@ export interface BudgetScenario {
   nys_part_time_count: number;
   nys_conversion_start_month: number;
   vacancy_start_month: number;
+  last_paid_programme_date: string;
   holiday_pay: number;
   mentor_reserve: number;
   // Average share of full-cap hours actually worked (absenteeism etc.), 1-120.
@@ -61,6 +62,7 @@ export interface YouthBudgetCohort {
 export interface ProjectionMonth {
   month: number;
   school_days: number;
+  working_dates: string[];
   gross: number;
   uif: number;
   subsidy_relief: number;
@@ -81,6 +83,43 @@ export interface YouthBudgetProjections {
   at_plan: BudgetProjection;
   verdict_committed: number;
   verdict_at_plan: number;
+}
+
+export interface MentorActualSource {
+  month: number;
+  amount: number;
+}
+
+export interface MentorEstimate {
+  method: "average_latest_3_actual_months";
+  monthly_amount: number;
+  source_actuals: MentorActualSource[];
+}
+
+export interface SpendForecastMonth {
+  month: number;
+  working_days: number;
+  working_dates: string[];
+  core_amount: number;
+  mentor_amount: number;
+  rural_amount: number;
+  total: number;
+}
+
+export interface SpendForecast {
+  months: SpendForecastMonth[];
+  mentor_estimate: MentorEstimate;
+}
+
+export interface YouthBudgetPreview {
+  projections: YouthBudgetProjections;
+  ringfenced_projections: {
+    committed: BudgetProjection;
+    at_plan: BudgetProjection;
+  };
+  ringfenced_pots: RingfencedPot[];
+  spend_forecast: SpendForecast;
+  feasibility: FundingFeasibility[];
 }
 
 export interface MonthlyYouthExpenditure {
@@ -127,12 +166,17 @@ export interface YouthBudgetSummary {
   scenario: BudgetScenario;
   cohorts: YouthBudgetCohort[];
   projections: YouthBudgetProjections;
+  spend_forecast: SpendForecast;
   expenditure: MonthlyYouthExpenditure[];
   feasibility: FundingFeasibility[];
   ringfenced: {
     pots: RingfencedPot[];
     total_amount: number;
     youth: number;
+    projections: {
+      committed: BudgetProjection;
+      at_plan: BudgetProjection;
+    };
   };
   notes: YouthBudgetNotes;
   school_options: YouthBudgetSchool[];
@@ -147,6 +191,7 @@ type ScenarioEditableFields = Pick<
   | "nys_part_time_count"
   | "nys_conversion_start_month"
   | "vacancy_start_month"
+  | "last_paid_programme_date"
   | "holiday_pay"
   | "mentor_reserve"
   | "utilisation_pct"

@@ -2,8 +2,8 @@ import assert from "node:assert/strict";
 import test from "node:test";
 
 import type {
-  BudgetProjection,
   MonthlyYouthExpenditure,
+  SpendForecast,
 } from "@/lib/types/youth-budget";
 import { buildExpenditureChartData } from "./expenditureChartData";
 
@@ -24,34 +24,39 @@ function actual(
   };
 }
 
-const committed: BudgetProjection = {
-  total: 600,
-  costed_youth: 10,
-  open_posts: 0,
+const forecast: SpendForecast = {
+  mentor_estimate: {
+    method: "average_latest_3_actual_months",
+    monthly_amount: 10,
+    source_actuals: [],
+  },
   months: [
     {
       month: 8,
-      school_days: 20,
-      gross: 100,
-      uif: 0,
-      subsidy_relief: 0,
-      net: 100,
+      working_days: 20,
+      working_dates: ["2026-08-03"],
+      core_amount: 100,
+      mentor_amount: 10,
+      rural_amount: 5,
+      total: 115,
     },
     {
       month: 9,
-      school_days: 17,
-      gross: 200,
-      uif: 0,
-      subsidy_relief: 0,
-      net: 200,
+      working_days: 17,
+      working_dates: ["2026-09-01", "2026-09-23"],
+      core_amount: 200,
+      mentor_amount: 10,
+      rural_amount: 5,
+      total: 215,
     },
     {
       month: 10,
-      school_days: 19,
-      gross: 300,
-      uif: 0,
-      subsidy_relief: 0,
-      net: 300,
+      working_days: 19,
+      working_dates: ["2026-10-06", "2026-10-30"],
+      core_amount: 300,
+      mentor_amount: 10,
+      rural_amount: 5,
+      total: 315,
     },
   ],
 };
@@ -59,7 +64,7 @@ const committed: BudgetProjection = {
 test("actuals run through the latest published month and projections follow", () => {
   const result = buildExpenditureChartData(
     [actual(8, 80, 8, 2), actual(1, 10)],
-    committed,
+    forecast,
   );
 
   assert.equal(result.lastActualMonth, 8);
@@ -94,10 +99,20 @@ test("actuals run through the latest published month and projections follow", ()
     rural: 2,
     total: 90,
   });
+  assert.deepEqual(result.bars[8], {
+    kind: "projected",
+    month: 9,
+    core: 200,
+    mentor: 10,
+    rural: 5,
+    total: 215,
+    workingDays: 17,
+    workingDates: ["2026-09-01", "2026-09-23"],
+  });
 });
 
 test("without actuals the available projection series is retained", () => {
-  const result = buildExpenditureChartData([], committed);
+  const result = buildExpenditureChartData([], forecast);
 
   assert.equal(result.lastActualMonth, null);
   assert.deepEqual(
@@ -113,7 +128,7 @@ test("without actuals the available projection series is retained", () => {
 test("invalid expenditure months cannot move the actual boundary", () => {
   const result = buildExpenditureChartData(
     [actual(0, 1), actual(13, 1), actual(6, 50)],
-    committed,
+    forecast,
   );
 
   assert.equal(result.lastActualMonth, 6);

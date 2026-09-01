@@ -1,20 +1,22 @@
 import type {
-  BudgetProjection,
   MonthlyYouthExpenditure,
+  SpendForecast,
 } from "@/lib/types/youth-budget";
 import { buildExpenditureChartData } from "./expenditureChartData";
 import { formatCompactRand, formatMonth, formatRand } from "./format";
 
 export function ExpenditureChart({
   expenditure,
-  committed,
+  forecast,
+  live = false,
 }: {
   expenditure: MonthlyYouthExpenditure[];
-  committed: BudgetProjection;
+  forecast: SpendForecast;
+  live?: boolean;
 }) {
   const { bars, lastActualMonth } = buildExpenditureChartData(
     expenditure,
-    committed,
+    forecast,
   );
   const hasActuals = lastActualMonth !== null;
 
@@ -40,6 +42,20 @@ export function ExpenditureChart({
   const svgWidth = Math.max(760, startX + bars.length * step + 30);
   const barHeight = (value: number) =>
     Math.max(0, (value / maxValue) * chartHeight);
+  const sourceMonths = forecast.mentor_estimate.source_actuals.map((row) =>
+    formatMonth(row.month, "long"),
+  );
+  const sourceMonthLanguage =
+    sourceMonths.length === 0
+      ? "no mentor actuals are available yet"
+      : sourceMonths.length === 1
+        ? `${sourceMonths[0]} actuals`
+        : sourceMonths.length === 2
+          ? `${sourceMonths[0]} and ${sourceMonths[1]} actuals`
+          : `${sourceMonths.slice(0, -1).join(", ")}, and ${sourceMonths.at(-1)} actuals`;
+  const sourceAmountLanguage = forecast.mentor_estimate.source_actuals
+    .map((row) => `${formatMonth(row.month, "long")} ${formatRand(row.amount)}`)
+    .join(", ");
 
   return (
     <section className="rounded-xl border bg-white p-5 md:p-6">
@@ -56,19 +72,19 @@ export function ExpenditureChart({
           </h2>
           <p className="mt-1 text-sm text-gray-600">
             {hasActuals
-              ? `Actual nett spend from January to ${formatMonth(lastActualMonth, "long")}, followed by the saved currently-employed projection.`
-              : "Saved currently-employed projection."}
+              ? `Actual nett spend from January to ${formatMonth(lastActualMonth, "long")}, followed by the ${live ? "live what-if" : "saved"} currently-employed projection.`
+              : `${live ? "Live what-if" : "Saved"} currently-employed projection.`}
           </p>
         </div>
         <div className="flex flex-wrap gap-3 text-xs text-gray-600">
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-3 w-3 bg-[#1D4ED8]" /> Core actual
+            <span className="h-3 w-3 bg-[#1D4ED8]" /> Core
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-3 w-3 bg-[#14181D]" /> Mentor actual
+            <span className="h-3 w-3 bg-[#14181D]" /> Mentor
           </span>
           <span className="inline-flex items-center gap-1.5">
-            <span className="h-3 w-3 bg-gray-400" /> Rural actual
+            <span className="h-3 w-3 bg-gray-400" /> Rural
           </span>
           <span className="inline-flex items-center gap-1.5">
             <span className="h-3 w-3 border border-dashed border-[#1D4ED8] bg-[#1D4ED8]/5" />{" "}
@@ -81,7 +97,7 @@ export function ExpenditureChart({
         <svg
           role="img"
           aria-label="Monthly youth expenditure from actual to projected"
-          viewBox={`0 0 ${svgWidth} 250`}
+          viewBox={`0 0 ${svgWidth} 258`}
           className="h-auto min-w-[760px]"
         >
           <defs>
@@ -132,28 +148,64 @@ export function ExpenditureChart({
             const x = startX + index * step;
             const totalHeight = barHeight(bar.total);
             if (bar.kind === "projected") {
+              const coreHeight = barHeight(bar.core);
+              const mentorHeight = barHeight(bar.mentor);
+              const ruralHeight = barHeight(bar.rural);
+              const workingDates = bar.workingDates
+                .map((value) =>
+                  new Intl.DateTimeFormat("en-ZA", {
+                    day: "numeric",
+                    month: "short",
+                  }).format(new Date(`${value}T00:00:00`)),
+                )
+                .join(", ");
+              const accessibleLabel = `${formatMonth(bar.month, "long")} projected core ${formatRand(bar.core)}, mentor ${formatRand(bar.mentor)}, rural ${formatRand(bar.rural)}, total ${formatRand(bar.total)}. ${bar.workingDays} working days. Working dates: ${workingDates}.`;
               return (
-                <g key={`projected-${bar.month}`}>
+                <g
+                  key={`projected-${bar.month}`}
+                  tabIndex={0}
+                  aria-label={accessibleLabel}
+                >
+                  <title>{accessibleLabel}</title>
                   <rect
                     x={x}
-                    y={baseline - totalHeight}
+                    y={baseline - coreHeight}
                     width={barWidth}
-                    height={totalHeight}
+                    height={coreHeight}
                     rx="2"
                     fill="url(#budget-projected-hatch)"
                     stroke="#1D4ED8"
                     strokeWidth="1.5"
                     strokeDasharray="4 3"
-                  >
-                    <title>{`${formatMonth(bar.month, "long")} projected: ${formatRand(bar.total)}`}</title>
-                  </rect>
+                  />
+                  <rect
+                    x={x}
+                    y={baseline - coreHeight - mentorHeight}
+                    width={barWidth}
+                    height={mentorHeight}
+                    fill="#E5E7EB"
+                    stroke="#14181D"
+                    strokeWidth="1.25"
+                    strokeDasharray="4 3"
+                  />
+                  <rect
+                    x={x}
+                    y={baseline - coreHeight - mentorHeight - ruralHeight}
+                    width={barWidth}
+                    height={ruralHeight}
+                    rx="2"
+                    fill="#F3F4F6"
+                    stroke="#9CA3AF"
+                    strokeWidth="1.25"
+                    strokeDasharray="4 3"
+                  />
                   <text
                     x={x + barWidth / 2}
                     y={Math.max(18, baseline - totalHeight - 8)}
                     textAnchor="middle"
                     className="fill-[#1D4ED8] text-[10px] font-medium"
                   >
-                    {formatCompactRand(bar.total)}
+                    {formatCompactRand(bar.core)} core
                   </text>
                   <text
                     x={x + barWidth / 2}
@@ -170,6 +222,14 @@ export function ExpenditureChart({
                     className="fill-[#1D4ED8] text-[9px] uppercase"
                   >
                     Projected
+                  </text>
+                  <text
+                    x={x + barWidth / 2}
+                    y={baseline + 52}
+                    textAnchor="middle"
+                    className="fill-gray-500 text-[8px]"
+                  >
+                    {bar.workingDays} working days
                   </text>
                 </g>
               );
@@ -237,6 +297,23 @@ export function ExpenditureChart({
             );
           })}
         </svg>
+      </div>
+      <div className="mt-4 rounded-lg border border-[#1D4ED8]/15 bg-[#1D4ED8]/5 px-4 py-3 text-xs leading-relaxed text-gray-600">
+        <strong className="text-[#14181D]">Mentor estimate:</strong>{" "}
+        {sourceMonths.length > 0 ? (
+          <>
+            {formatRand(forecast.mentor_estimate.monthly_amount)} per projected
+            month, calculated as the average of {sourceMonthLanguage}. Mentor
+            is a full monthly estimate for every projected month shown; the
+            programme end date does not prorate it within a month. Source
+            actuals: {sourceAmountLanguage}.
+          </>
+        ) : (
+          <>
+            No Mentor actuals are available, so the projected Mentor amount is
+            currently {formatRand(0)}.
+          </>
+        )}
       </div>
     </section>
   );

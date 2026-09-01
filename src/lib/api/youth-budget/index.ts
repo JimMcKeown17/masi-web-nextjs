@@ -5,6 +5,7 @@ import type {
   FundingPotCreate,
   FundingPotUpdate,
   MonthlyYouthExpenditure,
+  YouthBudgetPreview,
   YouthBudgetSummary,
   YouthExpenditureCreate,
   YouthExpenditureUpdate,
@@ -46,6 +47,19 @@ export async function updateScenario(
     body: JSON.stringify(fields),
   });
   if (!res.ok) await asError(res, "Failed to update the budget scenario");
+  return res.json();
+}
+
+export async function previewScenario(
+  token: string,
+  fields: BudgetScenarioUpdate,
+): Promise<YouthBudgetPreview> {
+  const res = await fetch(`${API_URL}/youth-budget/preview/`, {
+    method: "POST",
+    headers: jsonHeaders(token),
+    body: JSON.stringify(fields),
+  });
+  if (!res.ok) await asError(res, "Failed to preview the budget scenario");
   return res.json();
 }
 

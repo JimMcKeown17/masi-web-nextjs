@@ -1,6 +1,6 @@
 import type {
-  BudgetProjection,
   MonthlyYouthExpenditure,
+  SpendForecast,
 } from "@/lib/types/youth-budget";
 
 export interface ActualBar {
@@ -15,7 +15,12 @@ export interface ActualBar {
 export interface ProjectedBar {
   kind: "projected";
   month: number;
+  core: number;
+  mentor: number;
+  rural: number;
   total: number;
+  workingDays: number;
+  workingDates: string[];
 }
 
 export type ExpenditureChartBar = ActualBar | ProjectedBar;
@@ -27,7 +32,7 @@ export interface ExpenditureChartData {
 
 export function buildExpenditureChartData(
   expenditure: MonthlyYouthExpenditure[],
-  committed: BudgetProjection,
+  forecast: SpendForecast,
 ): ExpenditureChartData {
   const actualByMonth = new Map(
     expenditure
@@ -54,7 +59,7 @@ export function buildExpenditureChartData(
       };
     },
   );
-  const projectedBars = committed.months
+  const projectedBars = forecast.months
     .filter(
       (row) => lastActualMonth === null || row.month > lastActualMonth,
     )
@@ -62,7 +67,12 @@ export function buildExpenditureChartData(
       (row): ProjectedBar => ({
         kind: "projected",
         month: row.month,
-        total: row.net,
+        core: row.core_amount,
+        mentor: row.mentor_amount,
+        rural: row.rural_amount,
+        total: row.total,
+        workingDays: row.working_days,
+        workingDates: row.working_dates,
       }),
     );
 

@@ -43,7 +43,15 @@ function VerdictCard({
   );
 }
 
-export function BudgetHeadline({ summary }: { summary: YouthBudgetSummary }) {
+export function BudgetHeadline({
+  summary,
+  live = false,
+  recalculating = false,
+}: {
+  summary: YouthBudgetSummary;
+  live?: boolean;
+  recalculating?: boolean;
+}) {
   const available = summary.pots_total - summary.scenario.mentor_reserve;
   const atPlanLanguage = verdictLanguage(
     summary.projections.verdict_at_plan,
@@ -72,8 +80,11 @@ export function BudgetHeadline({ summary }: { summary: YouthBudgetSummary }) {
           <div className="mb-4 flex items-center gap-3">
             <span className="h-px w-10 bg-[#1D4ED8]" />
             <span className="text-xs uppercase tracking-[0.25em] text-gray-500">
-              Saved team scenario
+              {live ? "Live what-if scenario" : "Saved team scenario"}
             </span>
+            {recalculating ? (
+              <span className="text-[11px] text-[#1D4ED8]">Recalculating...</span>
+            ) : null}
           </div>
           <p className="text-sm font-medium text-gray-600">At-plan verdict</p>
           <h2
@@ -96,7 +107,8 @@ export function BudgetHeadline({ summary }: { summary: YouthBudgetSummary }) {
           <p className="mt-2 text-xs text-gray-500">
             Core pots only; ringfenced funders are tracked separately below.{" "}
             {potDateProvenance} Projection as of{" "}
-            {formatBudgetDate(summary.as_of)}.
+            {formatBudgetDate(summary.as_of)} through{" "}
+            {formatBudgetDate(summary.scenario.last_paid_programme_date)}.
           </p>
         </div>
 

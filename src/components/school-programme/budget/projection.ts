@@ -133,6 +133,7 @@ export function calculateCommittedWhatIf(
     return {
       month: savedMonth.month,
       school_days: savedMonth.school_days,
+      working_dates: savedMonth.working_dates,
       gross: roundMoney(gross),
       uif: roundMoney(uif),
       subsidy_relief: roundMoney(subsidyRelief),
@@ -184,6 +185,7 @@ export function editableScenarioFields(scenario: BudgetScenario) {
     nys_part_time_count: scenario.nys_part_time_count,
     nys_conversion_start_month: scenario.nys_conversion_start_month,
     vacancy_start_month: scenario.vacancy_start_month,
+    last_paid_programme_date: scenario.last_paid_programme_date,
     holiday_pay: scenario.holiday_pay,
     mentor_reserve: scenario.mentor_reserve,
     utilisation_pct: scenario.utilisation_pct,

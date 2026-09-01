@@ -385,11 +385,20 @@ Base: authenticated reads; writes require ADMIN or PROJECT MANAGER.
 - `GET /youth-budget/?year=2026` - full calculator payload: pots (+ pots_total,
   school_options directory), shared BudgetScenario (auto-created with defaults on first
   read), cohort primitives (site_type x job_title: headcount / subsidised / NYS-eligible),
-  committed + at-plan projections with per-month school_days and verdicts, expenditure
-  history, restricted-pot feasibility, population notes.
+  committed + at-plan projections with per-month school_days, exact working_dates, and
+  verdicts, expenditure history, restricted-pot feasibility, population notes, unique
+  rural committed/at-plan projections, and a spend_forecast split into core, mentor, and
+  rural categories. The mentor forecast is the arithmetic mean of the latest three
+  published mentor actual months; the response includes those source months and amounts.
+- `POST /youth-budget/preview/` - authenticated, stateless recalculation of a partial draft
+  BudgetScenario. Returns committed and at-plan projections, verdicts, per-pot and unique
+  rural projections, restricted-pot feasibility, and the category spend forecast without
+  saving any scenario field. This is the authoritative live what-if path for the UI.
 - `PATCH /youth-budget/scenario/` - partial update of the shared scenario (wage_rate,
-  subsidy_contribution, hours_matrix, nys_conversion_count/start_month,
-  vacancy_start_month, holiday_pay, mentor_reserve).
+  subsidy_contribution, hours_matrix, additive nys_full_time_count / nys_part_time_count,
+  nys_conversion_start_month, vacancy_start_month, last_paid_programme_date, holiday_pay,
+  mentor_reserve, utilisation_pct). The programme end date must be in the scenario year
+  and cannot exceed 30 November 2026.
 - `POST /youth-budget/pots/`, `PATCH|DELETE /youth-budget/pots/<id>/` - FundingPot CRUD;
   `schools` is a list of numeric School ids (empty = unrestricted).
 - `POST /youth-budget/expenditure/`, `PATCH /youth-budget/expenditure/<id>/` - manual
@@ -404,6 +413,11 @@ excluded; an apply with any such rows additionally requires
 `--allow-category-errors`. Each published month records the source filename, SHA-256,
 and classified-row count. `--path` and `--workbook-dir` provide explicit source
 overrides.
+
+Projection horizon: `last_paid_programme_date` defaults to 30 November 2026. It caps the
+eligible working-date list used to prorate core and rural wage costs. NYS relief remains a
+full monthly contribution capped at earned gross plus UIF. Mentor is a full-month estimate
+for any projected month included by the horizon and is not prorated within that month.
 
 Seeds: `seed_funding_pots_2026`; `seed_youth_expenditure_2026` remains an idempotent
 legacy/bootstrap importer for the original CSV.

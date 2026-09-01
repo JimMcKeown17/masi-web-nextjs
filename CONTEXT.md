@@ -90,7 +90,10 @@ lowered to 4 when funding is tight; bulk "apply to all" affordance in the UI.
 
 **Youth Mentor**:
 A youth with over a year's tenure promoted to a monthly salary (no hourly rate), expensable
-only to certain Funders. Excluded from v1 calculations; must be added later. In the youth
+only to certain Funders. The proper per-mentor salary model remains deferred. For operational
+forecast visibility, each projected month uses the arithmetic mean of the latest three
+published Mentor actuals as one full-month estimate, with source months exposed in the UI.
+This estimate is informational and does not enter the core Funding Pot verdict. In the youth
 DB they appear as Inactive ex-coaches (no mentor job titles exist); as of 2026-07-27 three
 mentors (employee_ids 1691, 2078, 2045) sit wrongly Active under stale coach titles —
 team to correct in Airtable.
@@ -134,15 +137,19 @@ the lever models only not-yet-executed intentions.
 Single global assumption for when open Planned Posts get filled; no per-post dates.
 
 **Horizon**:
-Projection runs through end November; youth are assumed not to earn in December
-(school close-out) unless Holiday Pay is added manually.
+The global **Last Paid Programme Date** caps eligible school working days for core and
+ringfenced rural youth. It defaults to 30 November 2026 and cannot extend beyond that
+supported calendar. Mentor remains a full monthly estimate for every projected month the
+horizon touches. Youth are assumed not to earn in December unless Holiday Pay is added
+manually.
 
 **Budget Scenario**:
 The single shared, saved set of calculator assumptions per year (wage rate, subsidy
 contribution, days per week, NYS conversions, vacancy start month, holiday pay, mentor
-reserve). ADMIN/PM edits; everyone sees the same verdict. Live what-if twiddling is
-client-side and always snaps back to the saved scenario. Stored in Postgres, edited via
-the frontend CRUD panel (not Django admin).
+reserve, last paid programme date). ADMIN/PM edits; everyone sees the same verdict. Live
+what-if changes are sent to an authenticated stateless backend preview so the browser does
+not duplicate calendar or costing rules; they always snap back to the saved scenario after
+navigation. Stored in Postgres, edited via the frontend CRUD panel (not Django admin).
 
 **Utilisation**:
 The average share of full-cap hours youth actually work (absenteeism, cancelled school
@@ -232,9 +239,11 @@ programmes via job title.
   (each entry needs an explicit as_of date). Proper funder funding-window/budget tracking
   is future scope, deliberately out of v1.
 - **Youth Mentors vs HCI pot**: RESOLVED 2026-07-27 via the Mentor Reserve manual input
-  (default R0); proper mentor cost modelling stays future scope.
+  (default R0). Proper mentor cost modelling stays future scope; from 2026-09-01 the chart
+  uses a clearly labelled latest-three-actual-month average as an informational forecast.
 - **"Through November"**: RESOLVED 2026-07-27. One clean rule: ALL youth earn through end
-  November; December is ignored entirely (Holiday Pay input aside).
+  November by default; staff can move one global Last Paid Programme Date earlier to test
+  affordability. December is ignored entirely (Holiday Pay input aside).
 - **Airtable Funder column**: currently not updated/accurate; will hold SEF or NYS as
   assignments are made. Staff verification of subsidy columns still pending.
 - **Duplicate School rows** (found 2026-07-27): youth sync attaches some youth to legacy

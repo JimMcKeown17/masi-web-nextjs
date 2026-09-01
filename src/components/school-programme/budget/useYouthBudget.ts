@@ -7,6 +7,7 @@ import {
   createPot,
   deletePot,
   getYouthBudget,
+  previewScenario,
   updateExpenditure,
   updatePot,
   updateScenario,
@@ -81,4 +82,23 @@ export function useYouthBudget(year: number) {
     onExpenditureCreate,
     onExpenditureUpdate,
   };
+}
+
+export function useYouthBudgetPreview(
+  fields: BudgetScenarioUpdate | null,
+) {
+  const { getToken } = useAuth();
+  const serialized = fields ? JSON.stringify(fields) : null;
+  return useSWR(
+    serialized ? ["/operations/youth-budget/preview", serialized] : null,
+    async ([, payload]) => {
+      const token = await getToken();
+      if (!token) throw new Error("Not authenticated");
+      return previewScenario(
+        token,
+        JSON.parse(payload) as BudgetScenarioUpdate,
+      );
+    },
+    { keepPreviousData: true },
+  );
 }

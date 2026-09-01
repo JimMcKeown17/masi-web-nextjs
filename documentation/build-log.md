@@ -1,8 +1,54 @@
 # Frontend Build Log
 
-Last updated: 31 August 2026
+Last updated: 1 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
+
+## 1 September 2026 - Variable programme horizon and category forecast preview
+
+Status: implemented and verified locally in the frontend and backend worktrees. No commit,
+push, database migration, backend deploy, frontend deploy, or production browser
+verification has been performed for this change.
+
+### Decisions and behavior
+
+- Added one saved `Last paid programme date`, defaulting to 30 November 2026, with exact
+  date input and End October, Mid-November, Full November, and Custom date affordances.
+  The date caps eligible working days for core and ringfenced rural youth. NYS remains a
+  full-month contribution capped at gross plus UIF, so it is not divided by the fraction
+  of school days worked.
+- Added an authenticated stateless backend preview. Every draft lever now recalculates
+  currently employed and at-plan projections, core verdicts, per-pot and unique rural
+  projections, feasibility, and the category chart without saving the shared scenario.
+  The page has one draft owner, so the headline, chart, tables, and lever comparison all
+  derive from the same preview rather than separate client calculations.
+- Projected chart bars now stack core, mentor, and rural. Core remains the prominent Rand
+  label. Rural uses the unique ringfenced youth union rather than summing per-funder
+  forecasts, which prevents overlapping pot school lists from double-counting youth.
+- Mentor is explicitly an estimate rather than a hidden salary model: each projected month
+  uses the arithmetic mean of the latest three published Mentor actuals. The chart states
+  the monthly estimate and names the source months. A touched month receives the full
+  mentor estimate; the programme end date does not prorate mentor within a month.
+- Projected bars visibly show working-day counts. Each projected SVG group and each day
+  cell in the projection tables exposes the exact backend-supplied working dates for hover,
+  focus, and assistive technology. The frontend contains no duplicated term calendar.
+
+### Verification
+
+- `pnpm test:unit`: all 6 budget component and pure-data tests passed.
+- `pnpm exec tsc --noEmit`: passed.
+- `pnpm lint`: passed with zero errors and the pre-existing
+  `@next/next/no-img-element` warning in `src/app/image-debug/page.tsx`.
+- Sandboxed `pnpm build`: reached compilation but failed only because Google Fonts were
+  network-blocked. Re-running with network access passed: compilation and TypeScript
+  completed, all 27 static pages generated, and
+  `/operations/school-programme-grid/budget` appeared in the route manifest. The existing
+  duplicate-lockfile/workspace-root and `middleware` deprecation warnings remain.
+- Backend `api.tests_youth_budget`: all 63 tests passed.
+- Full backend `manage.py test api`: all 562 tests passed.
+- UI behavior has not been checked against a running matching backend yet. Production
+  verification must wait until migration `0047_budgetscenario_last_paid_programme_date`
+  and both deployments are explicitly authorized and completed.
 
 ## 31 August 2026 - Youth Budget actuals publication and dynamic chart boundary
 

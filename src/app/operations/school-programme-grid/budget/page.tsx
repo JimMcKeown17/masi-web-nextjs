@@ -5,14 +5,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useUser } from "@/components/providers/UserProvider";
 import { YearSelect } from "@/components/school-programme/shared";
-import { BudgetHeadline } from "@/components/school-programme/budget/BudgetHeadline";
-import { ExpenditureChart } from "@/components/school-programme/budget/ExpenditureChart";
-import { LeversPanel } from "@/components/school-programme/budget/LeversPanel";
-import { NotesStrip } from "@/components/school-programme/budget/NotesStrip";
-import { PotsPanel } from "@/components/school-programme/budget/PotsPanel";
-import { ProjectionPanels } from "@/components/school-programme/budget/ProjectionPanels";
-import { QuickEstimate } from "@/components/school-programme/budget/QuickEstimate";
-import { RingfencedFunders } from "@/components/school-programme/budget/RingfencedFunders";
+import { BudgetWorkspace } from "@/components/school-programme/budget/BudgetWorkspace";
 import { useYouthBudget } from "@/components/school-programme/budget/useYouthBudget";
 
 function BudgetPageSkeleton() {
@@ -60,7 +53,8 @@ export default function YouthBudgetPage() {
           <p className="mt-3 max-w-3xl text-sm leading-relaxed text-gray-600">
             Test the wage, subsidy, hiring, and working-pattern assumptions
             behind the 2026 youth staffing plan. Saved figures are shared with
-            the team. Live what-if work stays in this browser.
+            the team. Live what-if work remains unsaved until an authorised
+            user chooses to share it.
           </p>
         </div>
         <YearSelect year={year} setYear={setYear} />
@@ -75,70 +69,15 @@ export default function YouthBudgetPage() {
       ) : null}
 
       {data ? (
-        <div className="space-y-8">
-          <BudgetHeadline summary={data} />
-          <NotesStrip notes={data.notes} />
-
-          <ExpenditureChart
-            expenditure={data.expenditure}
-            committed={data.projections.committed}
-          />
-
-          {data.cohorts.length === 0 ? (
-            <Alert>
-              <AlertDescription>
-                No active core youth cohorts are available for this year.
-                Funding Pots and scenario controls remain visible, but the
-                core committed projection is empty.
-              </AlertDescription>
-            </Alert>
-          ) : null}
-
-          <ProjectionPanels
-            committed={data.projections.committed}
-            atPlan={data.projections.at_plan}
-            holidayPay={data.scenario.holiday_pay}
-          />
-
-          <PotsPanel
-            pots={data.pots}
-            potsTotal={data.pots_total}
-            feasibility={data.feasibility}
-            schoolOptions={data.school_options}
-            asOf={data.as_of}
-            canEdit={canEdit}
-            onCreate={onPotCreate}
-            onUpdate={onPotUpdate}
-            onDelete={onPotDelete}
-          />
-
-          <RingfencedFunders
-            pots={data.ringfenced.pots}
-            totalAmount={data.ringfenced.total_amount}
-          />
-
-          <LeversPanel
-            key={`${data.year}-${data.scenario.updated_at}`}
-            scenario={data.scenario}
-            cohorts={data.cohorts}
-            savedCommitted={data.projections.committed}
-            savedAtPlan={data.projections.at_plan}
-            savedVerdictCommitted={data.projections.verdict_committed}
-            savedVerdictAtPlan={data.projections.verdict_at_plan}
-            potsTotal={data.pots_total}
-            asOf={data.as_of}
-            canEdit={canEdit}
-            onSave={onScenarioUpdate}
-          />
-
-          <QuickEstimate
-            key={`${data.year}-${data.scenario.updated_at}-${data.notes.active_total}`}
-            scenario={data.scenario}
-            cohorts={data.cohorts}
-            remainingMonths={data.projections.committed.months.length}
-            modelCommittedTotal={data.projections.committed.total}
-          />
-        </div>
+        <BudgetWorkspace
+          key={`${data.year}-${data.scenario.updated_at}`}
+          summary={data}
+          canEdit={canEdit}
+          onScenarioUpdate={onScenarioUpdate}
+          onPotCreate={onPotCreate}
+          onPotUpdate={onPotUpdate}
+          onPotDelete={onPotDelete}
+        />
       ) : null}
     </div>
   );
