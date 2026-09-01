@@ -6,9 +6,12 @@ This is the project-level implementation and release log for the Next.js reposit
 
 ## 1 September 2026 - Variable programme horizon and category forecast preview
 
-Status: implemented and verified locally in the frontend and backend worktrees. No commit,
-push, database migration, backend deploy, frontend deploy, or production browser
-verification has been performed for this change.
+Status: backend commit `4392964` and frontend commit `39ff288` are on `main` and
+`origin/main`. Render deployed the backend successfully as live deployment
+`dep-dabij415efls739n0sl0` and applied migration
+`0047_budgetscenario_last_paid_programme_date`. Both linked Vercel projects deployed the
+frontend successfully. Authenticated production browser checks verified the default and
+Mid-November forecast paths without saving a shared scenario.
 
 ### Decisions and behavior
 
@@ -46,9 +49,26 @@ verification has been performed for this change.
   duplicate-lockfile/workspace-root and `middleware` deprecation warnings remain.
 - Backend `api.tests_youth_budget`: all 63 tests passed.
 - Full backend `manage.py test api`: all 562 tests passed.
-- UI behavior has not been checked against a running matching backend yet. Production
-  verification must wait until migration `0047_budgetscenario_last_paid_programme_date`
-  and both deployments are explicitly authorized and completed.
+- Render identifies `4392964` as the last successfully deployed commit. Deployment
+  `dep-dabij415efls739n0sl0` completed in 1m59s; its build log records
+  `Applying api.0047_budgetscenario_last_paid_programme_date... OK` before the service
+  became live.
+- GitHub deployment statuses for `Vercel - masi-web-nextjs` and
+  `Vercel - masi-web-nextjs-dqdn` both completed successfully for `39ff288`.
+- An authenticated production reload rendered the exact date picker, End October,
+  Mid-November, Full November, and Custom date controls; January through August actuals;
+  projected core, mentor, and rural segments; visible working-day counts; and exact date
+  descriptions.
+- The live default remained 30 November with the core-only headline at R718,965 over
+  budget. Selecting Mid-November changed the date to 14 November, the headline to
+  R386,871 over budget, and November to 10 working days with core R195,749, mentor
+  R81,586, and rural R52,148. Returning to Full November restored 21 working days and the
+  R718,965 headline. No Save action was used, so the shared scenario was not changed.
+- Desktop light-mode rendering was visually inspected. At the narrow mobile breakpoint,
+  the new headline cards and programme-date control fit the viewport; the pre-existing
+  850-pixel Funding Pots table remained bounded by its own horizontal scroller and clipped
+  section rather than widening the page. The current application shell exposes no dark
+  theme, so no dark-mode production claim is made.
 
 ## 31 August 2026 - Youth Budget actuals publication and dynamic chart boundary
 
