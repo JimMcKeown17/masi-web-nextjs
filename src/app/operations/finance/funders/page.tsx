@@ -2,6 +2,7 @@
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
+import { AllocationCoverageTable } from "@/components/finance/AllocationCoverageTable";
 import { FunderContractsTable } from "@/components/finance/FunderContractsTable";
 import { ProvenanceStrip } from "@/components/finance/ProvenanceStrip";
 import { useFinanceSnapshot } from "@/components/finance/useFinanceSnapshot";
@@ -30,7 +31,13 @@ export default function FundersPage() {
         <>
           <ProvenanceStrip response={data} />
           <FunderContractsTable contracts={data.snapshot.funder_contracts} accountingYear={data.accounting_year} />
-          {/* AllocationCoverageTable, HygienePanel: Tasks 5-6 */}
+          <AllocationCoverageTable
+            coverage={data.snapshot.allocation_coverage}
+            caveats={data.snapshot.allocation_coverage_caveats}
+            contracts={data.snapshot.funder_contracts}
+            accountingYear={data.accounting_year}
+          />
+          {/* HygienePanel: Task 6 */}
         </>
       ) : null}
     </div>

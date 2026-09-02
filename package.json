@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:unit": "node --import tsx --test src/components/school-programme/budget/expenditureChartData.test.ts src/components/school-programme/budget/ExpenditureChart.test.tsx src/components/school-programme/budget/programmeEndDate.test.ts src/components/school-programme/budget/subsidyScenario.test.tsx src/lib/finance/money.test.ts src/lib/finance/fixture.test.ts src/lib/api/finance.test.ts src/components/finance/ProvenanceStrip.test.tsx src/components/finance/FunderContractsTable.test.tsx"
+    "test:unit": "node --import tsx --test src/components/school-programme/budget/expenditureChartData.test.ts src/components/school-programme/budget/ExpenditureChart.test.tsx src/components/school-programme/budget/programmeEndDate.test.ts src/components/school-programme/budget/subsidyScenario.test.tsx src/lib/finance/money.test.ts src/lib/finance/fixture.test.ts src/lib/api/finance.test.ts src/components/finance/ProvenanceStrip.test.tsx src/components/finance/FunderContractsTable.test.tsx src/components/finance/AllocationCoverageTable.test.tsx"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.7",
