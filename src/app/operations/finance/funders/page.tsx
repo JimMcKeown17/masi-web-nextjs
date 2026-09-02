@@ -4,6 +4,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AllocationCoverageTable } from "@/components/finance/AllocationCoverageTable";
 import { FunderContractsTable } from "@/components/finance/FunderContractsTable";
+import { HygienePanel } from "@/components/finance/HygienePanel";
 import { ProvenanceStrip } from "@/components/finance/ProvenanceStrip";
 import { useFinanceSnapshot } from "@/components/finance/useFinanceSnapshot";
 
@@ -37,7 +38,7 @@ export default function FundersPage() {
             contracts={data.snapshot.funder_contracts}
             accountingYear={data.accounting_year}
           />
-          {/* HygienePanel: Task 6 */}
+          <HygienePanel findings={data.snapshot.findings} accountingYear={data.accounting_year} />
         </>
       ) : null}
     </div>
