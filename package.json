@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:unit": "node --import tsx --test src/components/school-programme/budget/expenditureChartData.test.ts src/components/school-programme/budget/ExpenditureChart.test.tsx src/components/school-programme/budget/programmeEndDate.test.ts src/components/school-programme/budget/subsidyScenario.test.tsx"
+    "test:unit": "node --import tsx --test src/components/school-programme/budget/expenditureChartData.test.ts src/components/school-programme/budget/ExpenditureChart.test.tsx src/components/school-programme/budget/programmeEndDate.test.ts src/components/school-programme/budget/subsidyScenario.test.tsx src/lib/finance/money.test.ts src/lib/finance/fixture.test.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.7",
@@ -54,6 +54,8 @@
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "@types/react-plotly.js": "^2.6.3",
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1",
     "autoprefixer": "^10.4.21",
     "eslint": "^9",
     "eslint-config-next": "16.1.2",
