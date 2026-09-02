@@ -384,7 +384,8 @@ Base: authenticated reads; writes require ADMIN or PROJECT MANAGER.
 
 - `GET /youth-budget/?year=2026` - full calculator payload: pots (+ pots_total,
   school_options directory), shared BudgetScenario (auto-created with defaults on first
-  read), cohort primitives (site_type x job_title: headcount / subsidised / NYS-eligible),
+  read), cohort primitives, the theoretical `subsidy_plan`, informational-only
+  `source_subsidies` counts and sync provenance,
   committed + at-plan projections with per-month school_days, exact working_dates, and
   verdicts, expenditure history, restricted-pot feasibility, population notes, unique
   rural committed/at-plan projections, and a spend_forecast split into core, mentor, and
@@ -392,13 +393,17 @@ Base: authenticated reads; writes require ADMIN or PROJECT MANAGER.
   published mentor actual months; the response includes those source months and amounts.
 - `POST /youth-budget/preview/` - authenticated, stateless recalculation of a partial draft
   BudgetScenario. Returns committed and at-plan projections, verdicts, per-pot and unique
-  rural projections, restricted-pot feasibility, and the category spend forecast without
-  saving any scenario field. This is the authoritative live what-if path for the UI.
+  rural projections, restricted-pot feasibility, `subsidy_plan`, and the category spend
+  forecast without saving any scenario field. This is the authoritative live what-if path
+  for the UI. Stable Airtable source counts are omitted from preview.
 - `PATCH /youth-budget/scenario/` - partial update of the shared scenario (wage_rate,
-  subsidy_contribution, hours_matrix, additive nys_full_time_count / nys_part_time_count,
-  nys_conversion_start_month, vacancy_start_month, last_paid_programme_date, holiday_pay,
-  mentor_reserve, utilisation_pct). The programme end date must be in the scenario year
-  and cannot exceed 30 November 2026.
+  hours_matrix, independent NYS/SEF contributions, full-time and part-time counts, exact
+  start/end dates, vacancy_start_month, last_paid_programme_date, holiday_pay,
+  mentor_reserve, utilisation_pct). Scheme starts must be in the scenario year; ends may
+  be in that year or the following year. The programme end date must be in the scenario
+  year and cannot exceed 30 November 2026. During the expand-contract release,
+  `subsidy_contribution` and `nys_conversion_start_month` remain deprecated NYS aliases;
+  conflicting old and new values return 400.
 - `POST /youth-budget/pots/`, `PATCH|DELETE /youth-budget/pots/<id>/` - FundingPot CRUD;
   `schools` is a list of numeric School ids (empty = unrestricted).
 - `POST /youth-budget/expenditure/`, `PATCH /youth-budget/expenditure/<id>/` - manual
@@ -415,9 +420,17 @@ and classified-row count. `--path` and `--workbook-dir` provide explicit source
 overrides.
 
 Projection horizon: `last_paid_programme_date` defaults to 30 November 2026. It caps the
-eligible working-date list used to prorate core and rural wage costs. NYS relief remains a
-full monthly contribution capped at earned gross plus UIF. Mentor is a full-month estimate
-for any projected month included by the horizon and is not prorated within that month.
+eligible working-date list used to prorate core and rural wage costs. NYS and SEF relief
+remain full monthly contributions capped at earned gross plus UIF, but a scheme applies in
+a month only when at least one paid school date lies within its exact interval. Mentor is a
+full-month estimate for any projected month included by the horizon and is not prorated
+within that month.
+
+Subsidy policy: V1 treats the saved NYS and SEF scenarios as complete theoretical cohorts.
+They share one current-core capacity pool, never overlap, and never assign relief to open
+posts or ringfenced rural youth. Airtable source tags are aggregated only after a complete,
+versioned Youth Basic Data to Combined Youth Data enrichment receipt. They do not change
+projection money or theoretical eligibility.
 
 Seeds: `seed_funding_pots_2026`; `seed_youth_expenditure_2026` remains an idempotent
 legacy/bootstrap importer for the original CSV.

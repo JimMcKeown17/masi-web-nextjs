@@ -33,6 +33,7 @@ export interface BudgetScenario {
   id: number;
   year: number;
   wage_rate: number;
+  // Deprecated backend aliases retained during the expand-contract release.
   subsidy_contribution: number;
   hours_matrix: HoursMatrix;
   // Additive NYS split: total subsidised jobs = full-time + part-time.
@@ -40,6 +41,14 @@ export interface BudgetScenario {
   // Part-timers who earn only their NYS funding; cost Masi R0.
   nys_part_time_count: number;
   nys_conversion_start_month: number;
+  nys_subsidy_contribution: number;
+  nys_start_date: string;
+  nys_end_date: string;
+  sef_subsidy_contribution: number;
+  sef_full_time_count: number;
+  sef_part_time_count: number;
+  sef_start_date: string;
+  sef_end_date: string;
   vacancy_start_month: number;
   last_paid_programme_date: string;
   holiday_pay: number;
@@ -75,7 +84,48 @@ export interface BudgetProjection {
   // Costed population, so the UI can explain why at-plan exceeds the
   // currently-employed projection (the job numbers).
   costed_youth: number;
+  current_core_youth: number;
   open_posts: number;
+}
+
+export interface SubsidySchemePlan {
+  contribution: number;
+  start_date: string;
+  end_date: string;
+  requested_full_time: number;
+  requested_part_time: number;
+  requested_total: number;
+  modelled_full_time: number;
+  modelled_part_time: number;
+  modelled_total: number;
+  unmodelled_total: number;
+}
+
+export interface SubsidyPlan {
+  policy: "theoretical_only";
+  eligible_current_youth: number;
+  requested_total: number;
+  modelled_total: number;
+  unmodelled_total: number;
+  schemes: {
+    nys: SubsidySchemePlan;
+    sef: SubsidySchemePlan;
+  };
+}
+
+export interface SourceSubsidies {
+  policy: "informational_only";
+  available: boolean;
+  nys_tagged_active_employees: number | null;
+  sef_active_status_employees: number | null;
+  last_success_at: string | null;
+  latest_attempt_succeeded: boolean;
+  enrichment: {
+    matched: number;
+    missing_link: number;
+    multiple_links: number;
+    missing_target: number;
+  } | null;
 }
 
 export interface YouthBudgetProjections {
@@ -112,6 +162,7 @@ export interface SpendForecast {
 }
 
 export interface YouthBudgetPreview {
+  subsidy_plan: SubsidyPlan;
   projections: YouthBudgetProjections;
   ringfenced_projections: {
     committed: BudgetProjection;
@@ -164,6 +215,8 @@ export interface YouthBudgetSummary {
   pots: FundingPot[];
   pots_total: number;
   scenario: BudgetScenario;
+  subsidy_plan: SubsidyPlan;
+  source_subsidies: SourceSubsidies;
   cohorts: YouthBudgetCohort[];
   projections: YouthBudgetProjections;
   spend_forecast: SpendForecast;
@@ -185,11 +238,17 @@ export interface YouthBudgetSummary {
 type ScenarioEditableFields = Pick<
   BudgetScenario,
   | "wage_rate"
-  | "subsidy_contribution"
+  | "nys_subsidy_contribution"
   | "hours_matrix"
   | "nys_full_time_count"
   | "nys_part_time_count"
-  | "nys_conversion_start_month"
+  | "nys_start_date"
+  | "nys_end_date"
+  | "sef_subsidy_contribution"
+  | "sef_full_time_count"
+  | "sef_part_time_count"
+  | "sef_start_date"
+  | "sef_end_date"
   | "vacancy_start_month"
   | "last_paid_programme_date"
   | "holiday_pay"

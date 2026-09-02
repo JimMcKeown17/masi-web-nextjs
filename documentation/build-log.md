@@ -4,6 +4,63 @@ Last updated: 1 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
 
+## 1 September 2026 - Independent NYS and SEF theoretical subsidy scenarios
+
+Status: specification adversarially reviewed and local frontend implementation verified.
+The changes are uncommitted, undeployed, and not verified on an authenticated live page.
+
+### Decisions and behavior
+
+- Added the reviewed V1 specification at
+  `_plans/youth-budget-subsidy-scenarios-v1.md`. The review blocked a destructive
+  one-step field rename and a migration that would have silently activated 200 SEF jobs.
+  The implemented contract keeps temporary legacy aliases and requires an explicit
+  what-if action before an existing saved scenario moves from zero to the suggested 200
+  SEF full-time jobs.
+- Separated Airtable source information from theoretical planning. The source panel shows
+  precisely defined NYS and SEF counts, last complete SAST sync time, and unavailable or
+  latest-attempt-failed states. It explicitly says that the counts do not enter V1 costing.
+- Reorganized the levers into compact organisation controls followed by vertically stacked
+  NYS and SEF cards. Each scheme owns contribution, full-time, part-time, exact start date,
+  and exact end date. The cards show backend-authored requested, modelled, and future-hire
+  shortfall values.
+- Renamed Vacancy Start Month in the UI to `Open Posts Assumed Filled From`, which states
+  its real effect. Holiday Pay, Mentor Reserve, and the combined planned-subsidy total now
+  sit below both scheme cards as requested.
+- The combined status uses one backend capacity pool, and communicates when requested
+  theoretical jobs are excluded from relief because they require future hires.
+- Removed the unused client-side committed financial calculator. Live financial results
+  continue to come only from the authenticated backend preview.
+- Kept Quick Estimate as a clearly manual rough scratchpad. Its one month multiplier
+  cannot correctly prefill NYS and SEF cohorts with different date intervals.
+- Renamed static headcount copy to `current core youth in source` so it is not confused
+  with the month-specific payroll population after part-time conversions.
+
+### Verification
+
+- `pnpm test:unit`: all 9 budget tests passed, including source available/unavailable
+  semantics and canonical scenario payload fields.
+- `pnpm exec tsc --noEmit --incremental false`: passed.
+- `pnpm lint`: passed with zero errors and the pre-existing
+  `@next/next/no-img-element` warning in `src/app/image-debug/page.tsx`.
+- Network-enabled `pnpm build`: passed; compilation, TypeScript, all 27 static pages, and
+  `/operations/school-programme-grid/budget` completed successfully. Existing
+  duplicate-lockfile and middleware-deprecation warnings remain.
+- The local visual route could not be inspected through the connected Chrome surface
+  because its loopback navigation proxy failed before rendering. No desktop, 390px,
+  interaction, or dark-state visual claim is made from this local pass. The application
+  remains light-only based on the previously verified shell state.
+
+### Release work still required
+
+1. Release the additive backend migration and backward-compatible API first.
+2. Run the canonical Youth Airtable dry run in the effective production environment and
+   review exact create, update, skip, and delete counts before seeking apply authorization.
+3. Deploy the frontend only after the compatible backend is live.
+4. Verify the authenticated desktop and 390px page, exact date inputs, the 200-SEF
+   suggestion, source freshness states, and a non-saving live preview.
+5. Preview and explicitly authorize any shared production scenario save separately.
+
 ## 1 September 2026 - Variable programme horizon and category forecast preview
 
 Status: backend commit `4392964` and frontend commit `39ff288` are on `main` and

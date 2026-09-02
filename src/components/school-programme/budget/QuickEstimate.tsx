@@ -23,42 +23,18 @@ function prefilledBuckets(
   cohorts: YouthBudgetCohort[],
 ): EstimateBucket[] {
   let nonYeboHeadcount = 0;
-  let nysEligible = 0;
   for (const cohort of cohorts) {
     if (cohort.programme === "yebo") continue;
     nonYeboHeadcount += cohort.headcount;
-    nysEligible += cohort.nys_eligible_count;
   }
-  const nysFullTime = Math.max(0, Math.trunc(scenario.nys_full_time_count || 0));
-  const nysPartTime = Math.max(0, Math.trunc(scenario.nys_part_time_count || 0));
-  const subsidisedCount = Math.min(nysFullTime, nysEligible);
   const fullRate = Math.round(4.5 * 20 * scenario.wage_rate * 1.01);
-  const subsidisedRate = Math.max(
-    0,
-    Math.round(
-      4.5 * 20 * scenario.wage_rate * 1.01 -
-        scenario.subsidy_contribution,
-    ),
-  );
 
   return [
     {
       id: 1,
-      label: "Subsidised (NYS)",
-      count: subsidisedCount,
-      rate: subsidisedRate,
-    },
-    {
-      id: 2,
-      label: "Fully funded",
-      count: Math.max(0, nonYeboHeadcount - subsidisedCount),
+      label: "Current core youth rough monthly cost",
+      count: nonYeboHeadcount,
       rate: fullRate,
-    },
-    {
-      id: 3,
-      label: "Subsidy-only part-timers",
-      count: nysPartTime,
-      rate: 0,
     },
   ];
 }
@@ -74,7 +50,7 @@ export function QuickEstimate({
   remainingMonths: number;
   modelCommittedTotal: number;
 }) {
-  const nextId = useRef(4);
+  const nextId = useRef(2);
   const [buckets, setBuckets] = useState(() =>
     prefilledBuckets(scenario, cohorts),
   );
@@ -149,7 +125,7 @@ export function QuickEstimate({
         </div>
         <Button type="button" variant="outline" size="sm" onClick={reset}>
           <RotateCcw />
-          Reset live prefill
+          Reset rough prefill
         </Button>
       </div>
 

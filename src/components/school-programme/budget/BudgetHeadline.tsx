@@ -117,13 +117,13 @@ export function BudgetHeadline({
             label="Currently employed"
             cost={summary.projections.committed.total}
             verdict={summary.projections.verdict_committed}
-            detail={`${summary.projections.committed.costed_youth} youth costed`}
+            detail={`${summary.projections.committed.current_core_youth} current core youth in source`}
           />
           <VerdictCard
             label="At plan"
             cost={summary.projections.at_plan.total}
             verdict={summary.projections.verdict_at_plan}
-            detail={`${summary.projections.at_plan.costed_youth} jobs incl. ${summary.projections.at_plan.open_posts} open posts`}
+            detail={`${summary.projections.at_plan.current_core_youth} current youth + ${summary.projections.at_plan.open_posts} open posts`}
           />
         </div>
       </div>

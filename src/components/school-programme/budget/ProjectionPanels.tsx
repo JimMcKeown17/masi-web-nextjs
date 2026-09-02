@@ -133,13 +133,13 @@ export function ProjectionPanels({
       <div className="grid gap-5 xl:grid-cols-2">
         <ProjectionPanel
           label="A. Currently Employed Youth"
-          description={`${committed.costed_youth} youth on payroll today, costed through ${formatBudgetDate(lastPaidProgrammeDate)}.`}
+          description={`${committed.current_core_youth} current core youth in source, projected through ${formatBudgetDate(lastPaidProgrammeDate)}.`}
           projection={committed}
           holidayPay={holidayPay}
         />
         <ProjectionPanel
           label="B. At plan"
-          description={`Those ${committed.costed_youth} youth plus ${atPlan.open_posts} open Planned Posts = ${atPlan.costed_youth} costed jobs.`}
+          description={`${atPlan.current_core_youth} current core youth plus ${atPlan.open_posts} open Planned Posts.`}
           projection={atPlan}
           holidayPay={holidayPay}
         />

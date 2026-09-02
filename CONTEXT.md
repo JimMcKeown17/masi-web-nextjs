@@ -114,8 +114,8 @@ plan, watch affordability move.
 **Quick Estimate**:
 The back-of-envelope mode mirroring staff mental math: editable cohort buckets
 (count x monthly rate) x months remaining, minus holiday weeks. A trust bridge, not a
-source of truth. Prefill (while no subsidies are applied in Airtable): assume all 200 NYS
-Slots utilised — one bucket of ~200 subsidised at top-up rate, remainder at full rate.
+source of truth. It deliberately does not prefill the authoritative NYS/SEF scenarios,
+because its one global month multiplier cannot represent different scheme intervals.
 
 **Subsidy-Only Youth**:
 A part-time youth who works only the hours SEF/NYS pays for and never touches Masi
@@ -125,16 +125,20 @@ real fix is an Employment Basis column in Airtable (Full Time / Subsidy Only), t
 discussion pending (2026-07-28). Candidates are reverse-engineerable from the payments
 ledger: employed but never paid = Yebo or subsidy-only.
 
-**NYS Conversion**:
-Moving an existing eligible youth onto an NYS Slot so their cost drops to the Top-Up.
-State as of 2026-07-27: SEF has ENDED (151 of the 438 actives were on it, making them
-NYS-ineligible); nobody is currently subsidised; the team will assign ~200 of the 287
-eligible youth to NYS. Calculator lever: count + start month. Once an assignment really
-happens it is recorded in Airtable (Funder column = SEF/NYS) and flows in via sync;
-the lever models only not-yet-executed intentions.
+**Theoretical Subsidy Scenario**:
+The V1 budget policy models complete NYS and SEF cohorts independently of Airtable source
+tags. Each scheme owns a contribution, full-time count, subsidy-only part-time count,
+start date, and end date. Both schemes reserve youth from one shared current-core pool in
+start-date order, with NYS winning a tie and part-time allocating before full-time. The
+same modelled youth can never receive both schemes, and requests beyond current capacity
+are reported as requiring future hires rather than receiving relief. Airtable NYS/SEF
+counts are shown separately as an informational reconciliation aid and never enter V1
+costing or eligibility.
 
 **Vacancy Start Month**:
 Single global assumption for when open Planned Posts get filled; no per-post dates.
+The UI calls this **Open Posts Assumed Filled From**. Subsidies are not assigned to these
+vacancies in V1.
 
 **Horizon**:
 The global **Last Paid Programme Date** caps eligible school working days for core and
@@ -144,9 +148,9 @@ horizon touches. Youth are assumed not to earn in December unless Holiday Pay is
 manually.
 
 **Budget Scenario**:
-The single shared, saved set of calculator assumptions per year (wage rate, subsidy
-contribution, days per week, NYS conversions, vacancy start month, holiday pay, mentor
-reserve, last paid programme date). ADMIN/PM edits; everyone sees the same verdict. Live
+The single shared, saved set of calculator assumptions per year (wage rate, hours matrix,
+independent NYS and SEF contributions/counts/date intervals, vacancy start month, holiday
+pay, mentor reserve, last paid programme date). ADMIN/PM edits; everyone sees the same verdict. Live
 what-if changes are sent to an authenticated stateless backend preview so the browser does
 not duplicate calendar or costing rules; they always snap back to the saved scenario after
 navigation. Stored in Postgres, edited via the frontend CRUD panel (not Django admin).

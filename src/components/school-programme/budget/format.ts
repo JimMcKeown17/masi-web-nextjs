@@ -33,6 +33,16 @@ const monthFormatter = new Intl.DateTimeFormat("en-ZA", {
   timeZone: "UTC",
 });
 
+const sastDateTimeFormatter = new Intl.DateTimeFormat("en-ZA", {
+  day: "numeric",
+  month: "short",
+  year: "numeric",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+  timeZone: "Africa/Johannesburg",
+});
+
 export function formatRand(value: number): string {
   return randFormatter.format(Number.isFinite(value) ? value : 0).replace(/\u00a0/g, " ");
 }
@@ -53,6 +63,12 @@ export function formatBudgetDate(iso: string): string {
   const [year, month, day] = iso.split("-").map(Number);
   if (!year || !month || !day) return iso;
   return dateFormatter.format(new Date(Date.UTC(year, month - 1, day)));
+}
+
+export function formatSastDateTime(iso: string): string {
+  const parsed = new Date(iso);
+  if (Number.isNaN(parsed.getTime())) return iso;
+  return `${sastDateTimeFormatter.format(parsed)} SAST`;
 }
 
 export function formatMonth(month: number, style: "short" | "long" = "short"): string {

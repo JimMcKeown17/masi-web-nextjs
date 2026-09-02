@@ -37,6 +37,7 @@ interface BudgetWorkspaceProps {
 
 function savedCalculation(summary: YouthBudgetSummary): YouthBudgetPreview {
   return {
+    subsidy_plan: summary.subsidy_plan,
     projections: summary.projections,
     ringfenced_projections: summary.ringfenced.projections,
     ringfenced_pots: summary.ringfenced.pots,
@@ -81,6 +82,7 @@ export function BudgetWorkspace({
     () => ({
       ...summary,
       scenario: draft,
+      subsidy_plan: calculation.subsidy_plan,
       projections: calculation.projections,
       spend_forecast: calculation.spend_forecast,
       feasibility: calculation.feasibility,
@@ -172,6 +174,8 @@ export function BudgetWorkspace({
         liveAtPlan={calculation.projections.at_plan}
         liveVerdictCommitted={calculation.projections.verdict_committed}
         liveVerdictAtPlan={calculation.projections.verdict_at_plan}
+        subsidyPlan={calculation.subsidy_plan}
+        sourceSubsidies={summary.source_subsidies}
         asOf={summary.as_of}
         canEdit={canEdit}
         dirty={dirty}

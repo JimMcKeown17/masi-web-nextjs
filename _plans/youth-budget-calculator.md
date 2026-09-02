@@ -1,5 +1,10 @@
 # Youth Budget Calculator
 
+> Historical foundation. The subsidy projection rules in this document are superseded by
+> `_plans/youth-budget-subsidy-scenarios-v1.md`: Airtable subsidy tags are informational
+> only in V1, while complete theoretical NYS and SEF cohorts share one non-overlapping
+> current-core capacity pool.
+
 Scoped 2026-07-27 via grill session with Jim. Domain language in `CONTEXT.md` (repo root);
 decisions in `docs/adr/0001` and `0002`. Attaches to the school-programme grid as a third
 "Budget" tab.

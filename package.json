@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "test:unit": "node --import tsx --test src/components/school-programme/budget/expenditureChartData.test.ts src/components/school-programme/budget/ExpenditureChart.test.tsx src/components/school-programme/budget/programmeEndDate.test.ts"
+    "test:unit": "node --import tsx --test src/components/school-programme/budget/expenditureChartData.test.ts src/components/school-programme/budget/ExpenditureChart.test.tsx src/components/school-programme/budget/programmeEndDate.test.ts src/components/school-programme/budget/subsidyScenario.test.tsx"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.36.7",
