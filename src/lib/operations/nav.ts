@@ -70,6 +70,12 @@ export const OPS_GROUPS: OpsGroup[] = [
         icon: TrendingUp,
       },
       {
+        title: "Finance",
+        href: "/operations/finance/funders",
+        description: "Funder contract budgets and allocation coverage",
+        icon: TrendingUp,
+      },
+      {
         title: "School Programme Grid",
         href: "/operations/school-programme-grid",
         description: "Children served and youth staffing per school and programme.",
