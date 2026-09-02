@@ -6,8 +6,12 @@ This is the project-level implementation and release log for the Next.js reposit
 
 ## 1 September 2026 - Independent NYS and SEF theoretical subsidy scenarios
 
-Status: specification adversarially reviewed and local frontend implementation verified.
-The changes are uncommitted, undeployed, and not verified on an authenticated live page.
+Status: backend commit `5f418f9` and frontend commit `bbcf24b` are on `main` and
+`origin/main`. Render deployed the backend as live deployment
+`dep-dabnb4rncjis73df5lvg` with migration `0048`, and both linked Vercel projects
+deployed the frontend successfully. Authenticated production checks verified the saved
+zero-SEF state and an unsaved 200-SEF preview. The production Airtable publication and
+the shared Budget Scenario remain unchanged.
 
 ### Decisions and behavior
 
@@ -50,16 +54,39 @@ The changes are uncommitted, undeployed, and not verified on an authenticated li
   because its loopback navigation proxy failed before rendering. No desktop, 390px,
   interaction, or dark-state visual claim is made from this local pass. The application
   remains light-only based on the previously verified shell state.
+- Render identifies backend commit `5f418f9` as live deployment
+  `dep-dabnb4rncjis73df5lvg`; the deploy log records migration `0048` applying
+  successfully before Gunicorn started and the service became live.
+- GitHub deployment status reports success for both `Vercel - masi-web-nextjs` and
+  `Vercel - masi-web-nextjs-dqdn` on frontend commit `bbcf24b`.
+- The authenticated production page rendered the unavailable source state honestly rather
+  than fabricating zeroes, the renamed open-post control, stacked NYS and SEF cards, exact
+  dates, the explicit `Use planned 200` action, and the combined planning status.
+- The migrated saved state remained 127 NYS full-time plus 41 part-time and zero SEF jobs.
+  Selecting `Use planned 200` without saving requested 368 combined jobs, modelled all
+  323 eligible current core youth, and reported 45 jobs requiring future hires. The
+  at-plan headline changed from R688,314 over budget to R254,314 over budget. `Reset to
+  saved` restored the zero-SEF scenario and original headline; no Save action was used.
+- Desktop and narrow responsive production screenshots were inspected. The new source
+  panel, organisation controls, both scheme cards, dates, shortfall status, and the moved
+  Holiday Pay and Mentor Reserve fields remained readable and inside the viewport. The
+  pre-existing Funding Pots table remains the only wide element and is bounded by its
+  existing scroller. The application exposes no dark theme, so no dark-state claim is made.
+- The guarded production `sync_airtable_youth --dry-run` reported zero creates, 1,898
+  updates, zero skips, zero orphan deletes, 1,898 matched enrichment links, and zero link
+  errors. It did not change the source snapshot, so the live panel correctly remains
+  unavailable pending a separately authorized apply.
 
 ### Release work still required
 
-1. Release the additive backend migration and backward-compatible API first.
-2. Run the canonical Youth Airtable dry run in the effective production environment and
-   review exact create, update, skip, and delete counts before seeking apply authorization.
-3. Deploy the frontend only after the compatible backend is live.
-4. Verify the authenticated desktop and 390px page, exact date inputs, the 200-SEF
-   suggestion, source freshness states, and a non-saving live preview.
-5. Preview and explicitly authorize any shared production scenario save separately.
+1. Obtain fresh count-specific authorization before publishing the reviewed production
+   dry-run result: zero creates, 1,898 updates, zero skips, zero orphan deletes, and all
+   1,898 enrichment links matched. Re-run the preflight immediately before `--apply` and
+   stop if any count changes.
+2. Read back the published source receipt and source-only NYS/SEF counts after an
+   authorized apply; until then the live unavailable state is correct.
+3. Preview and explicitly authorize any shared production scenario save separately. The
+   deployment does not activate the suggested 200 SEF jobs.
 
 ## 1 September 2026 - Variable programme horizon and category forecast preview
 
