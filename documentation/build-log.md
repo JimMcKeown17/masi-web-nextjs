@@ -1,8 +1,50 @@
 # Frontend Build Log
 
-Last updated: 2 September 2026
+Last updated: 3 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
+
+## 3 September 2026 - Real finance snapshot local dashboard proof
+
+Status: the corrected 1 September workbook was published and loaded into the dedicated local
+PostgreSQL database, then read through the real authenticated Django and Next.js path. This is
+local verification only. No branch was pushed, no pull request was opened, and no production
+database or deployment was changed.
+
+### Real-data and authorization proof
+
+- The authorized dashboard showed run `2026-09-03T16:37:09Z-31ed61`, the workbook name and
+  short source hash, 50 contract rows, and 32 allocation-coverage rows.
+- All six current-year `CATEGORY_NOT_IN_BLOCK` messages and the TSI Skills R4,400-versus-R0
+  `STALE_CACHED_SPENT` message were present in the Hygiene panel. The nine acknowledged
+  over-allocated ledger rows remained present rather than being filtered by publication.
+- The KWF Other NGOs row visibly showed an R80,000 budget, R160,000 lifetime and 2026 allocation,
+  negative R80,000 remaining, and 200.0% used.
+- The one local profile was temporarily changed from `VIEWER` to `ADMIN` for the authorized
+  check, then restored to `VIEWER`. After restoration, the same route rendered `Access denied`,
+  zero finance tables, and no snapshot provenance. An anonymous API request returned 403.
+
+### Responsive defect found and fixed
+
+- The first 1,280-pixel inspection found a 1,406-pixel contracts table inside a 1,214-pixel card:
+  the shared table primitive forced the descriptive contract cell onto one 551-pixel line, hiding
+  the in-year values and Status column behind an internal horizontal scroll.
+- Commit `5b9e198` lets only the contract-description cell wrap. Financial cells remain non-wrapping,
+  tabular and right-aligned. Browser remeasurement at 1,280 by 900 returned a 1,214-pixel table in
+  a 1,214-pixel container; both finance tables fit, every contract column was visible, and the page
+  itself had no horizontal overflow.
+- Regression development followed RED/GREEN: the focused contract-table test first failed on the
+  absent wrapping class, then all seven focused tests passed after the one-cell fix.
+
+### Quality gates and remaining boundary
+
+- `pnpm test:unit` passed all 36 tests. `pnpm lint` reported zero errors and the pre-existing
+  `@next/next/no-img-element` warning in `src/app/image-debug/page.tsx`. `npx tsc --noEmit` passed.
+- `pnpm build` passed compilation, TypeScript, all 27 static pages, and included the dynamic
+  `/operations/finance/funders` route. The pre-existing duplicate-lockfile/workspace-root and
+  middleware-deprecation warnings remain.
+- Production migration/load, merge, push, pull request, deployment, and authenticated production
+  browser proof remain intentionally unperformed.
 
 ## 2 September 2026 - Local finance funder dashboard verification
 
