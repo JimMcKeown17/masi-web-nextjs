@@ -1,8 +1,53 @@
 # Frontend Build Log
 
-Last updated: 1 September 2026
+Last updated: 2 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
+
+## 2 September 2026 - Local finance funder dashboard verification
+
+Status: the finance dashboard implementation is committed on the local
+`feature/finance-dashboard` worktree through `39b2311`. The matching Django API was
+migrated and loaded with the schema-1.0.0 example snapshot in a dedicated local
+PostgreSQL database. This is local verification only: no branch was pushed, no pull
+request was opened, and no production database or deployment was changed. Publication
+of the corrected management workbook remains blocked by its current validation findings.
+
+### Verified behavior
+
+- A signed-out request to `/operations/finance/funders` redirected to Clerk sign-in and
+  preserved the finance route as the post-authentication destination.
+- Clerk created one profile in the isolated local database with its safe default
+  `VIEWER` role. That role received the server-rendered `Access denied` state and no
+  finance data. Temporarily changing only that local profile to `ADMIN` exposed the
+  dashboard; restoring it to `VIEWER` and reloading the same authenticated finance tab
+  returned to `Access denied` with no finance table. The local profile remains `VIEWER`.
+- The authorized dashboard rendered its source/run provenance, five contract rows,
+  allocation-coverage table, expected over-allocation badge, and hygiene findings grouped
+  by code. Expanding an Alpha/current contract rendered its derived Youth Jobs line and
+  asserted Training line.
+- Finance appeared under Leadership in the primary navigation and on the Operations hub.
+- Visual inspection passed at 1280 px desktop and 390 px mobile widths. At both widths,
+  `body.scrollWidth` and `documentElement.scrollWidth` equalled `innerWidth`; the wide
+  finance tables stayed inside their own horizontal scrollers instead of widening the
+  page. Headings, provenance, badges, cards, and table content remained readable. The
+  visible `N` control was the local Next.js development-tools overlay, not application UI.
+- Recorded the prescribed four-frame `finance_funders_page.gif` at 1280 by 900 pixels,
+  covering the contract overview, expanded Alpha lines, allocation coverage, and hygiene.
+
+### Local proof boundary
+
+- The Django fixture loader persisted exactly one 2026 snapshot with run ID
+  `2026-09-01T12:00:00Z-0a1b2c`; the frontend then read that snapshot through the real
+  local authenticated API path.
+- The local database is separate from the existing application database. Production,
+  internal, and external database URLs were not used.
+- No real finance snapshot artifact was published. The corrected workbook dry run still
+  fails closed on five missing KWF contract keys and nine genuinely over-allocated rows;
+  these source findings must be resolved before the real workbook can replace the fixture.
+- The in-app browser's virtual tab selection did not dispatch the page-focus event that
+  SWR listens for. The exact focus-triggered destructive-alert transition is therefore
+  unverified; the server-side `VIEWER` denial and absence of finance tables were verified.
 
 ## 1 September 2026 - Independent NYS and SEF theoretical subsidy scenarios
 
