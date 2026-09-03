@@ -63,7 +63,7 @@ export function FunderContractsTable({ contracts, accountingYear, initiallyExpan
                       {open ? "-" : "+"}
                     </Button>
                   </TableCell>
-                  <TableCell>
+                  <TableCell className="whitespace-normal">
                     <div className="font-medium">{contract.contract_code ?? contract.block_label}</div>
                     <div className="text-xs text-muted-foreground">
                       {contract.contract_code ? `${contract.block_label} · ` : ""}

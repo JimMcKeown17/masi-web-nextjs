@@ -64,3 +64,10 @@ test("the operator's contract code leads the row and the label follows; a missin
   assert.match(alpha.slice(0, alpha.indexOf("</tr>")), /Alpha · April 2026 - March 2027/);
   assert.match(markup, />Delta</);
 });
+
+test("the descriptive contract column can wrap without making the desktop table overflow", () => {
+  const markup = render();
+  const alphaIndex = markup.indexOf(">ALPHA-26-27<");
+  const alphaCell = markup.slice(markup.lastIndexOf("<td", alphaIndex), markup.indexOf("</td>", alphaIndex));
+  assert.match(alphaCell, /whitespace-normal/);
+});
