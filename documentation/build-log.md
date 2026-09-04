@@ -6,8 +6,10 @@ This is the project-level implementation and release log for the Next.js reposit
 
 ## 4 September 2026 - Finance access hotfix: ADMIN only
 
-Status: implementation and local verification are complete on the isolated hotfix branch.
-Commit, push, Vercel deployment, and authenticated production verification are pending.
+Status: hotfix commit `e09d635` is on `main` and `origin/main`. Both linked Vercel contexts
+completed successfully for that exact commit: deployments `CdZLtAFjbLjv4x5V3t38QiFmEVUZ`
+and `72AWSRjvprQFkrgjHWZx1tETPko3`. The Admin production path is verified; the Project
+Manager Clerk/browser denial check remains explicitly pending and does not block Step 2.
 
 - The `/operations/finance/*` layout now uses a finance-specific ADMIN-only guard instead of
   the shared ADMIN / PROJECT MANAGER field-app guard. Other leadership and programme routes
@@ -24,7 +26,14 @@ Commit, push, Vercel deployment, and authenticated production verification are p
   the unrelated `/impact` pages. The release-equivalent build with
   `NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api` passed compilation,
   TypeScript, all 27 static pages, and the complete `/operations/finance/*` route set.
-- This is local build evidence, not deployment or authenticated production proof.
+- An existing signed-in Admin production session rendered Finance Overview after deployment,
+  proving the positive frontend path. The available session was not a Project Manager, and no
+  live role or identity was changed to manufacture that evidence.
+- **PENDING — Project Manager Clerk/browser denial:** complete this item only when a real
+  Project Manager Clerk session at `/operations/finance/overview` visibly renders `Access denied`
+  and `/api/finance/snapshot/` returns HTTP 403 from that same session. Until then, do not claim
+  the end-to-end Project Manager browser boundary is verified. The Django trust boundary is
+  separately production-verified in the backend release log.
 
 ## 4 September 2026 - Finance routes deployed
 
