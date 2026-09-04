@@ -4,6 +4,20 @@ Last updated: 4 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
 
+## 4 September 2026 - Finance routes deployed
+
+Status: finance route commit `5f7f4ee` is on `main` and `origin/main`. Both linked Vercel
+production contexts completed successfully for that exact commit: deployments
+`9kQQ76mZpnNhX5iqB4PLYXWe762K` and `C7duWg2ykPBcyx3mxuhXiQjaK2PC`. The matching Django
+API is live and the approved 2026 snapshot is loaded in production.
+
+- The live protected route redirects a signed-out browser to Clerk and preserves the requested
+  `/operations/finance/overview` destination. The live API independently returned 403 to an
+  anonymous request.
+- Authenticated production rendering is not claimed from this release pass because the available
+  browser had no production Clerk session. Authenticated real-data behavior and responsive
+  rendering remain established by the local end-to-end checks recorded below.
+
 ## 4 September 2026 - Finance route skeleton and current-year fix scope
 
 Status: WP1a is implemented on the isolated local `wp1a/finance-skeleton` branch. This is
