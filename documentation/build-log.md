@@ -4,6 +4,28 @@ Last updated: 4 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
 
+## 4 September 2026 - Finance access hotfix: ADMIN only
+
+Status: implementation and local verification are complete on the isolated hotfix branch.
+Commit, push, Vercel deployment, and authenticated production verification are pending.
+
+- The `/operations/finance/*` layout now uses a finance-specific ADMIN-only guard instead of
+  the shared ADMIN / PROJECT MANAGER field-app guard. Other leadership and programme routes
+  retain their existing authorization behavior.
+- A small pure authorization decision is shared by the server guard and its behavior tests.
+  Project Managers are denied, Admins are admitted, and the visible denial copy now states the
+  temporary ADMIN-only boundary.
+- `pnpm test:unit`: all 45 tests passed.
+- `pnpm exec tsc --noEmit --incremental false`: passed.
+- `pnpm lint`: zero errors and the pre-existing `@next/next/no-img-element` warning in
+  `src/app/image-debug/page.tsx`.
+- The first sandboxed `pnpm build` compiled but could not fetch the configured Google Fonts.
+  A network-enabled build without the API base then timed out only while statically generating
+  the unrelated `/impact` pages. The release-equivalent build with
+  `NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api` passed compilation,
+  TypeScript, all 27 static pages, and the complete `/operations/finance/*` route set.
+- This is local build evidence, not deployment or authenticated production proof.
+
 ## 4 September 2026 - Finance routes deployed
 
 Status: finance route commit `5f7f4ee` is on `main` and `origin/main`. Both linked Vercel

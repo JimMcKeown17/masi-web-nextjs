@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import {
-  assertFieldAppAccess,
+  assertFinanceAccess,
   FIELD_APP_UNAUTHENTICATED,
   FIELD_APP_FORBIDDEN,
 } from "@/lib/masi/auth-guard";
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-// ADMIN / PROJECT MANAGER only. Guarding the layout protects the route; the
+// ADMIN only until capability grants ship. Guarding the layout protects the route; the
 // client page reads only the bounded, backend-published finance snapshot.
 export default async function FinanceLayout({
   children,
@@ -21,7 +21,7 @@ export default async function FinanceLayout({
   children: React.ReactNode;
 }) {
   try {
-    await assertFieldAppAccess();
+    await assertFinanceAccess();
   } catch (err) {
     if (err instanceof Error && err.message === FIELD_APP_UNAUTHENTICATED) {
       redirect("/auth/sign-in?redirect_url=/operations/finance/overview");
@@ -33,7 +33,7 @@ export default async function FinanceLayout({
             <div className="bg-card rounded-lg shadow-sm p-6 border">
               <h1 className="text-lg font-semibold mb-2">Access denied</h1>
               <p className="text-sm text-muted-foreground">
-                The finance dashboard is restricted to Admins and Project Managers.
+                The finance dashboard is currently restricted to Admins.
               </p>
             </div>
           </div>
