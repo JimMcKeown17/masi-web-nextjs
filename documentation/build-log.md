@@ -6,8 +6,12 @@ This is the project-level implementation and release log for the Next.js reposit
 
 ## 4 September 2026 - Finance capability navigation
 
-Status: the frontend release candidate is locally verified against the live API base. It
-has not yet been pushed, deployed, or verified in the production browser in this record.
+Status: implementation commit `23e0cba94fb0a5aebfe012932aab0f3ce854e862` is on
+`main` and `origin/main`. Both linked Vercel production deployments reached `READY` for
+that exact commit: `dpl_3qBmQq5i8oTMJkARdQwcf3ds4YNs` (`masi-web-nextjs`) and
+`dpl_3gTropdXmK5fvh3nh82PKLutpaAV` (`masi-web-nextjs-dqdn`). The existing ADMIN
+production session passed the positive browser smoke; no Finance Manager has been
+assigned and the real Project Manager browser check remains pending.
 
 - `/api/me/`'s sorted `capabilities` list is now part of the shared user profile. The
   Finance layout guard, FinanceNav, Operations hub, and desktop/mobile Navbar all require
@@ -38,6 +42,16 @@ has not yet been pushed, deployed, or verified in the production browser in this
   checkout; inspect the intended projects explicitly with
   `vercel ls masi-web-nextjs --yes --format json` and
   `vercel ls masi-web-nextjs-dqdn --yes --format json`.
+- The existing signed-in ADMIN production session rendered Finance Overview from the
+  current workbook (`9784baa19fc5...`), with Overview, Funders, Coverage, and Fix visible
+  and the expected published status counts. This proves the positive frontend route and
+  capability flow; it is separate from the production database role matrix recorded in
+  the backend log.
+- **PENDING — Project Manager Clerk/browser denial:** when Jim supplies a real Project
+  Manager session, verify that Finance is absent from Operations navigation, direct
+  `/operations/finance/overview` navigation visibly renders `Access denied`, and the
+  session receives HTTP 403 from `/api/finance/snapshot/`. Do not infer this browser
+  evidence from the already-passing backend production check.
 
 ## 4 September 2026 - Finance access hotfix: ADMIN only
 
