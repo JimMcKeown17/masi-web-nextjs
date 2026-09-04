@@ -3,7 +3,7 @@ import test from "node:test";
 import { renderToStaticMarkup } from "react-dom/server";
 
 import { loadFixture } from "../../lib/finance/testFixture";
-import { FunderContractsTable } from "./FunderContractsTable";
+import { contractHref, FunderContractsTable } from "./FunderContractsTable";
 
 const snapshot = loadFixture();
 
@@ -63,6 +63,18 @@ test("the operator's contract code leads the row and the label follows; a missin
   const alpha = markup.slice(markup.indexOf(">ALPHA-26-27<"));
   assert.match(alpha.slice(0, alpha.indexOf("</tr>")), /Alpha · April 2026 - March 2027/);
   assert.match(markup, />Delta</);
+});
+
+test("a coded contract row opens its stable contract-code route", () => {
+  const markup = render();
+  const alphaHref = "/operations/finance/funders/ALPHA-26-27";
+  const alphaRow = markup.slice(markup.lastIndexOf("<tr", markup.indexOf(">ALPHA-26-27<")), markup.indexOf("</tr>", markup.indexOf(">ALPHA-26-27<")));
+  const delta = markup.slice(markup.indexOf(">Delta<"));
+
+  assert.match(alphaRow, new RegExp(`href="${alphaHref}"`));
+  assert.match(alphaRow, new RegExp(`data-contract-href="${alphaHref}"`));
+  assert.doesNotMatch(delta.slice(0, delta.indexOf("</tr>")), /data-contract-href/);
+  assert.equal(contractHref("A/B 2026"), "/operations/finance/funders/A%2FB%202026");
 });
 
 test("the descriptive contract column can wrap without making the desktop table overflow", () => {

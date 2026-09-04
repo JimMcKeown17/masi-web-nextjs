@@ -1,8 +1,48 @@
 # Frontend Build Log
 
-Last updated: 3 September 2026
+Last updated: 4 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
+
+## 4 September 2026 - Finance route skeleton and current-year fix scope
+
+Status: WP1a is implemented on the isolated local `wp1a/finance-skeleton` branch. This is
+local verification only. The branch has not been merged or pushed, and no deployment or
+production data has changed.
+
+### Route and interaction contract
+
+- `/operations/finance` now redirects to `/operations/finance/overview`; the authenticated
+  finance layout exposes Overview, Funders, Coverage, and Fix as persistent subnavigation.
+- Overview is deliberately status-only: publication provenance, current-year finding/error
+  counts, and domain record counts. It does not duplicate financial KPIs from the domain views.
+- Funders retains the contract table. A coded contract row and its primary link open
+  `/operations/finance/funders/<contract_code>`; the detail route shows only that canonical
+  contract, expanded to its published line items. Rows without a contract code remain inert.
+- Coverage owns allocation coverage. Fix defaults to findings whose `in_scope_year` is true and
+  requires an explicit toggle to include historical findings.
+- The Operations hub and unauthenticated finance redirect now land on Overview.
+
+### Test-driven proof and quality gates
+
+- RED/GREEN tests established the four-view navigation and nested Funders active state, the
+  status-only Overview contract, stable contract-code navigation and detail lookup, the default
+  current-year findings scope with an explicit historical opt-in, and the Operations-hub route.
+- `pnpm test:unit` passed all 43 tests. `pnpm lint` reported zero errors and only the pre-existing
+  `@next/next/no-img-element` warning in `src/app/image-debug/page.tsx`.
+- `node_modules/.bin/tsc --noEmit` passed. A network-enabled `pnpm build` completed and wrote a
+  production build ID after the sandboxed build correctly failed to fetch configured Google
+  Fonts. The existing duplicate-lockfile/workspace-root and middleware-deprecation warnings
+  remain.
+- Authenticated local browser checks against the real local snapshot passed at 1,280 by 900 and
+  390 by 844. Overview, Funders, Coverage, and Fix each selected the correct navigation item;
+  a whole contract-row click opened the canonical detail URL and kept Funders active; Fix hid
+  `Outside 2026` until its explicit toggle was used. At both widths, body and document scroll
+  widths equalled the viewport. On mobile the 977-pixel funder table stayed inside its
+  356-pixel horizontal scroller. The only console errors came from conflicting wallet browser
+  extensions, not the application.
+- No backend migration, snapshot publication/load, merge, push, deployment, or authenticated
+  production browser proof is claimed by this WP1a entry.
 
 ## 3 September 2026 - Real finance snapshot local dashboard proof
 

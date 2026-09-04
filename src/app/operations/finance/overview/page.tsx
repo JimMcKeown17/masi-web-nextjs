@@ -2,36 +2,28 @@
 
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Skeleton } from "@/components/ui/skeleton";
-import { FunderContractsTable } from "@/components/finance/FunderContractsTable";
-import { ProvenanceStrip } from "@/components/finance/ProvenanceStrip";
+import { FinanceOverviewStatus } from "@/components/finance/FinanceOverviewStatus";
 import { useFinanceSnapshot } from "@/components/finance/useFinanceSnapshot";
 
-export default function FundersPage() {
+export default function FinanceOverviewPage() {
   const { data, error, isLoading } = useFinanceSnapshot();
 
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Funder contracts</h1>
+        <h1 className="font-serif text-3xl font-semibold">Finance overview</h1>
         <p className="text-sm text-muted-foreground">
-          Budget, allocated and remaining per funder contract, recomputed from the management workbook.
+          Publication status and current exceptions. Domain dashboards hold the financial detail.
         </p>
       </header>
 
       {isLoading ? <Skeleton className="h-64 w-full rounded-xl" aria-label="Loading finance snapshot" /> : null}
-
       {error ? (
         <Alert variant="destructive">
           <AlertDescription>{(error as Error).message}</AlertDescription>
         </Alert>
       ) : null}
-
-      {data ? (
-        <>
-          <ProvenanceStrip response={data} />
-          <FunderContractsTable contracts={data.snapshot.funder_contracts} accountingYear={data.accounting_year} />
-        </>
-      ) : null}
+      {data ? <FinanceOverviewStatus response={data} /> : null}
     </div>
   );
 }

@@ -30,7 +30,15 @@ export function groupFindings(findings: Finding[]): Group[] {
   );
 }
 
-export function HygienePanel({ findings, accountingYear }: { findings: Finding[]; accountingYear: number }) {
+export function HygienePanel({
+  findings,
+  accountingYear,
+  includeOutOfScope = false,
+}: {
+  findings: Finding[];
+  accountingYear: number;
+  includeOutOfScope?: boolean;
+}) {
   const groups = groupFindings(findings);
   const inScope = groups.filter((g) => g.inScope);
   const outOfScope = groups.filter((g) => !g.inScope);
@@ -38,7 +46,7 @@ export function HygienePanel({ findings, accountingYear }: { findings: Finding[]
     <section className="mb-10">
       <h2 className="mb-3 text-xl font-semibold">Hygiene</h2>
       <GroupList title={`In ${accountingYear}`} groups={inScope} />
-      <GroupList title={`Outside ${accountingYear}`} groups={outOfScope} />
+      {includeOutOfScope ? <GroupList title={`Outside ${accountingYear}`} groups={outOfScope} /> : null}
     </section>
   );
 }

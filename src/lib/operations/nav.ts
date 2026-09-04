@@ -71,8 +71,8 @@ export const OPS_GROUPS: OpsGroup[] = [
       },
       {
         title: "Finance",
-        href: "/operations/finance/funders",
-        description: "Funder contract budgets and allocation coverage",
+        href: "/operations/finance/overview",
+        description: "Finance status, funder contracts, allocation coverage, and fixes.",
         icon: TrendingUp,
       },
       {

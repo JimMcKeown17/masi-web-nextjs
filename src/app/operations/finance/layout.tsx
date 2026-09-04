@@ -5,6 +5,7 @@ import {
   FIELD_APP_UNAUTHENTICATED,
   FIELD_APP_FORBIDDEN,
 } from "@/lib/masi/auth-guard";
+import { FinanceNav } from "@/components/finance/FinanceNav";
 
 export const metadata: Metadata = {
   title: "Finance | Operations",
@@ -23,7 +24,7 @@ export default async function FinanceLayout({
     await assertFieldAppAccess();
   } catch (err) {
     if (err instanceof Error && err.message === FIELD_APP_UNAUTHENTICATED) {
-      redirect("/auth/sign-in?redirect_url=/operations/finance/funders");
+      redirect("/auth/sign-in?redirect_url=/operations/finance/overview");
     }
     if (err instanceof Error && err.message === FIELD_APP_FORBIDDEN) {
       return (
@@ -44,7 +45,10 @@ export default async function FinanceLayout({
 
   return (
     <div className="min-h-screen px-4 pb-16 pt-20 md:px-8">
-      <div className="mx-auto max-w-[1400px]">{children}</div>
+      <div className="mx-auto max-w-[1400px]">
+        <FinanceNav />
+        {children}
+      </div>
     </div>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Fragment, useState } from "react";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -11,6 +12,10 @@ import type { FinanceLine, FunderContract } from "@/lib/types/finance";
 import { CompletenessBadges } from "./badges";
 
 const BUDGET_NOT_SET = "budget not set";
+
+export function contractHref(contractCode: string): string {
+  return `/operations/finance/funders/${encodeURIComponent(contractCode)}`;
+}
 
 interface Props {
   contracts: FunderContract[];
@@ -49,9 +54,17 @@ export function FunderContractsTable({ contracts, accountingYear, initiallyExpan
           {contracts.map((contract) => {
             const open = expanded.has(contract.id);
             const percent = formatPercent(contract.allocated_total_lifetime, contract.budget_total);
+            const href = contract.contract_code ? contractHref(contract.contract_code) : undefined;
             return (
               <Fragment key={contract.id}>
-                <TableRow>
+                <TableRow
+                  data-contract-href={href}
+                  className={href ? "cursor-pointer" : undefined}
+                  onClick={(event) => {
+                    if (!href || !(event.target instanceof Element) || event.target.closest("a, button")) return;
+                    event.currentTarget.querySelector<HTMLAnchorElement>("[data-contract-link]")?.click();
+                  }}
+                >
                   <TableCell>
                     <Button
                       variant="ghost"
@@ -64,7 +77,13 @@ export function FunderContractsTable({ contracts, accountingYear, initiallyExpan
                     </Button>
                   </TableCell>
                   <TableCell className="whitespace-normal">
-                    <div className="font-medium">{contract.contract_code ?? contract.block_label}</div>
+                    {href ? (
+                      <Link data-contract-link href={href} className="font-medium underline-offset-4 hover:underline">
+                        {contract.contract_code}
+                      </Link>
+                    ) : (
+                      <div className="font-medium">{contract.block_label}</div>
+                    )}
                     <div className="text-xs text-muted-foreground">
                       {contract.contract_code ? `${contract.block_label} · ` : ""}
                       {contract.period_label ?? `row ${contract.sheet_row}`}
