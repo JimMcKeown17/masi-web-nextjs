@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
+import { useUser } from "@/components/providers/UserProvider";
+import { canAccessFinance } from "@/lib/finance/access";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -16,7 +18,15 @@ function isActive(pathname: string, href: string): boolean {
   return pathname === href || pathname.startsWith(`${href}/`);
 }
 
-export function FinanceNavView({ pathname }: { pathname: string }) {
+export function FinanceNavView({
+  pathname,
+  capabilities,
+}: {
+  pathname: string;
+  capabilities: unknown;
+}) {
+  if (!canAccessFinance(capabilities)) return null;
+
   return (
     <nav aria-label="Finance views" className="mb-6 flex gap-6 overflow-x-auto border-b">
       {TABS.map((tab) => {
@@ -42,5 +52,6 @@ export function FinanceNavView({ pathname }: { pathname: string }) {
 }
 
 export function FinanceNav() {
-  return <FinanceNavView pathname={usePathname()} />;
+  const user = useUser();
+  return <FinanceNavView pathname={usePathname()} capabilities={user?.capabilities} />;
 }

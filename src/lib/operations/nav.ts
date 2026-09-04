@@ -9,6 +9,8 @@ import {
   Waypoints,
 } from "lucide-react";
 
+import { FINANCE_READ_CAPABILITY } from "@/lib/finance/access";
+
 // Single source of truth for the internal Operations tools. Both the navbar
 // "Operations" menu and the /operations hub page render from this list, so
 // adding a tool here surfaces it in both places.
@@ -23,6 +25,7 @@ export interface OpsTool {
   href: string;
   description: string;
   icon: React.ComponentType<{ className?: string }>;
+  requiredCapability?: string;
 }
 
 export interface OpsGroup {
@@ -74,6 +77,7 @@ export const OPS_GROUPS: OpsGroup[] = [
         href: "/operations/finance/overview",
         description: "Finance status, funder contracts, allocation coverage, and fixes.",
         icon: TrendingUp,
+        requiredCapability: FINANCE_READ_CAPABILITY,
       },
       {
         title: "School Programme Grid",
@@ -110,8 +114,25 @@ export const OPS_GROUPS: OpsGroup[] = [
   },
 ];
 
-// Groups visible to a given Django role (undefined role sees nothing).
-export function opsGroupsForRole(role: string | undefined | null): OpsGroup[] {
-  if (!role) return [];
-  return OPS_GROUPS.filter((g) => g.roles.includes(role as OpsRole));
+// Role policy remains attached to each ordinary group. Capability-protected
+// tools can independently make their group visible without inheriting a role.
+export function opsGroupsForAccess(
+  role: string | undefined | null,
+  capabilities: unknown,
+): OpsGroup[] {
+  const grantedCapabilities = new Set(
+    Array.isArray(capabilities)
+      ? capabilities.filter((value): value is string => typeof value === "string")
+      : [],
+  );
+
+  return OPS_GROUPS.flatMap((group) => {
+    const roleAllowed = Boolean(role && group.roles.includes(role as OpsRole));
+    const tools = group.tools.filter((tool) =>
+      tool.requiredCapability
+        ? grantedCapabilities.has(tool.requiredCapability)
+        : roleAllowed,
+    );
+    return tools.length > 0 ? [{ ...group, tools }] : [];
+  });
 }

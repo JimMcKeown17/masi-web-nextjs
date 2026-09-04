@@ -4,6 +4,41 @@ Last updated: 4 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
 
+## 4 September 2026 - Finance capability navigation
+
+Status: the frontend release candidate is locally verified against the live API base. It
+has not yet been pushed, deployed, or verified in the production browser in this record.
+
+- `/api/me/`'s sorted `capabilities` list is now part of the shared user profile. The
+  Finance layout guard, FinanceNav, Operations hub, and desktop/mobile Navbar all require
+  the exact `finance.read` string. None derives finance access from `role`; existing role
+  policies remain unchanged for non-finance tools.
+- A STAFF user with `finance.read` sees the Finance tool even without a leadership role.
+  A PROJECT MANAGER or ADMIN without that capability does not see Finance, while their
+  unrelated tools remain governed by the existing role policy. One `finance.read` grant
+  exposes all four current tabs because the approved API remains the single snapshot.
+- `getUserProfile()` uses `cache: "no-store"` so grants and revocations are refreshed on
+  the next navigation. React request-local memoization deduplicates repeated profile reads
+  within one render without creating cross-request authorization state.
+- RED evidence was captured before implementation: the capability helper rejected
+  `finance.read` and accepted the `ADMIN` role string; the Operations filter exposed
+  Finance to a capability-less PROJECT MANAGER; FinanceNav rendered all tabs without a
+  grant; and the no-store request helper did not exist. Each slice turned green before
+  the next one was introduced.
+- `pnpm test:unit`: 50 tests passed. `pnpm exec tsc --noEmit --incremental false` passed.
+  `pnpm lint` reported zero errors and the pre-existing `@next/next/no-img-element` warning
+  in `src/app/image-debug/page.tsx`. The release-equivalent build with
+  `NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api` compiled, typechecked,
+  generated all 27 static pages, and included the complete `/operations/finance/*` route
+  set.
+- Housekeeping: running the bare command `vercel ls --yes` from the unlinked temporary
+  checkout caused Vercel CLI project detection to create the stray empty project
+  `qhawes-projects/masi-web-release-20260904` (`prj_5ufTdrHdLN1i5yzDXFBBsuDaHWad`). It
+  had zero deployments and was deleted. Do not repeat that bare command from an unlinked
+  checkout; inspect the intended projects explicitly with
+  `vercel ls masi-web-nextjs --yes --format json` and
+  `vercel ls masi-web-nextjs-dqdn --yes --format json`.
+
 ## 4 September 2026 - Finance access hotfix: ADMIN only
 
 Status: hotfix commit `e09d635` is on `main` and `origin/main`. Both linked Vercel contexts

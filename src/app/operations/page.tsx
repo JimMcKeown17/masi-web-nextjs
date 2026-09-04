@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { getUserProfile } from "@/lib/server/user";
-import { opsGroupsForRole } from "@/lib/operations/nav";
+import { opsGroupsForAccess } from "@/lib/operations/nav";
 
 export const metadata: Metadata = {
   title: "Operations | Masinyusane",
@@ -10,14 +10,15 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-// The operations hub: a role-filtered directory of every internal tool.
+// The operations hub: an access-filtered directory of every internal tool.
 // Renders from the same config as the navbar Operations menu, so the two
 // can never drift apart. Clerk auth is enforced by the middleware; the
 // role comes from the Django profile and fails closed to an empty state.
 export default async function OperationsHubPage() {
   const profile = await getUserProfile();
   const role = (profile as { role?: string } | null)?.role;
-  const groups = opsGroupsForRole(role);
+  const capabilities = (profile as { capabilities?: unknown } | null)?.capabilities;
+  const groups = opsGroupsForAccess(role, capabilities);
 
   return (
     <main className="min-h-screen bg-[#FAF7F2] pt-28 md:pt-36 pb-20">
@@ -33,7 +34,7 @@ export default async function OperationsHubPage() {
         </h1>
         <p className="mt-5 max-w-2xl text-gray-600 text-lg leading-relaxed">
           Every internal tool in one place. What you see here depends on your
-          role.
+          access.
         </p>
 
         {groups.length === 0 ? (
@@ -42,8 +43,8 @@ export default async function OperationsHubPage() {
               No tools enabled for your account
             </h2>
             <p className="mt-2 text-sm leading-relaxed text-gray-600">
-              Operations tools are role-based. If you think you should have
-              access, contact a project lead.
+              Operations tools are permission-based. If you think you should
+              have access, contact a project lead.
             </p>
           </div>
         ) : (

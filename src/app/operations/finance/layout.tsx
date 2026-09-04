@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-// ADMIN only until capability grants ship. Guarding the layout protects the route; the
-// client page reads only the bounded, backend-published finance snapshot.
+// The capability guard is frontend defence in depth; Django independently protects
+// the snapshot endpoint with the same finance.read evaluator.
 export default async function FinanceLayout({
   children,
 }: {
@@ -33,7 +33,7 @@ export default async function FinanceLayout({
             <div className="bg-card rounded-lg shadow-sm p-6 border">
               <h1 className="text-lg font-semibold mb-2">Access denied</h1>
               <p className="text-sm text-muted-foreground">
-                The finance dashboard is currently restricted to Admins.
+                Finance access has not been granted to your account.
               </p>
             </div>
           </div>

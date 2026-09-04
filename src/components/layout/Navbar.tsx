@@ -7,7 +7,7 @@ import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Users, MapPin, Briefcase, Baby, User, GraduationCap, Database, TrendingUp, Menu, LogIn, BookOpen, Newspaper, PlayCircle, Activity } from "lucide-react"
 import { useUser } from "@/components/providers/UserProvider"
-import { opsGroupsForRole } from "@/lib/operations/nav"
+import { opsGroupsForAccess } from "@/lib/operations/nav"
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs"
 
 import {
@@ -143,9 +143,9 @@ export function Navbar() {
     ? 'bg-transparent text-white hover:bg-white/10 hover:text-white data-[state=open]:bg-white/10 data-[state=open]:text-white data-[state=open]:hover:bg-white/10'
     : ''
 
-  // Internal tools, grouped and role-filtered from the shared config that
+  // Internal tools, grouped and access-filtered from the shared config that
   // also drives the /operations hub page (src/lib/operations/nav.ts).
-  const opsGroups = opsGroupsForRole(user?.role)
+  const opsGroups = opsGroupsForAccess(user?.role, user?.capabilities)
   const hasOpsAccess = opsGroups.length > 0
 
   return (

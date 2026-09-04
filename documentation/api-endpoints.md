@@ -30,7 +30,8 @@ headers: {
 ```
 GET /api/me/
 ```
-Returns authenticated user information (email, role, first_name, last_name, username)
+Returns authenticated user information (email, role, sorted `capabilities`, first_name,
+last_name, username). Finance UI authorization uses capability strings, not role values.
 
 #### API Info
 ```
@@ -356,6 +357,18 @@ When adding new endpoints:
 - `403 Forbidden` - Insufficient permissions
 - `404 Not Found` - Resource doesn't exist
 - `500 Internal Server Error` - Server error
+
+---
+
+## Finance Dashboard
+
+Base: authenticated users with `finance.read`. ADMIN receives that capability from the
+backend's explicit application override; other users need the Django grant directly or
+through `Finance Managers`. The frontend uses `/api/me/` capabilities for navigation and
+defence in depth; Django independently enforces the endpoint.
+
+- `GET /finance/snapshot/?year=2026` - the complete read-only published finance snapshot
+  for the requested accounting year, defaulting to the latest published year.
 
 ---
 

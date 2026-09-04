@@ -23,6 +23,7 @@ export type UserProfile = {
   
   // From Django UserProfile model
   role: UserRole;            // required, has default='VIEWER'
+  capabilities: string[];    // sorted application grants from /api/me/
   job_title?: string;        // optional (blank=True, null=True)
   project?: string;          // optional (blank=True, null=True)
   

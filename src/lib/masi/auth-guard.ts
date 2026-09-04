@@ -35,8 +35,7 @@ export async function assertFinanceAccess(): Promise<void> {
   const profile = await getUserProfile();
   if (!profile) throw new Error(FIELD_APP_FORBIDDEN);
 
-  const role = (profile as { role?: string }).role;
-  if (!canAccessFinance(role)) {
+  if (!canAccessFinance(profile.capabilities)) {
     throw new Error(FIELD_APP_FORBIDDEN);
   }
 }
