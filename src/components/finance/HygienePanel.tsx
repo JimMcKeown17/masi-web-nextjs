@@ -17,7 +17,7 @@ const rank: Record<Severity, number> = { error: 0, warn: 1, info: 2 };
 export function groupFindings(findings: Finding[]): Group[] {
   const groups = new Map<string, Group>();
   for (const finding of findings) {
-    const key = `${finding.in_scope_year ? "in" : "out"}:${finding.code}`;
+    const key = `${finding.in_scope_year ? "in" : "out"}:${finding.severity}:${finding.code}`;
     const group = groups.get(key) ?? {
       code: finding.code, inScope: finding.in_scope_year, severity: finding.severity, findings: [], total: 0,
     };
@@ -58,7 +58,7 @@ function GroupList({ title, groups }: { title: string; groups: Group[] }) {
       <h3 className="mb-2 text-sm font-medium text-muted-foreground">{title}</h3>
       <div className="grid gap-3">
         {groups.map((group) => (
-          <Card key={`${group.inScope}-${group.code}`}>
+          <Card key={`${group.inScope}-${group.severity}-${group.code}`}>
             <CardHeader className="pb-2">
               <CardTitle className="flex items-center gap-2 text-sm font-medium">
                 <span className="font-mono">{group.code}</span>

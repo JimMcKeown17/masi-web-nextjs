@@ -58,3 +58,14 @@ test("the golden fixture is schema 1.0.0 and has the shape the types describe", 
   assert.equal(beta.budget_total, null);
   assert.deepEqual(beta.completeness_reasons.map((r) => r.code), ["MISSING_BUDGET", "MISSING_BUDGET"]);
 });
+
+test("projected 1.1.0 fixture validates while 1.0.0 remains unchanged", () => {
+  const schema11 = JSON.parse(readFileSync("src/lib/finance/finance-snapshot-1.1.0.json", "utf8"));
+  const fixture11 = JSON.parse(readFileSync("src/lib/finance/fixtures/finance-snapshot-1.1.0-example.json", "utf8"));
+  const validate = new Ajv2020({ allErrors: true, strict: false }).compile(schema11);
+  assert.equal(validate(fixture11), true, JSON.stringify(validate.errors));
+  assert.equal(fixture11.schema_version, "1.1.0");
+  for (const code of ["TEXT_DATE", "MISSING_CONTRACT_PERIOD", "ORPHAN_CONTRACT_CODE", "PARSER_WARNING"]) assert.ok(fixture11.findings.some((finding: { code: string }) => finding.code === code));
+  assert.deepEqual(fixture11.funder_contracts, loadFixture().funder_contracts);
+  assert.deepEqual(fixture11.allocation_coverage, loadFixture().allocation_coverage);
+});

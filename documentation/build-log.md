@@ -1,8 +1,25 @@
 # Frontend Build Log
 
-Last updated: 4 September 2026
+Last updated: 5 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
+
+## 5 September 2026 - WP2a finance run publication frontend
+
+Local implementation on `feat/wp2a-finance-runs` from `eb434c0`. Added the
+read+publish-gated Upload page, typed raw upload/run APIs, run history/provenance,
+checked approval/demotion, account-scoped refresh and additive snapshot 1.1.0
+reader support. Existing reader pages keep the snapshot API/hook. Findings now group
+by severity as well as scope/code so mixed-severity findings retain their labels.
+
+RED commands, failing cases, contract boundaries, verification outcomes and release
+dependencies are recorded in [the stage log](../docs/build-logs/2026-09-05-wp2a-frontend.md).
+`pnpm test:unit` passed 69 tests; `pnpm exec tsc --noEmit` passed; `pnpm lint`
+passed with zero errors and only the existing image-debug warning. `git diff --check`
+passed. Build, browser interaction/visual verification and live deployment evidence remain
+PENDING. The offline browser harness bundled, but Chrome launch aborted with SIGABRT
+in this sandbox. The supervisor must align PARSER_WARNING in the backend/publisher
+schema copies; the frontend includes it as explicitly requested.
 
 ## 4 September 2026 - Finance capability navigation
 

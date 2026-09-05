@@ -4,7 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { useUser } from "@/components/providers/UserProvider";
-import { canAccessFinance } from "@/lib/finance/access";
+import { canAccessFinance, canPublishFinance } from "@/lib/finance/access";
 import { cn } from "@/lib/utils";
 
 const TABS = [
@@ -29,7 +29,7 @@ export function FinanceNavView({
 
   return (
     <nav aria-label="Finance views" className="mb-6 flex gap-6 overflow-x-auto border-b">
-      {TABS.map((tab) => {
+      {[...TABS, ...(canPublishFinance(capabilities) ? [{ href: "/operations/finance/upload", label: "Upload" }] : [])].map((tab) => {
         const active = isActive(pathname, tab.href);
         return (
           <Link

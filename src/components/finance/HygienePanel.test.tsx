@@ -32,3 +32,12 @@ test("can reveal findings outside the accounting year", () => {
   assert.match(allMarkup, /Outside 2026/);
   assert.match(allMarkup, /block &#x27;Delta&#x27;/);
 });
+
+test("1.1.0 findings retain every severity and historical scope", () => {
+  const base = loadFixture().findings[0];
+  const findings = (["TEXT_DATE", "MISSING_CONTRACT_PERIOD", "ORPHAN_CONTRACT_CODE", "PARSER_WARNING"] as const).flatMap((code) =>
+    (["error", "warn", "info"] as const).flatMap((severity) => [true, false].map((in_scope_year) => ({ ...base, code, severity, in_scope_year, message: `${code}-${severity}-${in_scope_year}` }))));
+  const html = renderToStaticMarkup(<HygienePanel findings={findings} accountingYear={2026} includeOutOfScope />);
+  for (const finding of findings) assert.ok(html.includes(finding.message));
+  for (const severity of ["error", "warn", "info"]) assert.match(html, new RegExp(`>${severity}<`));
+});

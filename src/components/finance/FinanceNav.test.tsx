@@ -33,3 +33,15 @@ test("finance navigation renders no tabs without finance.read", () => {
 
   assert.equal(markup, "");
 });
+
+for (const [label, capabilities, visible] of [
+  ["PROJECT MANAGER", [], false], ["plain STAFF", [], false],
+  ["read-only Finance Manager", ["finance.read"], false],
+  ["publish-only user", ["finance.publish"], false],
+  ["ADMIN", ["finance.read", "finance.publish"], true],
+] as const) {
+  test(`Upload capability gate: ${label}`, () => {
+    const html = renderToStaticMarkup(<FinanceNavView pathname="/operations/finance/upload" capabilities={[...capabilities]} />);
+    assert.equal(html.includes(">Upload</a>"), visible);
+  });
+}

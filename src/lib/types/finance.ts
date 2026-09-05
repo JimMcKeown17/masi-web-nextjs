@@ -63,6 +63,10 @@ export interface AllocationCoverage {
 }
 
 export type FindingCode =
+  | "TEXT_DATE"
+  | "MISSING_CONTRACT_PERIOD"
+  | "ORPHAN_CONTRACT_CODE"
+  | "PARSER_WARNING"
   | "ORPHAN_CONTRACT_KEY"
   | "WHITESPACE_KEY"
   | "STALE_CACHED_SPENT"
@@ -101,7 +105,7 @@ export interface SnapshotSource {
 }
 
 export interface FinanceSnapshot {
-  schema_version: "1.0.0";
+  schema_version: "1.0.0" | "1.1.0";
   run_id: string;
   published_at: string;
   payload_sha256: string;
