@@ -73,7 +73,7 @@ test("confirmation marks the note required for demotion and checked guard option
 import { createRequire } from "node:module";
 const localRequire = createRequire(import.meta.url);
 const { build } = createRequire(localRequire.resolve("tsx"))("esbuild");
-const { JSDOM } = localRequire(localRequire.resolve("jsdom", { paths: [process.cwd(), process.env.JSDOM_MODULE_ROOT ?? "/usr/local/lib/node_modules/flowise"] }));
+const { JSDOM } = localRequire("jsdom");
 
 async function publicationInteraction(action: "approve" | "demote", failure = "") {
   const { outputFiles } = await build({
