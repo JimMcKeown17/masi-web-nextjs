@@ -1,8 +1,24 @@
 # Frontend Build Log
 
-Last updated: 5 September 2026
+Last updated: 6 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
+
+## 6 September 2026 - WP2a review fixes, round 1
+
+Local fixes on `feat/wp2a-finance-runs` clear inactive account snapshot caches after
+approval/demotion and explicitly verify current/list/detail GETs before announcing
+refreshed state. Failed verification reports a successful change with refresh pending;
+retry performs GETs only. Reader clients/hooks/pages are unchanged.
+
+`pnpm test:unit`: 77 passed, 0 failed (RED: 69 passed, 8 failed).
+`pnpm exec tsc --noEmit`: exit 0, no diagnostics. `pnpm lint`: exit 0,
+0 errors and the single existing image-debug warning; no new warnings.
+`git diff --check`: passed. Exact regression names, implementation and the installed
+jsdom test prerequisite are in [the stage log](../docs/build-logs/2026-09-05-wp2a-frontend.md#review-fixes-round-1).
+`pnpm build` remains PENDING for the supervisor. Real-browser visual/focus checks and
+live deployment proof remain PENDING. No packages, migrations or deployments required
+or performed by these fixes; no network used.
 
 ## 5 September 2026 - WP2a finance run publication frontend
 

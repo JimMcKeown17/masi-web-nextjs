@@ -48,3 +48,54 @@ The retained harness checks actual dialog focus containment/return, required not
 ## Git handoff
 
 Uncommitted. Staging the explicit 25 changed/new paths failed: `Unable to create .../.git/index.lock: Operation not permitted` (exit 128). No commit or push occurred; all implementation files remain in this clone for the supervisor.
+
+## Review fixes, round 1
+
+### RED
+
+Before implementation, `pnpm test:unit` exited 1: 77 tests, 69 passed, 8 failed,
+0 cancelled, 0 skipped. Failing names:
+
+- `approve clears inactive account snapshots before delayed reader remount`
+- `demote clears inactive account snapshots before delayed reader remount`
+- `approve: failed post-mutation current GET reports pending and retries reads only`
+- `approve: failed post-mutation list GET reports pending and retries reads only`
+- `approve: failed post-mutation detail GET reports pending and retries reads only`
+- `demote: failed post-mutation current GET reports pending and retries reads only`
+- `demote: failed post-mutation list GET reports pending and retries reads only`
+- `demote: failed post-mutation detail GET reports pending and retries reads only`
+
+The snapshot cases failed because superseded figures remained during a delayed GET;
+the six failed-read cases rejected the false refreshed-state announcement. These
+are DOM interaction tests with the real installed React, SWR, Upload session and
+snapshot hook, mocked host auth and HTTP only. The test bundle uses installed tsx's
+esbuild. jsdom resolves locally first, then from `JSDOM_MODULE_ROOT` (default: the
+already installed `/usr/local/lib/node_modules/flowise`). No packages were installed.
+A supervisor environment needs jsdom available by one of those paths. DOM evidence
+does not establish real-browser focus or responsive/light/dark visual correctness.
+
+### Implementation and GREEN
+
+- Successful approval/demotion explicitly clears every visited snapshot key for the
+  account, including latest and year-specific inactive entries, through SWR mutation
+  with `undefined` data. Other accounts are preserved. Run caches are also cleared.
+  The existing snapshot client, hook and reader pages are unchanged.
+- Current, filtered list, selected detail and (when distinct) current detail are
+  checked directly through the existing GET clients. Only after all succeed are
+  their caches populated without revalidation and the verified current ID announced.
+  Selection/filter context is preserved, including after demotion.
+- Mutation success survives read failure: the dialog closes with `Change succeeded,
+  refresh pending` and a `Retry refresh` action that performs reads only. Further
+  edits are disabled while verification is pending. All six injected failures
+  verify a single POST, GET-only retry and the current ID from the current response,
+  deliberately different from the mutation response.
+- `pnpm test:unit`: PASS, 77 tests, 77 passed, 0 failed, 0 cancelled, 0 skipped.
+- `pnpm exec tsc --noEmit`: PASS, exit 0, no diagnostics.
+- `pnpm lint`: PASS, exit 0; `1 problem (0 errors, 1 warning)`. The sole warning is
+  the existing `@next/next/no-img-element` in `src/app/image-debug/page.tsx:56:17`;
+  no new warnings.
+- `git diff --check`: PASS.
+- `pnpm build`: PENDING for the supervisor; intentionally not run. No network,
+  package installation, backend changes, migrations, environment/deploy actions or
+  live production verification were performed. Existing release/browser/visual
+  dependencies above remain PENDING.

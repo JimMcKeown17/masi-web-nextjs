@@ -77,6 +77,7 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
   const [mutating, setMutating] = useState(false);
   const [mutationMessage, setMutationMessage] = useState("");
   const [mutationError, setMutationError] = useState(false);
+  const [refreshPending, setRefreshPending] = useState(false);
   const opener = useRef<HTMLElement | null>(null);
   const summary = useRef<HTMLDivElement>(null);
   const busyRef = useRef(false);
@@ -100,8 +101,41 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
       || key.startsWith(`/operations/finance/snapshot?user=${userId}&`)
     ));
   }
-  function chooseFile(next?: File) {
+  async function verifyPublication() {
+    try {
+      const authToken = await token();
+      // SWR revalidation can resolve with retained data on errors. Check the GETs
+      // directly and only publish their results once every required read succeeds.
+      const [nextCurrent, nextList, nextDetail] = await Promise.all([
+        getFinanceCurrent(authToken, year),
+        getFinanceRuns(authToken, { year, status: status || undefined, cursor }),
+        getFinanceRun(authToken, selectedId),
+      ]);
+      const nextCurrentId = nextCurrent.runs.funders?.id;
+      const nextCurrentDetail = nextCurrentId
+        ? nextCurrentId === selectedId ? nextDetail : await getFinanceRun(authToken, nextCurrentId)
+        : undefined;
+      await Promise.all([
+        mutate(financeRunsCacheKey(userId, `current:${year}`), nextCurrent, { revalidate: false }),
+        mutate(financeRunsCacheKey(userId, `list:${year}:${status}:${cursor ?? ""}`), nextList, { revalidate: false }),
+        mutate(financeRunsCacheKey(userId, `detail:${selectedId}`), nextDetail, { revalidate: false }),
+        ...(nextCurrentDetail ? [mutate(financeRunsCacheKey(userId, `detail:${nextCurrentDetail.id}`), nextCurrentDetail, { revalidate: false })] : []),
+      ]);
+      setRefreshPending(false); setMutationError(false);
+      setMutationMessage(`Approved server state refreshed. Current run: ${nextCurrentId ?? "none"}.`);
+    } catch {
+      setRefreshPending(true); setMutationError(true);
+      setMutationMessage("Change succeeded, refresh pending. Retry the refresh to verify the current run.");
+    }
+  }
+  async function retryPublicationRefresh() {
     if (busyRef.current) return;
+    busyRef.current = true; setMutating(true);
+    try { await verifyPublication(); }
+    finally { busyRef.current = false; setMutating(false); }
+  }
+  function chooseFile(next?: File) {
+    if (busyRef.current || refreshPending) return;
     setFile(undefined);
     if (!next) return;
     const error = validateFinanceFile(next);
@@ -110,7 +144,7 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
     if (!error) setFile(next);
   }
   async function upload() {
-    if (!file || busyRef.current) return;
+    if (!file || busyRef.current || refreshPending) return;
     const error = validateFinanceFile(file);
     if (error) { setMessage(error); setUploadState("error"); return; }
     busyRef.current = true;
@@ -137,13 +171,17 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
     setRequirements(NO_REQUIREMENTS); setOptions(EMPTY_OPTIONS); setMutationMessage(""); setMutationError(false); setAction(next);
   }
   async function confirm() {
-    if (!action || !selectedRun || busyRef.current || !approvalReady(action, requirements, options)) return;
+    if (!action || !selectedRun || busyRef.current || refreshPending || !approvalReady(action, requirements, options)) return;
     busyRef.current = true; setMutating(true); setMutationError(false); setMutationMessage("Applying change and refreshing approved server state…");
     try {
-      const run = await (action === "approve" ? approveFinanceRun : demoteFinanceRun)(await token(), selectedRun.id, options);
-      setReturnedRun(run); setSelectedId(run.id); setStatus(""); setCursor(undefined);
-      await refresh();
-      setAction(null); setMutationMessage(`Approved server state refreshed. Current run: ${run.id}.`);
+      await (action === "approve" ? approveFinanceRun : demoteFinanceRun)(await token(), selectedRun.id, options);
+      setRefreshPending(true); setReturnedRun(undefined);
+      // Explicit data removal also reaches inactive reader keys, and fences any
+      // in-flight pre-mutation requests through SWR's mutation timestamps.
+      await mutate((key) => typeof key === "string" && key.startsWith(`/operations/finance/snapshot?user=${userId}&`), undefined, { revalidate: true });
+      await mutate((key) => typeof key === "string" && key.startsWith(`/operations/finance/runs?user=${encodeURIComponent(userId)}&`), undefined, { revalidate: false });
+      await verifyPublication();
+      setAction(null);
     } catch (error) {
       if (error instanceof FinanceRunApiError) setRequirements((previous) => requirementsAfterError(previous, error.code));
       setMutationError(true);
@@ -157,27 +195,28 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
   const readError = list.error || current.error || detail.error || currentDetail.error;
   return <div className="space-y-6">
     <header><h1 className="font-serif text-3xl">Publish finance workbook</h1><p className="mt-2 text-muted-foreground">Upload, inspect and explicitly approve a funders run for reader pages.</p></header>
-    <FinanceRunSelector year={year} status={status} selectedId={selectedId} selectedRun={selectedRun} runs={list.error ? [] : list.data?.results ?? []} currentId={currentId} disabled={busy || action !== null}
+    <FinanceRunSelector year={year} status={status} selectedId={selectedId} selectedRun={selectedRun} runs={list.error ? [] : list.data?.results ?? []} currentId={currentId} disabled={busy || refreshPending || action !== null}
       onYearChange={(value) => { setYear(value); setCursor(undefined); setSelectedId(""); setReturnedRun(undefined); }}
       onStatusChange={(value) => { setStatus(value); setCursor(undefined); }} onRunChange={(value) => { setSelectedId(value); setReturnedRun(undefined); }} />
-    <div className="flex gap-3"><Button variant="outline" disabled={busy || !list.data?.previous || Boolean(list.error)} onClick={() => pageCursor(list.data?.previous ?? null)}>Newer runs</Button><Button variant="outline" disabled={busy || !list.data?.next || Boolean(list.error)} onClick={() => pageCursor(list.data?.next ?? null)}>Older runs</Button></div>
+    <div className="flex gap-3"><Button variant="outline" disabled={busy || refreshPending || !list.data?.previous || Boolean(list.error)} onClick={() => pageCursor(list.data?.previous ?? null)}>Newer runs</Button><Button variant="outline" disabled={busy || refreshPending || !list.data?.next || Boolean(list.error)} onClick={() => pageCursor(list.data?.next ?? null)}>Older runs</Button></div>
     {list.isLoading || current.isLoading || detail.isLoading ? <p role="status">Loading finance runs…</p> : null}
-    {readError ? <div role="alert">Could not refresh finance runs: {readError instanceof Error ? readError.message : "Request failed"}. <Button variant="outline" onClick={() => void refresh()}>Retry</Button></div> : null}
+    {readError && !refreshPending ? <div role="alert">Could not refresh finance runs: {readError instanceof Error ? readError.message : "Request failed"}. <Button variant="outline" onClick={() => void refresh()}>Retry</Button></div> : null}
     {!list.isLoading && !list.error && list.data?.results.length === 0 ? <p>No runs match these filters.</p> : null}
     {current.data && !current.error && !current.data.compatible ? <p role="status">Current compatibility: {current.data.compatibility_reason?.code ?? "Unavailable"}</p> : null}
     <form onSubmit={(event) => { event.preventDefault(); void upload(); }} className="space-y-4 rounded-lg border bg-card p-5" aria-busy={uploadState === "uploading"}>
-      <div onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); if (busy) return; if (event.dataTransfer.files.length !== 1) { setFile(undefined); setUploadState("error"); setMessage("Select one .xlsx workbook at a time."); } else chooseFile(event.dataTransfer.files[0]); }} className="rounded-md border border-dashed p-5">
+      <div onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); if (busy || refreshPending) return; if (event.dataTransfer.files.length !== 1) { setFile(undefined); setUploadState("error"); setMessage("Select one .xlsx workbook at a time."); } else chooseFile(event.dataTransfer.files[0]); }} className="rounded-md border border-dashed p-5">
         <label className="block">Drop or select an .xlsx workbook (maximum 32 MiB)
-          <input type="file" accept=".xlsx" disabled={busy} className="mt-3 block w-full text-sm" onChange={(event) => chooseFile(event.target.files?.[0])} />
+          <input type="file" accept=".xlsx" disabled={busy || refreshPending} className="mt-3 block w-full text-sm" onChange={(event) => chooseFile(event.target.files?.[0])} />
         </label>
       </div>
-      <Button type="submit" disabled={busy || !file}>Upload workbook for {year}</Button>
+      <Button type="submit" disabled={busy || refreshPending || !file}>Upload workbook for {year}</Button>
       <UploadStatus state={uploadState} message={message} />
     </form>
     <div ref={summary} tabIndex={-1} aria-label="Selected run summary" className="outline-offset-4">
-      {selectedRun ? <FinanceRunSummary run={selectedRun} currentId={currentId} currentRun={currentDetail.error ? undefined : currentDetail.data} disabled={busy || Boolean(readError)} onAction={openAction} /> : null}
+      {selectedRun ? <FinanceRunSummary run={selectedRun} currentId={currentId} currentRun={currentDetail.error ? undefined : currentDetail.data} disabled={busy || refreshPending || Boolean(readError)} onAction={openAction} /> : null}
     </div>
     {!action ? <p role={mutationError ? "alert" : "status"} aria-live="polite">{mutationMessage}</p> : null}
+    {refreshPending && !action ? <Button variant="outline" disabled={mutating} onClick={() => void retryPublicationRefresh()}>Retry refresh</Button> : null}
     <Dialog open={action !== null} onOpenChange={(open) => { if (!open && !mutating) setAction(null); }}>
       <DialogContent showCloseButton={!mutating} onCloseAutoFocus={(event) => { event.preventDefault(); if (opener.current?.isConnected) opener.current.focus(); else summary.current?.focus(); }} onEscapeKeyDown={(event) => { if (mutating) event.preventDefault(); }} onInteractOutside={(event) => { if (mutating) event.preventDefault(); }}>
         <DialogTitle>{action === "demote" ? "Confirm demotion" : selectedRun?.status === "superseded" ? "Confirm re-approval" : "Confirm approval"}</DialogTitle>
