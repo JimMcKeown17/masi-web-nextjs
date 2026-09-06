@@ -99,3 +99,50 @@ does not establish real-browser focus or responsive/light/dark visual correctnes
   package installation, backend changes, migrations, environment/deploy actions or
   live production verification were performed. Existing release/browser/visual
   dependencies above remain PENDING.
+
+## Review fixes, round 2
+
+### RED
+
+Before the implementation fix, `pnpm test:unit` exited 1: 79 tests, 77 passed,
+2 failed, 0 cancelled, 0 skipped. Failing names:
+
+- `approve clears shared approved state on B → A → B without cross-account requests`
+- `demote clears shared approved state on B → A → B without cross-account requests`
+
+Both failed with `Superseded figures must be absent while replacement GET is pending`.
+The real snapshot hook initially fetches and renders B's data, B unmounts, A publishes,
+and B remounts while its new GETs are delayed. The harness uses installed SWR 2.3.6
+and normally required local jsdom 26, with host authentication and HTTP mocked.
+The other-account-cache-survives assertion has been replaced with account-switch
+freshness and authorization isolation checks. Existing round-1 retry cases remain.
+
+### Implementation and GREEN
+
+- Successful approval/demotion clears snapshot and mutable current/list/detail data
+  across every account's finance cache keys using SWR mutation with `undefined`
+  and `revalidate: false`. Account-separated key construction is unchanged. The
+  round-1 verified current/list/detail reads populate only the publishing account;
+  refresh failure and GET-only retry behavior remain intact.
+- The two new interactions fetch B's latest/year snapshots and current/list/detail
+  state, switch to A for one publication POST, then return to B with all GETs delayed.
+  They assert loading without superseded figures or run state, no publisher data in
+  B's run cache, no B reader revalidation during A's session, B-only credentials
+  on return, and preservation of unrelated cache data. Reader pages, hook and API
+  data path are unchanged.
+- `pnpm test:unit`: PASS, 79 tests, 79 passed, 0 failed, 0 cancelled, 0 skipped.
+- `pnpm exec tsc --noEmit`: PASS, exit 0, no diagnostics.
+- `pnpm lint`: PASS, exit 0; `1 problem (0 errors, 1 warning)`. The sole warning is
+  the existing `@next/next/no-img-element` in `src/app/image-debug/page.tsx:56:17`;
+  no new warnings.
+- `git diff --check`: PASS.
+- `pnpm build`: PENDING for the supervisor; intentionally not run. No network,
+  package installs, migrations, environment changes or deployments performed.
+  Real-browser responsive/light/dark/focus checks and live release evidence remain
+  PENDING; this is local jsdom interaction and unit evidence only.
+
+### Git handoff
+
+Uncommitted: staging the four explicit changed files failed with
+`.git/index.lock: Operation not permitted` (exit 128). No commit or push occurred.
+The existing untracked `.review-detached.pid` was left untouched.

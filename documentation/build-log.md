@@ -4,6 +4,23 @@ Last updated: 6 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
 
+## 6 September 2026 - WP2a review fixes, round 2
+
+Successful finance approval/demotion now clears shared snapshot and mutable run
+state for every previously used account without revalidation. Account-separated
+keys and the publishing account's verified reads/read-only retry remain intact.
+New real-SWR/jsdom B → A → B approval/demotion interactions verify that delayed
+reader GETs show loading without superseded figures or run state and preserve
+credential isolation. Reader pages and their data path are unchanged.
+
+`pnpm test:unit`: 79 passed, 0 failed (RED: 77 passed, 2 failed).
+`pnpm exec tsc --noEmit`: exit 0, no diagnostics. `pnpm lint`: exit 0,
+0 errors, 1 existing image-debug warning, no new warnings. `git diff --check`: passed.
+Exact failing names and verification are in [the stage log](../docs/build-logs/2026-09-05-wp2a-frontend.md#review-fixes-round-2).
+`pnpm build` stays PENDING for the supervisor, along with real-browser visual/focus
+checks and live release evidence. Local proof only; no network, package installation,
+migrations, environment changes or deployments required or performed by this fix.
+
 ## 6 September 2026 - WP2a review fixes, round 1
 
 Local fixes on `feat/wp2a-finance-runs` clear inactive account snapshot caches after

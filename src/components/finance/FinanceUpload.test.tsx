@@ -75,17 +75,20 @@ const localRequire = createRequire(import.meta.url);
 const { build } = createRequire(localRequire.resolve("tsx"))("esbuild");
 const { JSDOM } = localRequire("jsdom");
 
-async function publicationInteraction(action: "approve" | "demote", failure = "") {
+async function publicationInteraction(action: "approve" | "demote", failure = "", switchAccount = false) {
   const { outputFiles } = await build({
     stdin: { contents: `
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import { SWRConfig } from 'swr';
+import useSWR, { SWRConfig } from 'swr';
+import { useAuth } from '@clerk/nextjs';
+import { financeRunsCacheKey, getFinanceCurrent, getFinanceRuns, getFinanceRun } from './src/lib/api/finance-runs';
 import { FinanceUploadSession } from './src/components/finance/FinanceUpload';
 import { useFinanceSnapshot } from './src/components/finance/useFinanceSnapshot';
 import { financeSnapshotCacheKey } from './src/lib/api/finance';
 import { runFixture } from './src/components/finance/financeRunTestFixture';
-const action = ${JSON.stringify(action)}, failure = ${JSON.stringify(failure)};
+const action = ${JSON.stringify(action)}, failure = ${JSON.stringify(failure)}, switchAccount = ${JSON.stringify(switchAccount)};
+window.account = switchAccount ? 'account-B' : 'review-account';
 const cache = new Map();
 let changed = false, failReads = Boolean(failure), readerRequests = 0;
 const requests = [];
@@ -96,9 +99,11 @@ const selected = action === 'approve' ? candidate : old;
 const json = (data, status=200) => Promise.resolve(new Response(JSON.stringify(data), {status}));
 window.fetch = async (input, init) => {
   const url = String(input), method = init?.method ?? 'GET';
-  requests.push({url, method});
+  const authorization = init?.headers?.Authorization;
+  requests.push({url, method, authorization, account:window.account});
+  if (switchAccount && changed && window.account === 'account-B') { if(url.includes('/snapshot/')) readerRequests++; return new Promise(() => {}); }
   if (method === 'POST') { changed = true; return json({...selected,status:action === 'approve' ? 'approved' : 'superseded'}); }
-  if (url.includes('/snapshot/')) { readerRequests++; return new Promise(() => {}); }
+  if (url.includes('/snapshot/')) { readerRequests++; return switchAccount && !changed ? json({figures:'SUPERSEDED FIGURES'}) : new Promise(() => {}); }
   const resource = url.includes('/current/') ? 'current' : url.includes('/runs/?') ? 'list' : 'detail';
   if (changed && failReads && resource === failure) return json({detail:'Injected refresh failure'},503);
   if (resource === 'current') return json({runs:{funders:changed ? replacement : old},compatible:true});
@@ -110,16 +115,32 @@ async function until(fn, label) { for(let i=0;i<150;i++) { if(fn()) return; awai
 function check(value, label) { if(!value) throw new Error(label); }
 function button(label) { return [...document.querySelectorAll('button')].find(e=>e.textContent===label); }
 function Reader({year}) { const {data,isLoading} = useFinanceSnapshot(year); return <p data-reader>{data ? data.figures : isLoading ? 'Reader loading' : 'Reader empty'}</p>; }
+function RunReader() {
+  const {userId,getToken} = useAuth();
+  const current = useSWR(financeRunsCacheKey(userId,'current:2025'),async()=>getFinanceCurrent(await getToken(),2025));
+  const list = useSWR(financeRunsCacheKey(userId,'list:2025::'),async()=>getFinanceRuns(await getToken(),{year:2025}));
+  const detail = useSWR(financeRunsCacheKey(userId,'detail:old-run'),async()=>getFinanceRun(await getToken(),'old-run'));
+  return <p data-run-reader>{[current,list,detail].every(r=>r.data) ? 'OLD RUN STATE' : [current,list,detail].every(r=>!r.data && r.isLoading) ? 'Runs loading' : 'Runs pending'}</p>;
+}
 const config = {provider:()=>cache,revalidateOnFocus:false,shouldRetryOnError:false,dedupingInterval:0};
 const root = createRoot(document.getElementById('root'));
-const render = reader => root.render(<SWRConfig value={config}>{reader ? <><Reader/><Reader year={2026}/></> : <FinanceUploadSession userId="review-account" getToken={async()=> 'token'}/>}</SWRConfig>);
+const render = reader => {
+  const userId = window.account;
+  root.render(<SWRConfig value={config}>{reader ? <><Reader/><Reader year={2026}/>{switchAccount ? <RunReader/> : null}</> : <FinanceUploadSession key={userId} userId={userId} getToken={async()=> 'token-'+userId}/>}</SWRConfig>);
+};
 window.result = (async()=>{
  try {
   // Mount then unmount readers so these are genuinely inactive, previously visited keys.
-  for (const year of [undefined,2026]) cache.set(financeSnapshotCacheKey('review-account',year), {data:{figures:'SUPERSEDED FIGURES'}});
-  cache.set(financeSnapshotCacheKey('other-account'),{data:{figures:'OTHER ACCOUNT'}});
+  if (!switchAccount) for (const year of [undefined,2026]) cache.set(financeSnapshotCacheKey('review-account',year), {data:{figures:'SUPERSEDED FIGURES'}});
+  cache.set('unrelated-cache',{data:'UNCHANGED'});
   render(true);
   await until(()=>document.body.textContent.includes('SUPERSEDED FIGURES'),'seeded reader');
+  if (switchAccount) {
+    await until(()=>document.body.textContent.includes('OLD RUN STATE'),'B run reads');
+    check(requests.length >= 5 && requests.every(r=>r.authorization==='Bearer token-account-B'),'Initial reader requests must use B credentials');
+    window.account='account-A';
+  }
+  const beforePublisher = requests.length;
   render(false);
   await until(()=>document.querySelectorAll('select')[1]?.options.length > 1,'run list');
   const select = document.querySelectorAll('select')[1]; select.value=selected.id; select.dispatchEvent(new Event('change',{bubbles:true}));
@@ -144,12 +165,26 @@ window.result = (async()=>{
   }
   const announcement = document.body.textContent;
   const beforeReaders = readerRequests;
+  const beforeReturn = requests.length;
+  if (switchAccount) {
+    const publishingRequests = requests.slice(beforePublisher);
+    check(publishingRequests.every(r=>r.authorization==='Bearer token-account-A'),'Publisher must use A credentials only');
+    check(!publishingRequests.some(r=>r.url.includes('/snapshot/') || r.url.includes('year=2025')),'Publication must not revalidate B readers with A credentials');
+    window.account='account-B';
+  }
   render(true);
   await until(()=>document.querySelector('[data-reader]'),'reader remount');
   check(!document.body.textContent.includes('SUPERSEDED FIGURES'),'Superseded figures must be absent while replacement GET is pending');
   check([...document.querySelectorAll('[data-reader]')].every(e=>e.textContent==='Reader loading'),'Reader must show loading');
   await until(()=>readerRequests>beforeReaders,'replacement snapshot GET');
-  check(cache.get(financeSnapshotCacheKey('other-account')).data.figures==='OTHER ACCOUNT','Other account cache must survive');
+  if (switchAccount) {
+    check(document.querySelector('[data-run-reader]').textContent==='Runs loading','B mutable run caches must be cleared without publisher data');
+    await until(()=>requests.slice(beforeReturn).length>=5,'B authenticated snapshot and run reads');
+    check(requests.slice(beforeReturn).every(r=>r.method==='GET' && r.authorization==='Bearer token-account-B'),'Returning B must fetch only with B credentials');
+    check(!document.body.textContent.includes('SUPERSEDED FIGURES'),'Superseded figures must remain absent during delayed B GETs');
+    for (const resource of ['current:2025','list:2025::','detail:old-run']) check(!cache.get(financeRunsCacheKey('account-B',resource))?.data,'B run cache must not contain publisher response');
+  }
+  check(cache.get('unrelated-cache').data==='UNCHANGED','Unrelated cache must survive');
   check(requests.filter(r=>r.method==='POST').length===1,'Mutation must occur exactly once');
   check(announcement.includes('Current run: verified-current.'),'Announcement must name the verified current response');
  } finally { root.unmount(); }
@@ -158,7 +193,7 @@ window.result = (async()=>{
     define: { "process.env.NODE_ENV": '"production"', "process.env.NEXT_PUBLIC_API_URL": '""' },
     plugins: [{ name: "test-host-auth", setup(plugin: { onResolve: (options: unknown, callback: (args: { path: string }) => unknown) => void; onLoad: (options: unknown, callback: () => unknown) => void }) {
       plugin.onResolve({ filter: /^(@clerk\/nextjs|@\/components\/providers\/UserProvider)$/ }, (args) => ({ path: args.path, namespace: "test-auth" }));
-      plugin.onLoad({ filter: /.*/, namespace: "test-auth" }, () => ({ contents: `export const useAuth=()=>({userId:'review-account',isLoaded:true,getToken:async()=> 'token'}); export const useUser=()=>null;` }));
+      plugin.onLoad({ filter: /.*/, namespace: "test-auth" }, () => ({ contents: `export const useAuth=()=>{const userId=window.account; return {userId,isLoaded:true,getToken:async()=> 'token-'+userId};}; export const useUser=()=>null;` }));
     } }],
   });
   const dom = new JSDOM('<div id="root"></div>', { runScripts: "outside-only", pretendToBeVisual: true, url: "https://test.invalid" });
@@ -168,6 +203,7 @@ window.result = (async()=>{
 }
 for (const action of ["approve", "demote"] as const) {
   test(`${action} clears inactive account snapshots before delayed reader remount`, () => publicationInteraction(action));
+  test(`${action} clears shared approved state on B → A → B without cross-account requests`, () => publicationInteraction(action, "", true));
   for (const resource of ["current", "list", "detail"]) {
     test(`${action}: failed post-mutation ${resource} GET reports pending and retries reads only`, () => publicationInteraction(action, resource));
   }

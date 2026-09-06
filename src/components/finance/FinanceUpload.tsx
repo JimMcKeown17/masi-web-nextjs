@@ -176,10 +176,11 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
     try {
       await (action === "approve" ? approveFinanceRun : demoteFinanceRun)(await token(), selectedRun.id, options);
       setRefreshPending(true); setReturnedRun(undefined);
-      // Explicit data removal also reaches inactive reader keys, and fences any
-      // in-flight pre-mutation requests through SWR's mutation timestamps.
-      await mutate((key) => typeof key === "string" && key.startsWith(`/operations/finance/snapshot?user=${userId}&`), undefined, { revalidate: true });
-      await mutate((key) => typeof key === "string" && key.startsWith(`/operations/finance/runs?user=${encodeURIComponent(userId)}&`), undefined, { revalidate: false });
+      // Publication changes shared approved state for every previously used account.
+      // Clear data and fence in-flight reads without fetching for another account;
+      // verified reads below repopulate only this publisher's account-scoped keys.
+      await mutate((key) => typeof key === "string" && key.startsWith("/operations/finance/snapshot?user="), undefined, { revalidate: false });
+      await mutate((key) => typeof key === "string" && key.startsWith("/operations/finance/runs?user="), undefined, { revalidate: false });
       await verifyPublication();
       setAction(null);
     } catch (error) {
