@@ -65,7 +65,7 @@ export type FinanceRun = RunMetadata & RunDetail & (
   | {kind: "budgets"; payload: BudgetPayload | null}
 );
 export function runFindings(run: FinanceRun): FinanceRunFinding[] {
-  return run.kind === "budgets" ? run.payload?.derived.findings ?? [] : run.payload?.findings ?? [];
+  return run.payload?.findings ?? [];
 }
 export interface FinanceRunsPage {
   results: FinanceRunMetadata[];

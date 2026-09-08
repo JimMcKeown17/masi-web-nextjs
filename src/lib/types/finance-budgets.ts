@@ -1,4 +1,4 @@
-import type { FinanceRunFinding, FinanceRunManifest } from "./finance-runs";
+import type { FinanceRunFinding } from "./finance-runs";
 export type BudgetMetric = "budget" | "actual" | "projected" | "variance_all" | "variance_masi";
 export type BudgetValues = Record<BudgetMetric, string | null>;
 export interface BudgetNode extends BudgetValues {
@@ -19,13 +19,11 @@ export interface BudgetFinding extends FinanceRunFinding {
   cached: string | null; recomputed: string | null; delta: string | null;
 }
 export interface BudgetPayload {
-  kind: "budgets"; schema_version: "1.0.0"; manifest: FinanceRunManifest;
-  derived: {
+  // Exact API payload: artifact.derived, with the manifest alongside payload on FinanceRun.
     hierarchy: BudgetHierarchy[]; lines: BudgetLine[]; findings: BudgetFinding[];
     projection: {sheet_as_of: string; month_count: number; actual_basis: string; policy: string};
     lines_by_bc: {bc: string | number; line_ids: string[]; ledger_actual: string; ledger_row_count: number}[];
     summary: {complete: boolean; finding_count: number; ledger_contributor_count: number; unbound_count: number; orphan_count: number};
-  };
 }
 export interface FinanceLedgerRow {
   row_key: string; sheet_row: number; date: string; year: number; description: string | null;

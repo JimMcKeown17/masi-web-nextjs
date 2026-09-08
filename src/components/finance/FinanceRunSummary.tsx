@@ -36,7 +36,7 @@ export function FinanceRunSummary({ run, currentId, currentRun, disabled, onActi
         </dl>
         {run.kind === "funders" && run.schema_version === "1.0.0" ? <p>Imported snapshot: ledger facts and original producer version are unavailable.</p> : null}
         {run.failure ? <div role="alert" className="rounded-md border p-4"><strong>Failed run: {run.failure.code}</strong><p>{run.failure.phase}: {run.failure.message}</p><p>This run cannot be approved.</p></div> : null}
-        {run.kind === "budgets" && run.payload ? <FinanceBudgetsView key={run.id} payload={run.payload} runId={run.id}/> : null}
+        {run.kind === "budgets" && run.payload ? <FinanceBudgetsView key={run.id} payload={run.payload} manifest={run.manifest} runId={run.id}/> : null}
         <section aria-label="Findings" className="space-y-4">
           <h3 className="font-semibold">Findings</h3>
           {groups.size === 0 ? <p>{run.status === "failed" ? "Findings unavailable because processing failed." : "No findings."}</p> : null}

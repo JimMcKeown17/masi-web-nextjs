@@ -236,7 +236,7 @@ test("replaysAndReapprovesBudgetCandidate",()=>budgetDomTest(domPrelude+`
 import {FinanceUpload} from './src/components/finance/FinanceUpload';
 import {runFixture} from './src/components/finance/financeRunTestFixture';
 import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
-let run=runFixture({kind:'budgets',id:'budget-replay',schema_version:'1.0.0',status:'superseded',dependency_run:'ledger-one',manifest:golden.manifest,payload:golden});
+let run=runFixture({kind:'budgets',id:'budget-replay',schema_version:'1.0.0',status:'superseded',dependency_run:'ledger-one',manifest:golden.manifest,payload:golden.derived});
 const ledger=runFixture({id:'ledger-one',status:'approved'});const mutations=[];
 window.fetch=async(url,init)=>{const u=new URL(url,'https://test.invalid');
  if(init?.method==='POST'){
