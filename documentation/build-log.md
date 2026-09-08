@@ -1,8 +1,56 @@
 # Frontend Build Log
 
-Last updated: 6 September 2026
+Last updated: 8 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
+
+## 8 September 2026 - WP4 wire review and presentation follow-up
+
+The approved backend stores/returns budget `derived` directly as `run.payload`,
+with `manifest` beside it. Review found that the first frontend and its mocks
+incorrectly expected the whole artifact wrapper. Public API/summary and current
+reader/Fix RED regressions reproduce and close the mismatch; corrected core is
+`7758427`. Contract file byte equality alone was not run-detail compatibility proof.
+
+A bounded follow-up adds hierarchy chevrons, readable completeness flags and shared
+plain-language compatibility copy. No calculations or monetary values changed.
+Focused suite: 34/34; TypeScript and lint pass (existing image-debug warning only).
+Full unchanged-tree rerun: 102/102 with no skips. The first full run had one
+intermittent existing cross-account demotion assertion; its failed log and passing
+exact/full reruns are preserved in the stage log, without weakening the assertion. A privately instrumented 10-run focused check
+also passed; all returning-B requests followed React's B commit with B credentials.
+The original failure was not reproduced, so its cause remains unresolved.
+Supervisor's authorized-network production builds pass with localhost API origin,
+including the final presentation build (`frontend-build-presentation.log`).
+
+Actual Chrome checks with synthetic API/auth verified the corrected desktop table,
+keyboard hierarchy, shared contributor pagination, and real downloaded CSV/XLSX
+parity. Browser upload picker stalled and was aborted; upload/approval recovery,
+Fix browser checks and final mobile/dark/presentation recapture remain unverified.
+The exact boundary, screenshot/download artifacts and remaining gates are recorded
+in [the stage-log follow-up](../docs/build-logs/2026-09-08-wp4a-frontend.md#review-corrections-and-bounded-browser-follow-up-2026-09-08).
+No deployment or real backend/provider/workbook evidence is claimed.
+
+## 8 September 2026 - WP4 slice A budgets frontend
+
+Local uncommitted budgets upload/reader/Fix/contributor implementation on
+`feat/wp4a-budgets-frontend`, based on `633cc44`, using approved backend source
+`0a6e4ce`. Extends the existing finance run workflow with explicit ledger dependency,
+producer-owned budget values and findings, exact source provenance, shared-BC
+contributor disclosure, authenticated exports and stale actor/selection protection.
+ExcelJS 4.4.0 is loaded on demand for genuine XLSX display-value exports.
+
+`pnpm test:unit`: 99 passed, 0 failed/skipped. TypeScript passed; lint passed with
+0 errors and the one existing image-debug warning. `git diff --check` passed.
+Local `pnpm build` failed exclusively on the existing Google Fonts network fetches;
+the authorized-network rerun remains with the supervisor and no build pass is claimed.
+
+Detailed scope, RED evidence, exact contract hashes, final gates, environment
+warnings and pending browser/release work are in
+[the WP4 stage log](../docs/build-logs/2026-09-08-wp4a-frontend.md).
+Local tests only; no backend edits, real workbook/data use, production API requests,
+Git metadata writes, commits, pushes or deployment. The approved backend and
+publisher-owned formula-cache fix remain release dependencies.
 
 ## 6 September 2026 - WP2a review fixes, round 2
 
@@ -625,3 +673,41 @@ The freshness response includes `status`, `is_stale`, cadence and stale threshol
 - The incremental backend slice initially captures newly created Airtable records. Airtable edits and source deletions still rely on, or require extensions to, full reconciliation; do not imply otherwise in UI copy.
 - The Youth Sessions “today” boundary still needs a separate audit for UTC-versus-SAST query semantics.
 - Resolve Next.js workspace-root inference (duplicate frontend lockfiles) and migrate the deprecated `middleware` convention to `proxy` in separate maintenance work.
+
+## 2026-09-08 — WP4B Google budget refresh and account-switch request fences
+
+Status: isolated implementation on `feat/wp4b-budget-pull`, based on reviewed
+WP4A `04265fe`; not merged or deployed. Approved WP4 section 5.3 scope.
+
+- Budget mode offers `Refresh from Google Sheets`, using the same approved ledger
+  selector and candidate/failed/replay review states as file upload. The POST sends
+  only year and ledger UUID directly to Django with bearer authentication. No
+  automatic approval or client-side credentials/source URL. Fixed safe error
+  messages explain retry/access/source-change cases and the file-upload fallback;
+  the selected ledger remains available for fallback.
+- Independent review reproduced a pending-token GET after account replacement.
+  Cleanup now fences old contexts synchronously at layout commit. A separate
+  delayed-pagination reproduction showed the next dependency page reusing an old
+  token; the loop now obtains the existing fenced token before every page. Tests
+  demonstrate both REDs and GREENs. No stale POST, cross-account data disclosure,
+  or backend authorization bypass was established by those probes.
+- The historical demotion assertion used fixture account assignment before React
+  committed the switch. Tests now record committed actor identity and wait for the
+  actual loading render, while immediately requiring stale figures/run data absent.
+- Full frontend unit suite: 106/106 pass. Pull behavior tests exercise candidate
+  creation without approval, access-error-to-upload fallback with retained ledger,
+  and delayed dependency pagination across replacement. Type/lint/build and
+  revised independent review are being completed separately. No new frontend
+  dependencies or financial calculations.
+
+Final local gate update:
+- Revised independent review: APPROVED, zero findings; independent full unit suite
+  106/106 PASS. TypeScript and changed-file ESLint pass.
+- Production `pnpm build` PASS with the public backend API URL configured and
+  network access for existing Google Fonts. The first isolated build failed on an
+  external node_modules symlink; a local dependency copy resolved it. An unset
+  API URL then stalled existing impact-page static generation; supplying the
+  documented environment setting resolved it without unrelated source changes.
+- GitHub confirms both website repositories are public. The originating finance
+  repository forbids public pushes, so these reviewed source changes remain local
+  pending Jim's explicit destination decision. No merge or deployment occurred.

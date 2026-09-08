@@ -1,10 +1,12 @@
+import type { BudgetPayload } from "./finance-budgets";
 import type { Finding, FinanceSnapshot } from "./finance";
 
 export type FinanceRunStatus = "candidate" | "approved" | "superseded" | "failed";
 export type FinanceRunAction = "approve" | "demote";
-export interface FinanceRunMetadata {
+export type FinanceRunKind = "funders" | "budgets";
+interface RunMetadata {
   id: string;
-  kind: "funders";
+  dependency_run?: string | null;
   accounting_year: number;
   status: FinanceRunStatus;
   source_name: string;
@@ -34,12 +36,13 @@ export interface FinanceRunMetadata {
   finding_count: number;
   in_scope_error_count: number;
 }
+export type FinanceRunMetadata = RunMetadata & ({kind: "funders"} | {kind: "budgets"});
 export interface FinanceRunManifest {
   producer: { name: string; version: string | null };
   source: { name: string; date: string; sha256: string; size_bytes: number; client_modified_at: string | null };
   accounting_year: number;
   rule_config_sha256: string | null;
-  dependencies: { kind: string; source_sha256?: string }[];
+  dependencies: { kind: string; run_id?: string; source_name?: string; source_date?: string; source_sha256?: string; payload_sha256?: string; facts_sha256?: string; schema_version?: string }[];
 }
 // Run findings retain source metadata and canonical identities, unlike snapshot bindings.
 export interface FinanceRunFinding {
@@ -50,12 +53,19 @@ export interface FinanceRunFinding {
   sheet_row?: number | null;
   contract_id?: string | null;
   source?: unknown;
+  source_cells?: string[];
 }
-export interface FinanceRun extends FinanceRunMetadata {
+interface RunDetail {
   manifest: FinanceRunManifest;
-  payload: { findings: FinanceRunFinding[] } | FinanceSnapshot | null;
   failure: { code: string; phase: string; message: string } | null;
   allowed_actions: FinanceRunAction[];
+}
+export type FinanceRun = RunMetadata & RunDetail & (
+  | {kind: "funders"; payload: {findings: FinanceRunFinding[]} | FinanceSnapshot | null}
+  | {kind: "budgets"; payload: BudgetPayload | null}
+);
+export function runFindings(run: FinanceRun): FinanceRunFinding[] {
+  return run.payload?.findings ?? [];
 }
 export interface FinanceRunsPage {
   results: FinanceRunMetadata[];
@@ -63,6 +73,7 @@ export interface FinanceRunsPage {
   previous: string | null;
 }
 export interface FinanceRunFilters {
+  kind?: FinanceRunKind;
   year?: number;
   status?: FinanceRunStatus;
   cursor?: string;
@@ -73,6 +84,8 @@ export interface ApprovalOptions {
   note: string;
 }
 export interface CurrentRun {
+  budget_source_sha256?: string;
+  dependency_run_id?: string;
   id: string;
   source_sha256: string;
   management_accounts_sha256: string | null;

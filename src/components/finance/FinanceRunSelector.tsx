@@ -12,7 +12,7 @@ export function FinanceRunSelector({ year, status, selectedId, selectedRun, runs
     <section aria-label="Browse finance runs" className="space-y-3">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         <label>Accounting year
-          <input type="number" min={1} max={32767} value={year} disabled={disabled} className={inputClass} onChange={(event) => {
+          <input type="number" min={1} max={32767} value={year} className={inputClass} onChange={(event) => {
             const next = Number(event.target.value);
             if (Number.isInteger(next) && next >= 1 && next <= 32767) onYearChange(next);
           }} />
@@ -24,7 +24,7 @@ export function FinanceRunSelector({ year, status, selectedId, selectedRun, runs
           </select>
         </label>
         <label>Run
-          <select value={selectedId} disabled={disabled} className={inputClass} onChange={(event) => onRunChange(event.target.value)}>
+          <select aria-label="Run" value={selectedId} disabled={disabled} className={inputClass} onChange={(event) => onRunChange(event.target.value)}>
             <option value="">Select a run</option>
             {selectedId && !options.some((run) => run.id === selectedId) ? <option value={selectedId}>Selected run (loading)</option> : null}
             {options.map((run) => <option key={run.id} value={run.id}>{run.id === currentId ? "Current approved" : run.status}: {run.source_name} ({run.id})</option>)}

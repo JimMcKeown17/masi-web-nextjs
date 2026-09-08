@@ -10,5 +10,5 @@ export function runFixture(overrides: Partial<FinanceRun> = {}): FinanceRun {
     peak_memory_bytes: 1000, fact_row_count: 5, allocation_count: 6, finding_count: 0, in_scope_error_count: 0,
     manifest: { producer: { name: "masi-finance", version: "0.2.0" }, source: { name: "20260901 Masi.xlsx", date: "2026-09-01", sha256: "a".repeat(64), size_bytes: 100, client_modified_at: null }, accounting_year: 2026, dependencies: [], rule_config_sha256: null },
     payload: { findings: [] }, failure: null, allowed_actions: ["approve"], ...overrides,
-  };
+  } as FinanceRun;
 }

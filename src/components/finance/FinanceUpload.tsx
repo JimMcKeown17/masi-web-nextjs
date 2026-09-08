@@ -1,14 +1,15 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { financeCurrentMessage } from "@/lib/finance/currentMessage";
+import { useLayoutEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import useSWR, { useSWRConfig } from "swr";
 import { useUser } from "@/components/providers/UserProvider";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogDescription, DialogTitle } from "@/components/ui/dialog";
 import { canPublishFinance } from "@/lib/finance/access";
-import { approveFinanceRun, demoteFinanceRun, financeRunsCacheKey, FinanceRunApiError, getFinanceCurrent, getFinanceRun, getFinanceRuns, uploadFinanceRun } from "@/lib/api/finance-runs";
-import type { ApprovalOptions, FinanceRun, FinanceRunAction, FinanceRunStatus } from "@/lib/types/finance-runs";
+import { approveFinanceRun, demoteFinanceRun, financeRunsCacheKey, FinanceRunApiError, getFinanceCurrent, getFinanceRun, getFinanceRuns, getBudgetLedgerDependencies, uploadFinanceRun, pullFinanceBudget } from "@/lib/api/finance-runs";
+import type { ApprovalOptions, FinanceRun, FinanceRunAction, FinanceRunKind, FinanceRunStatus } from "@/lib/types/finance-runs";
 import { FinanceRunSelector } from "./FinanceRunSelector";
 import { FinanceRunSummary } from "./FinanceRunSummary";
 
@@ -16,6 +17,21 @@ type Requirements = Pick<ApprovalOptions, "acknowledge_findings" | "override_ant
 const NO_REQUIREMENTS: Requirements = { acknowledge_findings: false, override_anti_rollback: false };
 const EMPTY_OPTIONS: ApprovalOptions = { ...NO_REQUIREMENTS, note: "" };
 type UploadState = "idle" | "uploading" | "success" | "error";
+
+function budgetPullMessage(code?: string): string {
+  const reasons: Record<string, string> = {
+    BUDGET_PULL_NOT_CONFIGURED: "Google Sheets refresh is not configured for this year. Ask an administrator to check the connection.",
+    BUDGET_PULL_ACCESS_DENIED: "Google Sheets access was denied. Ask an administrator to check the sheet's read permission and Google API setup.",
+    BUDGET_PULL_QUOTA: "Google Sheets is temporarily limiting requests. Wait before trying again.",
+    BUDGET_PULL_TIMEOUT: "Google Sheets did not respond in time. Try again when the connection is available.",
+    BUDGET_PULL_SOURCE_CHANGED: "The sheet changed during export. Wait until editing has paused, then refresh again.",
+    BUDGET_PULL_METADATA_INVALID: "Google Sheets did not provide valid source modification information.",
+    BUDGET_PULL_SIZE_LIMIT: "The Google response exceeded the permitted size.",
+    UPLOAD_IN_PROGRESS: "Another finance workbook is still processing for this year. Wait before trying again.",
+    HTTP_403: "Your account no longer has finance publish access. Ask an administrator to check your permissions.",
+  };
+  return `${reasons[code ?? ""] ?? "The Sheets refresh could not complete. Review your connection and selected ledger, then try again."} You can also upload an exported workbook below; your ledger selection is preserved.`;
+}
 
 export function validateFinanceFile(file: Pick<File, "name" | "size">): string | null {
   if (!/\.xlsx$/i.test(file.name)) return "Select an .xlsx workbook.";
@@ -62,8 +78,15 @@ export function FinanceUpload() {
 }
 
 export function FinanceUploadSession({ userId, getToken }: { userId: string; getToken: () => Promise<string | null> }) {
+  const [year,setYear] = useState(new Date().getFullYear());
+  const [kind,setKind] = useState<FinanceRunKind>("funders");
+  return <FinanceUploadContext key={`${userId}:${kind}:${year}`} userId={userId} getToken={getToken} year={year} setYear={setYear} kind={kind} setKind={setKind}/>;
+}
+function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {userId:string;getToken:()=>Promise<string|null>;year:number;setYear:(year:number)=>void;kind:FinanceRunKind;setKind:(kind:FinanceRunKind)=>void}) {
   const { mutate } = useSWRConfig();
-  const [year, setYear] = useState(new Date().getFullYear());
+  const active = useRef(true);
+  useLayoutEffect(()=>{active.current=true;return ()=>{active.current=false;};},[]);
+  const [ledgerRunId,setLedgerRunId] = useState("");
   const [status, setStatus] = useState<FinanceRunStatus | "">("");
   const [cursor, setCursor] = useState<string>();
   const [selectedId, setSelectedId] = useState("");
@@ -83,15 +106,19 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
   const busyRef = useRef(false);
   const busy = uploadState === "uploading" || mutating;
   async function token() {
+    if (!active.current) throw new Error("Selection changed.");
     const value = await getToken();
+    if (!active.current) throw new Error("Selection changed.");
     if (!value) throw new Error("Not authenticated. Sign in again.");
     return value;
   }
-  const list = useSWR(financeRunsCacheKey(userId, `list:${year}:${status}:${cursor ?? ""}`), async () => getFinanceRuns(await token(), { year, status: status || undefined, cursor }));
+  const list = useSWR(financeRunsCacheKey(userId, `list:${kind}:${year}:${status}:${cursor ?? ""}`), async () => getFinanceRuns(await token(), { kind, year, status: status || undefined, cursor }));
   const current = useSWR(financeRunsCacheKey(userId, `current:${year}`), async () => getFinanceCurrent(await token(), year));
   const detail = useSWR(selectedId ? financeRunsCacheKey(userId, `detail:${selectedId}`) : null, async () => getFinanceRun(await token(), selectedId));
-  const currentId = current.error ? undefined : current.data?.runs.funders?.id;
+  const currentId = current.error ? undefined : current.data?.runs[kind]?.id;
   const currentDetail = useSWR(currentId ? financeRunsCacheKey(userId, `detail:${currentId}`) : null, async () => getFinanceRun(await token(), currentId!));
+  const dependencies = useSWR(kind === "budgets" ? financeRunsCacheKey(userId, `dependencies:funders:${year}`) : null, async()=>getBudgetLedgerDependencies(token,year));
+  const eligibleLedger = !dependencies.error && dependencies.data?.find(run=>run.id===ledgerRunId);
   const selectedRun = detail.error ? undefined : detail.data ?? (returnedRun?.id === selectedId ? returnedRun : undefined);
 
   async function refresh() {
@@ -108,16 +135,18 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
       // directly and only publish their results once every required read succeeds.
       const [nextCurrent, nextList, nextDetail] = await Promise.all([
         getFinanceCurrent(authToken, year),
-        getFinanceRuns(authToken, { year, status: status || undefined, cursor }),
+        getFinanceRuns(authToken, { kind, year, status: status || undefined, cursor }),
         getFinanceRun(authToken, selectedId),
       ]);
-      const nextCurrentId = nextCurrent.runs.funders?.id;
+      if (!active.current) return;
+      const nextCurrentId = nextCurrent.runs[kind]?.id;
       const nextCurrentDetail = nextCurrentId
         ? nextCurrentId === selectedId ? nextDetail : await getFinanceRun(authToken, nextCurrentId)
         : undefined;
+      if (!active.current) return;
       await Promise.all([
         mutate(financeRunsCacheKey(userId, `current:${year}`), nextCurrent, { revalidate: false }),
-        mutate(financeRunsCacheKey(userId, `list:${year}:${status}:${cursor ?? ""}`), nextList, { revalidate: false }),
+        mutate(financeRunsCacheKey(userId, `list:${kind}:${year}:${status}:${cursor ?? ""}`), nextList, { revalidate: false }),
         mutate(financeRunsCacheKey(userId, `detail:${selectedId}`), nextDetail, { revalidate: false }),
         ...(nextCurrentDetail ? [mutate(financeRunsCacheKey(userId, `detail:${nextCurrentDetail.id}`), nextCurrentDetail, { revalidate: false })] : []),
       ]);
@@ -143,17 +172,20 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
     setMessage(error ?? `Selected ${next.name}`);
     if (!error) setFile(next);
   }
-  async function upload() {
-    if (!file || busyRef.current || refreshPending) return;
-    const error = validateFinanceFile(file);
+  async function upload(source: "file" | "sheets" = "file") {
+    if ((source === "file" && !file) || (source === "sheets" && kind !== "budgets") || busyRef.current || refreshPending || (kind === "budgets" && !eligibleLedger)) return;
+    const error = source === "file" && file ? validateFinanceFile(file) : null;
     if (error) { setMessage(error); setUploadState("error"); return; }
     busyRef.current = true;
-    setUploadState("uploading"); setMessage("Uploading and processing workbook. Please wait.");
+    setUploadState("uploading"); setMessage(source === "sheets" ? "Fetching Google Sheets export and processing workbook. Please wait." : "Uploading and processing workbook. Please wait.");
     try {
-      const result = await uploadFinanceRun(await token(), file, year);
+      const result = source === "sheets"
+        ? await pullFinanceBudget(await token(), year, ledgerRunId)
+        : await uploadFinanceRun(await token(), file!, year, kind === "budgets" ? {kind,ledgerRunId} : {kind});
+      if (!active.current) return;
       if (result.status === 400 || result.status === 409) {
         setUploadState("error");
-        setMessage(result.error.code === "UPLOAD_IN_PROGRESS" ? "UPLOAD_IN_PROGRESS: another upload for this year is still processing. Wait, then retry the same file." : `${result.error.code}: ${result.error.detail}`);
+        setMessage(source === "sheets" ? budgetPullMessage(result.error.code) : result.error.code === "UPLOAD_IN_PROGRESS" ? "UPLOAD_IN_PROGRESS: another upload for this year is still processing. Wait, then retry the same file." : `${result.error.code}: ${result.error.detail}`);
         return;
       }
       const run = result.run;
@@ -163,7 +195,9 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
       await refresh();
       summary.current?.focus();
     } catch (error) {
-      setUploadState("error"); setMessage(`${error instanceof Error ? error.message : "Upload failed"}. If the response was lost, retry the same file to retrieve its existing run.`);
+      if (!active.current) return;
+      setUploadState("error");
+      setMessage(source === "sheets" ? budgetPullMessage(error instanceof FinanceRunApiError ? error.code : undefined) : `${error instanceof Error ? error.message : "Upload failed"}. If the response was lost, retry the same file to retrieve its existing run.`);
     } finally { busyRef.current = false; }
   }
   function openAction(next: FinanceRunAction) {
@@ -175,6 +209,12 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
     busyRef.current = true; setMutating(true); setMutationError(false); setMutationMessage("Applying change and refreshing approved server state…");
     try {
       await (action === "approve" ? approveFinanceRun : demoteFinanceRun)(await token(), selectedRun.id, options);
+      if (!active.current) {
+        // The mutation still changed shared state after navigation/account change.
+        // Fence old reads, then let mounted consumers fetch with their own actor.
+        await mutate((key)=>typeof key === "string" && (key.startsWith("/operations/finance/runs?user=") || key.startsWith("/operations/finance/snapshot?user=")), undefined, {revalidate:true});
+        return;
+      }
       setRefreshPending(true); setReturnedRun(undefined);
       // Publication changes shared approved state for every previously used account.
       // Clear data and fence in-flight reads without fetching for another account;
@@ -195,7 +235,8 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
   }
   const readError = list.error || current.error || detail.error || currentDetail.error;
   return <div className="space-y-6">
-    <header><h1 className="font-serif text-3xl">Publish finance workbook</h1><p className="mt-2 text-muted-foreground">Upload, inspect and explicitly approve a funders run for reader pages.</p></header>
+    <header><h1 className="font-serif text-3xl">Publish finance workbook</h1><p className="mt-2 text-muted-foreground">Upload, inspect and explicitly approve a finance run for reader pages.</p></header>
+    <label className="block">Run kind<select className="ml-3 rounded border bg-background p-2" value={kind} onChange={event=>setKind(event.target.value as FinanceRunKind)}><option value="funders">Funders</option><option value="budgets">Budgets</option></select></label>
     <FinanceRunSelector year={year} status={status} selectedId={selectedId} selectedRun={selectedRun} runs={list.error ? [] : list.data?.results ?? []} currentId={currentId} disabled={busy || refreshPending || action !== null}
       onYearChange={(value) => { setYear(value); setCursor(undefined); setSelectedId(""); setReturnedRun(undefined); }}
       onStatusChange={(value) => { setStatus(value); setCursor(undefined); }} onRunChange={(value) => { setSelectedId(value); setReturnedRun(undefined); }} />
@@ -203,14 +244,19 @@ export function FinanceUploadSession({ userId, getToken }: { userId: string; get
     {list.isLoading || current.isLoading || detail.isLoading ? <p role="status">Loading finance runs…</p> : null}
     {readError && !refreshPending ? <div role="alert">Could not refresh finance runs: {readError instanceof Error ? readError.message : "Request failed"}. <Button variant="outline" onClick={() => void refresh()}>Retry</Button></div> : null}
     {!list.isLoading && !list.error && list.data?.results.length === 0 ? <p>No runs match these filters.</p> : null}
-    {current.data && !current.error && !current.data.compatible ? <p role="status">Current compatibility: {current.data.compatibility_reason?.code ?? "Unavailable"}</p> : null}
+    {current.data && !current.error && !current.data.compatible ? <p role="status">{financeCurrentMessage(current.data)}</p> : null}
     <form onSubmit={(event) => { event.preventDefault(); void upload(); }} className="space-y-4 rounded-lg border bg-card p-5" aria-busy={uploadState === "uploading"}>
+      {kind === "budgets" ? <div className="space-y-2"><label>Ledger dependency<select className="ml-3 max-w-full rounded border bg-background p-2" value={ledgerRunId} disabled={busy || refreshPending || dependencies.isLoading} onChange={event=>setLedgerRunId(event.target.value)}><option value="">Select approved ledger</option>{!dependencies.error ? dependencies.data?.map(run=><option key={run.id} value={run.id}>{run.source_name} ({run.id})</option>) : null}</select></label>{dependencies.isLoading ? <p role="status">Loading all approved ledgers…</p> : null}{dependencies.error ? <p role="alert">Could not load ledger dependencies. <Button type="button" onClick={()=>void dependencies.mutate()}>Retry dependencies</Button></p> : null}{eligibleLedger ? <p className="break-all">Ledger source: {eligibleLedger.source_name}. SHA-256: {eligibleLedger.source_sha256}</p> : <p>An approved schema 2.0.0 funders run with retained facts for {year} is required.</p>}</div> : null}
+      {kind === "budgets" ? <div className="space-y-2">
+        <Button type="button" disabled={busy || refreshPending || !eligibleLedger} onClick={() => void upload("sheets")}>Refresh from Google Sheets</Button>
+        <p className="text-sm text-muted-foreground">Fetch the configured budget sheet as a candidate for review. You can also upload an exported workbook below. Approval is a separate step.</p>
+      </div> : null}
       <div onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); if (busy || refreshPending) return; if (event.dataTransfer.files.length !== 1) { setFile(undefined); setUploadState("error"); setMessage("Select one .xlsx workbook at a time."); } else chooseFile(event.dataTransfer.files[0]); }} className="rounded-md border border-dashed p-5">
         <label className="block">Drop or select an .xlsx workbook (maximum 32 MiB)
           <input type="file" accept=".xlsx" disabled={busy || refreshPending} className="mt-3 block w-full text-sm" onChange={(event) => chooseFile(event.target.files?.[0])} />
         </label>
       </div>
-      <Button type="submit" disabled={busy || refreshPending || !file}>Upload workbook for {year}</Button>
+      <Button type="submit" disabled={busy || refreshPending || !file || (kind === "budgets" && !eligibleLedger)}>Upload workbook for {year}</Button>
       <UploadStatus state={uploadState} message={message} />
     </form>
     <div ref={summary} tabIndex={-1} aria-label="Selected run summary" className="outline-offset-4">
