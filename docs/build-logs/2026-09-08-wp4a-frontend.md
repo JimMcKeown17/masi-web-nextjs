@@ -122,3 +122,106 @@ Supervisor still owns synthetic browser upload → preview → approve → curre
 Budgets/Fix → export → demote/re-approve, keyboard/focus, responsive/light/dark
 screenshots, independent review, real acceptance and release checks. Unit/jsdom
 and a successful local build do not satisfy those gates. No deployment authorized.
+
+## Review corrections and bounded browser follow-up (2026-09-08)
+
+This section supersedes the original implementation's wire-shape assumption and
+pending build result above. Supervisor committed the original build as `11d0cd9`;
+review corrected the direct-derived API shape at `7758427`. No builder Git writes.
+
+### Exact wire correction
+
+Approved backend `api/services/finance_runs.py:547` stores `artifact['derived']`
+in `run.payload`; `api/views/finance_runs.py:47` returns that payload unchanged and
+places `manifest` alongside it. The first frontend incorrectly expected the full
+artifact wrapper inside payload, and its mocks repeated that mistake. Golden/schema
+byte equality did not establish run-detail wire compatibility.
+
+RED public `getFinanceRun` → actual `FinanceRunSummary` reproduction using
+`payload=golden.derived`, separate `manifest=golden.manifest`, failed with
+`Cannot read properties of undefined (reading 'findings')`.
+`frontend-wire-red.log` records the failure. BudgetPayload, runFindings, summary,
+reader, Fix, fixtures and local harness now consume the exact derived-only shape.
+New public API/summary and current reader/Fix interactions pass. The full corrected
+suite was 101/101; supervisor's network build passed in
+`frontend-build-round1-fix.log`. Independent review closed the high wire finding.
+
+### Small presentation delta after 7758427
+
+Visible decorative chevrons accompany the existing accessible hierarchy buttons.
+All eight known completeness flags map to plain language; unknown flags are retained.
+Displayed/exported derived amounts, row membership and calculations are unchanged.
+Compatibility copy maps the exact backend SOURCE_MISMATCH, DEPENDENCY_UNRESOLVED
+and NO_APPROVED_RUNS codes to readable explanations, without recalculating the
+server verdict. Upload, Budgets and budget Fix use the same presentation helper.
+
+RED: two presentation cases failed in `frontend-presentation-red.log` before the
+chevrons/plain labels/copy. Focused budget/upload suite: **34 passed, 0 failed,
+0 skipped**. TypeScript: exit 0. Lint: exit 0, only the existing image-debug warning.
+`git diff --check`: clean. Supervisor production build: exit 0 with localhost API
+origin, log `frontend-build-presentation.log`.
+
+The first full presentation run had **101 pass / 1 fail** in the unchanged existing
+`demote clears shared approved state on B → A → B without cross-account requests`
+assertion `Returning B must fetch only with B credentials`. Preserve
+`frontend-presentation-full.log`; the failure is not an expected skip. The exact
+regression rerun passed; a subsequent unchanged-tree full rerun passed **102/102,
+0 failed, 0 skipped** (`frontend-presentation-full-rerun.log`). The intermittent
+first-run assertion is disclosed for reviewer assessment; its timing cause is not
+claimed as proven and no assertion was weakened or source changed for the rerun.
+
+### Actual browser evidence and precise gaps
+
+Browser evidence used Chrome at `http://127.0.0.1:8768`, actual React finance
+components, built CSS/font variables, explicit test auth and a synthetic fetch
+implementation with CSP `connect-src 'none'`. This is browser UI against a synthetic
+API, not real-backend E2E, real provider authentication or release evidence.
+Harness and artifacts: `/private/tmp/masi-supervisor-20260907/wp4-browser/`.
+
+Before the wire correction, desktop/mobile light/dark states were inspected and
+saved as `pre-wire-*.png`; those are historical UI observations, not contract proof.
+After the wire correction, the corrected desktop light screenshot is
+`desktop-light.png`. The wrapping correction reduced the budget table from about
+2,748 px content width to **1,352 px inside a 1,352 px container at a 1,440 px viewport**,
+with all seven columns visible. No table values were removed.
+
+Completed on the corrected wire/CSS harness before the final chevron/copy delta:
+
+- Current approved budget renders the direct-derived response and separate pinned
+  manifest. Keyboard Enter collapses department children from 15 rows to 1 and
+  expands them again. Filtering selects Line 11 plus its ancestors.
+- Line 11 shows the explicit 1/2 share and full contributor amounts; Next loads the
+  second synthetic contributor page. Returned ledger ID matches the pinned manifest.
+- Real Chrome budget CSV and XLSX files were downloaded and copied into the private
+  harness folder. ExcelJS decoded the actual XLSX. Four rows including headers
+  exactly match CSV after its deliberate text-safety prefix normalization; labels
+  remain text cells. Evidence: `download-verification.json`.
+- Both contributor export buttons issued authenticated budget-run paths with exact
+  year/BC/format and created local download files. The producer/parser/real row
+  membership is not exercised by the synthetic transport.
+
+Not completed: browser upload file selection, upload/replay/approval/demotion/
+re-approval, browser Fix filtering/export, corrected mobile/dark recapture, and
+browser inspection of the final chevron/copy delta. A CUA file-chooser call stalled
+for about 700 seconds and was aborted. It may have opened a native file picker;
+selection/upload completion and picker cleanup are unverified. Browser work stopped
+on supervisor instruction, with no further browser requests. The temporary browser
+viewport override was 1,440×1,000 at that point. Existing jsdom coverage remains
+separate from these missing browser gates. Screenshot files and downloads contain
+synthetic data only. An unrelated installed wallet extension emitted a provider
+injection console error; no product error is attributed to that extension message.
+
+### Bounded investigation of the intermittent demotion assertion
+
+On supervisor request, a private copy of the unchanged test added a React
+`useLayoutEffect` commit marker and synthetic request path/token/account/phase
+fields. The exact demotion test ran ten times: **10 passed / 0 failed**. Every
+run recorded exactly five returning-B requests, all with `token-account-B`,
+window account B, committed React actor B and phase `committed:account-B`.
+No A request during window account B was observed. Therefore the original failure
+was not reproduced and its cause remains **unresolved**; these results do not
+prove the proposed pre-commit timing explanation or establish that it is harmless.
+No product change or test assertion weakening followed this investigation.
+Private evidence: `instrument-demote.py`, `demote-instrumented-01.log` through
+`demote-instrumented-10.log`, and `demote-instrumented-summary.json` under
+`/private/tmp/masi-supervisor-20260907/`. The failed full-run log remains preserved.

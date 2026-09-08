@@ -4,6 +4,33 @@ Last updated: 8 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
 
+## 8 September 2026 - WP4 wire review and presentation follow-up
+
+The approved backend stores/returns budget `derived` directly as `run.payload`,
+with `manifest` beside it. Review found that the first frontend and its mocks
+incorrectly expected the whole artifact wrapper. Public API/summary and current
+reader/Fix RED regressions reproduce and close the mismatch; corrected core is
+`7758427`. Contract file byte equality alone was not run-detail compatibility proof.
+
+A bounded follow-up adds hierarchy chevrons, readable completeness flags and shared
+plain-language compatibility copy. No calculations or monetary values changed.
+Focused suite: 34/34; TypeScript and lint pass (existing image-debug warning only).
+Full unchanged-tree rerun: 102/102 with no skips. The first full run had one
+intermittent existing cross-account demotion assertion; its failed log and passing
+exact/full reruns are preserved in the stage log, without weakening the assertion. A privately instrumented 10-run focused check
+also passed; all returning-B requests followed React's B commit with B credentials.
+The original failure was not reproduced, so its cause remains unresolved.
+Supervisor's authorized-network production builds pass with localhost API origin,
+including the final presentation build (`frontend-build-presentation.log`).
+
+Actual Chrome checks with synthetic API/auth verified the corrected desktop table,
+keyboard hierarchy, shared contributor pagination, and real downloaded CSV/XLSX
+parity. Browser upload picker stalled and was aborted; upload/approval recovery,
+Fix browser checks and final mobile/dark/presentation recapture remain unverified.
+The exact boundary, screenshot/download artifacts and remaining gates are recorded
+in [the stage-log follow-up](../docs/build-logs/2026-09-08-wp4a-frontend.md#review-corrections-and-bounded-browser-follow-up-2026-09-08).
+No deployment or real backend/provider/workbook evidence is claimed.
+
 ## 8 September 2026 - WP4 slice A budgets frontend
 
 Local uncommitted budgets upload/reader/Fix/contributor implementation on
