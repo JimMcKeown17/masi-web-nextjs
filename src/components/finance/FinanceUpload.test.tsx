@@ -142,8 +142,8 @@ window.result = (async()=>{
   }
   const beforePublisher = requests.length;
   render(false);
-  await until(()=>document.querySelectorAll('select')[1]?.options.length > 1,'run list');
-  const select = document.querySelectorAll('select')[1]; select.value=selected.id; select.dispatchEvent(new Event('change',{bubbles:true}));
+  await until(()=>document.querySelector('select[aria-label=Run]')?.options.length > 1,'run list');
+  const select = document.querySelector('select[aria-label=Run]'); select.value=selected.id; select.dispatchEvent(new Event('change',{bubbles:true}));
   await until(()=>button(action==='approve'?'Approve':'Demote'),'action');
   button(action==='approve'?'Approve':'Demote').click();
   await until(()=>document.querySelector('[role="dialog"]'),'dialog');
@@ -208,3 +208,87 @@ for (const action of ["approve", "demote"] as const) {
     test(`${action}: failed post-mutation ${resource} GET reports pending and retries reads only`, () => publicationInteraction(action, resource));
   }
 }
+
+import {budgetDomTest,domPrelude} from "./budgetDomTest";
+test("selectsBudgetKindAndLedgerDependency",()=>budgetDomTest(domPrelude+`
+import {FinanceUpload} from './src/components/finance/FinanceUpload';
+import {runFixture} from './src/components/finance/financeRunTestFixture';
+const ledger=runFixture({id:'ledger-one',status:'approved'});
+let posted;
+window.fetch=async(url,init)=>{
+ const u=new URL(url,'https://test.invalid');
+ if(init?.method==='POST'){posted={u,init};return json(runFixture({id:'budget-one',kind:'budgets',payload:null,dependency_run:'ledger-two'}),201);}
+ if(u.pathname.includes('/current/'))return json({runs:{},compatible:true});
+ if(u.pathname.includes('/runs/?')||u.pathname==='/finance/runs/')return json({results:u.searchParams.get('status')==='approved' ? [{...ledger,id:u.searchParams.get('cursor') ? 'ledger-two':'ledger-one'}] : [],next:u.searchParams.get('status')==='approved'&&!u.searchParams.has('cursor') ? '/finance/runs/?cursor=second':null,previous:null});
+ return json(runFixture({id:'budget-one',kind:'budgets',payload:null,dependency_run:'ledger-two'}));
+};
+window.result=(async()=>{try{
+root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
+await until(()=>select('Run kind'),'kind selector');change(select('Run kind'),'budgets');
+await until(()=>select('Ledger dependency')?.textContent.includes('ledger-two'),'all ledger pages');
+change(select('Ledger dependency'),'ledger-two');
+const input=document.querySelector('input[type=file]');Object.defineProperty(input,'files',{value:[new File(['synthetic'],'budget.xlsx')]});input.dispatchEvent(new Event('change',{bubbles:true}));
+await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload enabled');button('Upload workbook for '+new Date().getFullYear()).click();
+await until(()=>posted,'posted');check(posted.u.searchParams.get('kind')==='budgets','budget kind');check(posted.u.searchParams.get('ledger_run_id')==='ledger-two','selected exact dependency');check(posted.init.body.name==='budget.xlsx','raw body');
+}finally{root.unmount();}})();
+`));
+test("replaysAndReapprovesBudgetCandidate",()=>budgetDomTest(domPrelude+`
+import {FinanceUpload} from './src/components/finance/FinanceUpload';
+import {runFixture} from './src/components/finance/financeRunTestFixture';
+import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+let run=runFixture({kind:'budgets',id:'budget-replay',schema_version:'1.0.0',status:'superseded',dependency_run:'ledger-one',manifest:golden.manifest,payload:golden});
+const ledger=runFixture({id:'ledger-one',status:'approved'});const mutations=[];
+window.fetch=async(url,init)=>{const u=new URL(url,'https://test.invalid');
+ if(init?.method==='POST'){
+  if(u.pathname==='/finance/runs/')return json(run,200);
+  const options=JSON.parse(init.body);mutations.push({path:u.pathname,options});
+  if(!options.acknowledge_findings)return json({code:'FINDINGS_ACKNOWLEDGEMENT_REQUIRED',detail:'Review findings'},409);
+  if(!options.override_anti_rollback)return json({code:'ANTI_ROLLBACK',detail:'Confirm rollback'},409);
+  run={...run,status:'approved',allowed_actions:['demote'],previous_approved:'predecessor'};return json(run);
+ }
+ if(u.pathname.includes('/current/'))return json({runs:run.status==='approved'?{budgets:run}:{},compatible:true});
+ if(u.pathname==='/finance/runs/')return json({results:u.searchParams.get('kind')==='funders'?[ledger]:[run],next:null,previous:null});
+ return json(run);
+};
+window.result=(async()=>{try{
+root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>select('Ledger dependency')?.textContent.includes('ledger-one'),'ledger');change(select('Ledger dependency'),'ledger-one');
+const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload');button('Upload workbook for '+new Date().getFullYear()).click();
+await until(()=>document.body.textContent.includes('Idempotent replay'),'replay');await until(()=>button('Re-approve')&&!button('Re-approve').disabled,'reapprove');
+check(document.body.textContent.includes('2026 Budget!F9'),'budget finding source cells');
+button('Re-approve').click();await until(()=>button('Confirm approval'),'confirmation');button('Confirm approval').click();await until(()=>document.querySelector('input[type=checkbox]'),'acknowledgement');document.querySelector('input[type=checkbox]').click();
+const note=document.querySelector('textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(note,'Reviewed exact pinned source');note.dispatchEvent(new Event('input',{bubbles:true}));await until(()=>!button('Confirm approval').disabled,'note accepted');button('Confirm approval').click();await until(()=>document.querySelectorAll('input[type=checkbox]').length===2,'rollback');document.querySelectorAll('input[type=checkbox]')[1].click();await until(()=>!button('Confirm approval').disabled,'rollback checked');button('Confirm approval').click();
+await until(()=>document.body.textContent.includes('Approved server state refreshed. Current run: budget-replay.'),'budget refreshed');check(mutations.length===3,'two guards then success');check(mutations[2].options.note==='Reviewed exact pinned source','note retained');check(mutations.every(m=>m.path==='/finance/runs/budget-replay/approve/'),'same retained run');check(!document.body.textContent.includes('Imported snapshot'),'budget schema 1 is not factless snapshot');
+}finally{root.unmount();}})();
+`));
+test("keepsReadOnlyAndUnprivilegedUsersOut",()=>budgetDomTest(domPrelude+`
+import {FinanceUpload} from './src/components/finance/FinanceUpload';
+import FinanceFixPage from './src/app/operations/finance/fix/page';
+let calls=0;window.fetch=()=>{calls++;return new Promise(()=>{});};
+window.result=(async()=>{try{
+for(const capabilities of [[],['finance.read'],['finance.publish']]) {
+ window.capabilities=capabilities;root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);await until(()=>document.body.textContent.includes('Finance read and publish access are required'),'publisher denied');check(!document.querySelector('input[type=file]'),'no upload controls');check(calls===0,'no candidate reads');
+}
+window.capabilities=[];root.render(<SWRConfig value={config}><FinanceFixPage/></SWRConfig>);await until(()=>document.body.textContent.includes('Finance read access is required'),'direct Fix denied');check(calls===0,'no denied Fix reads');
+}finally{root.unmount();}})();
+`));
+for (const dimension of ["kind","year","actor"] as const) test(`pending budget upload cannot restore candidate after switching ${dimension}`,()=>budgetDomTest(domPrelude+`
+import {FinanceUpload} from './src/components/finance/FinanceUpload';import {runFixture} from './src/components/finance/financeRunTestFixture';
+const dimension=${JSON.stringify(dimension)};const ledger=runFixture({id:'ledger-one',status:'approved'});let resolveUpload;const calls=[];
+window.fetch=async(url,init)=>{calls.push({url,init});if(init?.method==='POST')return new Promise(resolve=>{resolveUpload=()=>resolve(new Response(JSON.stringify(runFixture({id:'late-budget',kind:'budgets',payload:null})),{status:201}));});if(String(url).includes('/current/'))return json({runs:{},compatible:true});return json({results:[ledger],next:null,previous:null});};
+const render=()=>root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
+window.result=(async()=>{try{
+render();await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>select('Ledger dependency')?.textContent.includes('ledger-one'),'ledger');change(select('Ledger dependency'),'ledger-one');const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload');button('Upload workbook for '+new Date().getFullYear()).click();await until(()=>resolveUpload,'pending upload');
+if(dimension==='kind')change(select('Run kind'),'funders');else if(dimension==='actor'){window.actor='actor-B';render();}else{const year=document.querySelector('input[type=number]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(year,'2025');year.dispatchEvent(new Event('input',{bubbles:true}));}
+await until(()=>!document.querySelector('progress'),'new context');resolveUpload();await pause();await pause();check(!document.body.textContent.includes('late-budget'),'late candidate cannot return');check(document.querySelector('select[aria-label=Run]').value==='','candidate cleared');check(button('Upload workbook for '+(dimension==='year'?'2025':new Date().getFullYear())).disabled,'file and dependency reset');check(calls.filter(c=>c.init?.method==='POST').length===1,'one authorized upload');
+}finally{root.unmount();}})();
+`));
+test("approval completed after actor switch invalidates shared current without publishing old actor reads",()=>budgetDomTest(domPrelude+`
+import {FinanceUpload} from './src/components/finance/FinanceUpload';import {runFixture} from './src/components/finance/financeRunTestFixture';import useSWR from 'swr';import {useAuth} from '@clerk/nextjs';import {financeRunsCacheKey,getFinanceCurrent} from './src/lib/api/finance-runs';
+const year=new Date().getFullYear();const cache=new Map();const options={...config,provider:()=>cache};cache.set(financeRunsCacheKey('actor-B','current:'+year),{data:{runs:{budgets:{id:'old-current'}}}});
+const candidate=runFixture({id:'budget-candidate',kind:'budgets',payload:null});let resolveApproval;let changed=false;const calls=[];
+window.fetch=async(url,init)=>{calls.push({url,init});if(init?.method==='POST')return new Promise(resolve=>{resolveApproval=()=>{changed=true;resolve(new Response(JSON.stringify({...candidate,status:'approved'})));};});if(window.actor==='actor-B')return changed ? json({runs:{budgets:{id:'new-current'}}}) : new Promise(()=>{});if(String(url).includes('/current/'))return json({runs:{},compatible:true});if(String(url).includes('/runs/?'))return json({results:[candidate],next:null,previous:null});return json(candidate);};
+function Reader(){const{userId,getToken}=useAuth();const{data}=useSWR(financeRunsCacheKey(userId,'current:'+year),async()=>getFinanceCurrent(await getToken(),year));return <p>{data?.runs.budgets.id??'Loading'}</p>;}
+window.result=(async()=>{try{
+root.render(<SWRConfig value={options}><FinanceUpload/></SWRConfig>);await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>document.querySelector('select[aria-label=Run]')?.textContent.includes('budget-candidate'),'candidate');change(document.querySelector('select[aria-label=Run]'),'budget-candidate');await until(()=>button('Approve')&&!button('Approve').disabled,'approve');button('Approve').click();await until(()=>button('Confirm approval'),'dialog');button('Confirm approval').click();await until(()=>resolveApproval,'pending approval');window.actor='actor-B';root.render(<SWRConfig value={options}><Reader/></SWRConfig>);await until(()=>document.body.textContent.includes('old-current'),'reader seeded');await until(()=>calls.some(c=>c.init?.headers.Authorization==='Bearer token-actor-B'),'pending B read');resolveApproval();await until(()=>document.body.textContent.includes('new-current'),'new actor refreshed');check(calls.filter(c=>c.init?.method==='POST').length===1,'one mutation');const reads=calls.filter(c=>c.init?.headers.Authorization==='Bearer token-actor-B');check(reads.length>=2,'new actor own reads');
+}finally{root.unmount();}})();
+`));

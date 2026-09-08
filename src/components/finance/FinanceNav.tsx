@@ -10,6 +10,7 @@ import { cn } from "@/lib/utils";
 const TABS = [
   { href: "/operations/finance/overview", label: "Overview" },
   { href: "/operations/finance/funders", label: "Funders" },
+  { href: "/operations/finance/budgets", label: "Budgets" },
   { href: "/operations/finance/coverage", label: "Coverage" },
   { href: "/operations/finance/fix", label: "Fix" },
 ];

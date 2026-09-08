@@ -1,0 +1,72 @@
+import assert from "node:assert/strict";
+import test from "node:test";
+import { renderToStaticMarkup } from "react-dom/server";
+import golden from "@/lib/finance/fixtures/budget-run-1.0.0.json";
+import type { BudgetPayload } from "@/lib/types/finance-budgets";
+import { FinanceBudgetsView } from "./FinanceBudgets";
+const payload = golden as BudgetPayload;
+test("rendersHierarchyAndProducerValues", () => {
+  const html = renderToStaticMarkup(<FinanceBudgetsView payload={payload} runId="budget-one" />);
+  for (const text of ["Department A","Sub-department", "Line 6","-R 0,99","linear projection","budget used","2026-07-15","7"]) assert.ok(html.includes(text),text);
+  assert.match(html,/aria-expanded="true"/);
+});
+test("distinguishesNullZeroAndWfExclusion", () => {
+  const html=renderToStaticMarkup(<FinanceBudgetsView payload={payload} runId="budget-one"/>);
+  for(const text of ["budget not set","actual unavailable","excluded by WF","R 0,00","Known subtotal"]) assert.ok(html.includes(text),text);
+});
+test("showsPinnedLedgerAndIncompatibleCurrent", () => {
+  const html=renderToStaticMarkup(<FinanceBudgetsView payload={payload} runId="budget-one" compatibility={{accounting_year:2026,runs:{},compatible:false,compatibility_reason:{code:"MANAGEMENT_ACCOUNTS_MISMATCH",runs:{}}}}/>);
+  for(const text of ["Pinned ledger",payload.manifest.dependencies[0].run_id!,payload.manifest.dependencies[0].source_sha256!,"Current runs are incompatible","MANAGEMENT_ACCOUNTS_MISMATCH"]) assert.ok(html.includes(text),text);
+});
+
+import { BudgetFindings } from "./BudgetFindings";
+test("preservesAllFindingSeverities", () => {
+  const findings=(["error","warn","info"] as const).flatMap(severity=>[true,false].map(in_scope_year=>({...payload.derived.findings[0],severity,in_scope_year,message:`visible-${severity}-${in_scope_year}`})));
+  const html=renderToStaticMarkup(<BudgetFindings findings={findings}/>);
+  for(const finding of findings) assert.ok(html.includes(finding.message));
+  assert.match(html,/Export CSV/);assert.match(html,/Export XLSX/);assert.match(html,/Severity/);
+});
+import {budgetDomTest,domPrelude} from "./budgetDomTest";
+test("exportsVisibleRowsAndLabelsSharedContributors",()=>budgetDomTest(domPrelude+`
+import {FinanceBudgetsView} from './src/components/finance/FinanceBudgets';
+import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+let exported;URL.createObjectURL=blob=>{exported=blob;return 'blob:synthetic';};URL.revokeObjectURL=()=>{};HTMLAnchorElement.prototype.click=()=>{};
+window.result=(async()=>{try{
+root.render(<FinanceBudgetsView payload={golden} runId="budget-one"/>);
+await until(()=>button('Export CSV'),'budget exports');
+check(document.body.textContent.includes('Shared BC'),'shared label');check(document.body.textContent.includes('Full ledger amounts before budget share'),'full amount label');
+const filter=document.querySelector('input[aria-label="Filter budget rows"]');const setter=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;setter.call(filter,'Line 6');filter.dispatchEvent(new Event('input',{bubbles:true}));
+await until(()=>!document.body.textContent.includes('Line 7'),'filtered table');button('Export CSV').click();await until(()=>exported,'download');const text=await exported.text();check(text.includes('Line 6')&&!text.includes('Line 7'),'export visible filter');check(text.includes('-R 0,99'),'producer display value');
+}finally{root.unmount();}})();
+`));
+test("contributors paginate pinned ledger and export full amounts with bearer auth",()=>budgetDomTest(domPrelude+`
+import {FinanceBudgetsView} from './src/components/finance/FinanceBudgets';
+import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+let exported;const calls=[];URL.createObjectURL=blob=>{exported=blob;return 'blob:synthetic';};URL.revokeObjectURL=()=>{};HTMLAnchorElement.prototype.click=()=>{};
+window.fetch=async(url,init)=>{const u=new URL(url,'https://test.invalid');calls.push({u,init});if(u.pathname.includes('export'))return new Response('server-export');return json({results:[{row_key:'one',description:u.searchParams.has('cursor')?'second contributor':'first contributor',date:'2026-01-01',amount:'0.01',bc:u.searchParams.get('bc')}],next:u.searchParams.has('cursor')?null:'/rows/?cursor=next%2B',previous:null,run_id:'budget-one',ledger_run_id:'pinned-one',management_accounts_sha256:'abc',contributor_basis:'full_ledger_amount_before_budget_share'});};
+window.result=(async()=>{try{
+root.render(<SWRConfig value={config}><FinanceBudgetsView payload={golden} runId="budget-one"/></SWRConfig>);
+await until(()=>button('View contributors for Line 6'),'contributor button');button('View contributors for Line 6').click();
+await until(()=>document.body.textContent.includes('first contributor'),'first page');check(document.body.textContent.includes('pinned-one'),'pinned response id');button('Next contributors').click();await until(()=>document.body.textContent.includes('second contributor'),'next page');
+button('Download contributors CSV').click();await until(()=>exported,'server export');check(await exported.text()==='server-export','download bytes');check(calls.every(c=>c.u.pathname.startsWith('/finance/runs/budget-one/rows/')&&c.init.headers.Authorization==='Bearer token-actor-A'),'pinned path auth');check(calls[1].u.searchParams.get('cursor')==='next+','cursor');check(calls.at(-1).u.searchParams.get('bc')==='101','exact BC');
+}finally{root.unmount();}})();
+`));
+test("budget reader denies direct access and clears late responses across actor and year",()=>budgetDomTest(domPrelude+`
+import {FinanceBudgets} from './src/components/finance/FinanceBudgetsPage';
+import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+import {runFixture} from './src/components/finance/financeRunTestFixture';
+let resolveOld;const calls=[];
+window.fetch=async(url,init)=>{calls.push({url,init});if(String(url).includes('/current/'))return json({accounting_year:2026,runs:{budgets:{id:'old-budget'}},compatible:true});return new Promise(resolve=>{resolveOld=()=>resolve(new Response(JSON.stringify(runFixture({kind:'budgets',id:'old-budget',status:'approved',payload:golden}))));});};
+const render=()=>root.render(<SWRConfig value={config}><FinanceBudgets/></SWRConfig>);
+window.result=(async()=>{try{
+window.capabilities=[];render();await until(()=>document.body.textContent.includes('Finance read access is required'),'denied route');check(calls.length===0,'no denied requests');
+window.capabilities=['finance.read'];render();await until(()=>resolveOld,'pending old detail');window.actor='actor-B';window.fetch=()=>new Promise(()=>{});render();await pause();resolveOld();await pause();check(!document.body.textContent.includes('Department A'),'old actor figures absent');
+const year=document.querySelector('input[type=number]');const setter=Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set;setter.call(year,'2025');year.dispatchEvent(new Event('input',{bubbles:true}));await pause();check(!document.body.textContent.includes('Department A'),'old year figures absent');
+}finally{root.unmount();}})();
+`));
+test("Fix severity and year-scope filters export exactly the displayed budget findings",()=>budgetDomTest(domPrelude+`
+import {BudgetFindings} from './src/components/finance/BudgetFindings';import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+let exported;URL.createObjectURL=blob=>{exported=blob;return 'blob:synthetic';};URL.revokeObjectURL=()=>{};HTMLAnchorElement.prototype.click=()=>{};
+const findings=['error','warn','info'].flatMap(severity=>[true,false].map(in_scope_year=>({...golden.derived.findings[0],severity,in_scope_year,message:'finding-'+severity+'-'+in_scope_year})));
+window.result=(async()=>{try{root.render(<BudgetFindings findings={findings}/>);await until(()=>select('Severity'),'filters');change(select('Severity'),'info');change(select('Finding year scope'),'out');await until(()=>document.querySelectorAll('tbody tr').length===1,'one visible finding');button('Export CSV').click();await until(()=>exported,'download');const text=await exported.text();check(text.includes('finding-info-false'),'selected finding exported');for(const f of findings.filter(f=>f.message!=='finding-info-false'))check(!text.includes(f.message),'hidden finding excluded');check(document.querySelector('tbody').textContent.includes('finding-info-false'),'same displayed row');}finally{root.unmount();}})();
+`));

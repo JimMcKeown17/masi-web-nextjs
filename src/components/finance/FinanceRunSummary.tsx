@@ -1,4 +1,6 @@
 "use client";
+import { FinanceBudgetsView } from "./FinanceBudgets";
+import { runFindings } from "@/lib/types/finance-runs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -10,7 +12,7 @@ export function FinanceRunSummary({ run, currentId, currentRun, disabled, onActi
   const groups = new Map<string, FinanceRunFinding[]>();
   for (const severity of ["error", "warn", "info"]) {
     for (const inScope of [true, false]) {
-      const findings = (run.payload?.findings ?? []).filter((finding) => finding.severity === severity && finding.in_scope_year === inScope);
+      const findings = runFindings(run).filter((finding) => finding.severity === severity && finding.in_scope_year === inScope);
       if (findings.length) groups.set(`${severity} · ${inScope ? "In" : "Outside"} ${run.accounting_year}`, findings);
     }
   }
@@ -28,12 +30,13 @@ export function FinanceRunSummary({ run, currentId, currentRun, disabled, onActi
         <dl className="grid grid-cols-1 gap-3 text-sm sm:grid-cols-2 lg:grid-cols-3">
           {Object.entries({ Producer: `${run.manifest.producer.name} ${run.producer_version ?? "unknown (imported)"}`, Schema: run.schema_version,
             "Parse duration": `${run.parse_duration_ms} ms`, "Total duration": `${run.total_duration_ms} ms`,
-            "Peak Python allocation": `${run.peak_memory_bytes} bytes`, "Ledger rows": run.fact_row_count,
+            "Peak process RSS": `${run.peak_memory_bytes} bytes`, "Ledger rows": run.fact_row_count,
             Allocations: run.allocation_count, Findings: run.finding_count, "In-scope errors": run.in_scope_error_count,
           }).map(([label, value]) => <div key={label}><dt className="text-muted-foreground">{label}</dt><dd>{value}</dd></div>)}
         </dl>
-        {run.schema_version === "1.0.0" ? <p>Imported snapshot: ledger facts and original producer version are unavailable.</p> : null}
+        {run.kind === "funders" && run.schema_version === "1.0.0" ? <p>Imported snapshot: ledger facts and original producer version are unavailable.</p> : null}
         {run.failure ? <div role="alert" className="rounded-md border p-4"><strong>Failed run: {run.failure.code}</strong><p>{run.failure.phase}: {run.failure.message}</p><p>This run cannot be approved.</p></div> : null}
+        {run.kind === "budgets" && run.payload ? <FinanceBudgetsView key={run.id} payload={run.payload} runId={run.id}/> : null}
         <section aria-label="Findings" className="space-y-4">
           <h3 className="font-semibold">Findings</h3>
           {groups.size === 0 ? <p>{run.status === "failed" ? "Findings unavailable because processing failed." : "No findings."}</p> : null}
@@ -41,6 +44,7 @@ export function FinanceRunSummary({ run, currentId, currentRun, disabled, onActi
             <h4 className="font-medium">{label} ({findings.length})</h4>
             <ul className="mt-2 space-y-3">{findings.map((finding, index) => <li key={index} className="break-words text-sm">
               <Badge variant="outline">{finding.code}</Badge> {finding.message}
+              {finding.source_cells?.length ? <div>Source cells: {finding.source_cells.join(", ")}</div> : null}
               {finding.sheet_row != null ? <span> (row {finding.sheet_row})</span> : null}
               {finding.source != null ? <div className="text-muted-foreground">Source: {typeof finding.source === "string" ? finding.source : JSON.stringify(finding.source)}</div> : null}
             </li>)}</ul>

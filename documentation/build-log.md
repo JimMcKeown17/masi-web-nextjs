@@ -1,8 +1,29 @@
 # Frontend Build Log
 
-Last updated: 6 September 2026
+Last updated: 8 September 2026
 
 This is the project-level implementation and release log for the Next.js repository. It starts with the current work rather than reconstructing older history. Detailed WIG-dashboard history remains in [`dashboard-log.md`](./dashboard-log.md).
+
+## 8 September 2026 - WP4 slice A budgets frontend
+
+Local uncommitted budgets upload/reader/Fix/contributor implementation on
+`feat/wp4a-budgets-frontend`, based on `633cc44`, using approved backend source
+`0a6e4ce`. Extends the existing finance run workflow with explicit ledger dependency,
+producer-owned budget values and findings, exact source provenance, shared-BC
+contributor disclosure, authenticated exports and stale actor/selection protection.
+ExcelJS 4.4.0 is loaded on demand for genuine XLSX display-value exports.
+
+`pnpm test:unit`: 99 passed, 0 failed/skipped. TypeScript passed; lint passed with
+0 errors and the one existing image-debug warning. `git diff --check` passed.
+Local `pnpm build` failed exclusively on the existing Google Fonts network fetches;
+the authorized-network rerun remains with the supervisor and no build pass is claimed.
+
+Detailed scope, RED evidence, exact contract hashes, final gates, environment
+warnings and pending browser/release work are in
+[the WP4 stage log](../docs/build-logs/2026-09-08-wp4a-frontend.md).
+Local tests only; no backend edits, real workbook/data use, production API requests,
+Git metadata writes, commits, pushes or deployment. The approved backend and
+publisher-owned formula-cache fix remain release dependencies.
 
 ## 6 September 2026 - WP2a review fixes, round 2
 
