@@ -15,8 +15,8 @@ test("distinguishesNullZeroAndWfExclusion", () => {
   for(const text of ["budget not set","actual unavailable","excluded by WF","R 0,00","Known subtotal"]) assert.ok(html.includes(text),text);
 });
 test("showsPinnedLedgerAndIncompatibleCurrent", () => {
-  const html=renderToStaticMarkup(<FinanceBudgetsView payload={payload} manifest={golden.manifest} runId="budget-one" compatibility={{accounting_year:2026,runs:{},compatible:false,compatibility_reason:{code:"MANAGEMENT_ACCOUNTS_MISMATCH",runs:{}}}}/>);
-  for(const text of ["Pinned ledger",golden.manifest.dependencies[0].run_id!,golden.manifest.dependencies[0].source_sha256!,"Current runs are incompatible","MANAGEMENT_ACCOUNTS_MISMATCH"]) assert.ok(html.includes(text),text);
+  const html=renderToStaticMarkup(<FinanceBudgetsView payload={payload} manifest={golden.manifest} runId="budget-one" compatibility={{accounting_year:2026,runs:{},compatible:false,compatibility_reason:{code:"SOURCE_MISMATCH",runs:{}}}}/>);
+  for(const text of ["Pinned ledger",golden.manifest.dependencies[0].run_id!,golden.manifest.dependencies[0].source_sha256!,"Current runs are incompatible","different Management Accounts sources"]) assert.ok(html.includes(text),text);
 });
 
 import { BudgetFindings } from "./BudgetFindings";
@@ -93,3 +93,9 @@ const wire={...runFixture(),id:'wire-budget',kind:'budgets',schema_version:'1.0.
 window.fetch=async(url)=>String(url).includes('/current/')?json({accounting_year:2026,runs:{budgets:{id:wire.id}},compatible:true}):json(wire);
 window.result=(async()=>{try{root.render(<SWRConfig value={config}><FinanceBudgets year={2026}/></SWRConfig>);await until(()=>document.body.textContent.includes('Department A'),'derived-only reader');check(document.body.textContent.includes(golden.manifest.dependencies[0].run_id),'separate manifest provenance');root.render(<SWRConfig value={config}><Fix/></SWRConfig>);await until(()=>select('Finding kind'),'Fix kind');change(select('Finding kind'),'budgets');await until(()=>document.body.textContent.includes('Budget findings'),'derived-only Fix');check(document.querySelectorAll('tbody tr').length===golden.derived.findings.length,'every wire finding');}finally{root.unmount();}})();
 `));
+test("hierarchy shows chevrons and readable completeness labels without dropping flags",()=>{
+ const html=renderToStaticMarkup(<FinanceBudgetsView payload={payload} manifest={golden.manifest} runId="presentation-budget"/>);
+ assert.match(html,/<svg[^>]*aria-hidden="true"/);
+ for(const label of ['Budget incomplete','Actual incomplete','Projected amount incomplete','All Funds variance incomplete','Masi variance incomplete','Budget unavailable','Actual unavailable'])assert.ok(html.includes(label),label);
+ assert.doesNotMatch(html,/budget_incomplete|projected_incomplete|variance_all_incomplete/);
+});

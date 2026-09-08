@@ -1,5 +1,6 @@
 "use client";
 
+import { financeCurrentMessage } from "@/lib/finance/currentMessage";
 import { useEffect, useRef, useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import useSWR, { useSWRConfig } from "swr";
@@ -223,7 +224,7 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
     {list.isLoading || current.isLoading || detail.isLoading ? <p role="status">Loading finance runs…</p> : null}
     {readError && !refreshPending ? <div role="alert">Could not refresh finance runs: {readError instanceof Error ? readError.message : "Request failed"}. <Button variant="outline" onClick={() => void refresh()}>Retry</Button></div> : null}
     {!list.isLoading && !list.error && list.data?.results.length === 0 ? <p>No runs match these filters.</p> : null}
-    {current.data && !current.error && !current.data.compatible ? <p role="status">Current compatibility: {current.data.compatibility_reason?.code ?? "Unavailable"}</p> : null}
+    {current.data && !current.error && !current.data.compatible ? <p role="status">{financeCurrentMessage(current.data)}</p> : null}
     <form onSubmit={(event) => { event.preventDefault(); void upload(); }} className="space-y-4 rounded-lg border bg-card p-5" aria-busy={uploadState === "uploading"}>
       {kind === "budgets" ? <div className="space-y-2"><label>Ledger dependency<select className="ml-3 max-w-full rounded border bg-background p-2" value={ledgerRunId} disabled={busy || refreshPending || dependencies.isLoading} onChange={event=>setLedgerRunId(event.target.value)}><option value="">Select approved ledger</option>{!dependencies.error ? dependencies.data?.map(run=><option key={run.id} value={run.id}>{run.source_name} ({run.id})</option>) : null}</select></label>{dependencies.isLoading ? <p role="status">Loading all approved ledgers…</p> : null}{dependencies.error ? <p role="alert">Could not load ledger dependencies. <Button type="button" onClick={()=>void dependencies.mutate()}>Retry dependencies</Button></p> : null}{eligibleLedger ? <p className="break-all">Ledger source: {eligibleLedger.source_name}. SHA-256: {eligibleLedger.source_sha256}</p> : <p>An approved schema 2.0.0 funders run with retained facts for {year} is required.</p>}</div> : null}
       <div onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); if (busy || refreshPending) return; if (event.dataTransfer.files.length !== 1) { setFile(undefined); setUploadState("error"); setMessage("Select one .xlsx workbook at a time."); } else chooseFile(event.dataTransfer.files[0]); }} className="rounded-md border border-dashed p-5">
