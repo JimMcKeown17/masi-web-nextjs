@@ -54,6 +54,17 @@ export async function uploadFinanceRun(token: string, file: File, year: number, 
     method: "POST", cache: "no-store", body: file,
     headers: { Authorization: `Bearer ${token}`, "Content-Type": XLSX_CONTENT_TYPE },
   });
+  return uploadResult(response);
+}
+export async function pullFinanceBudget(token: string, year: number, ledgerRunId: string): Promise<FinanceUploadResult> {
+  const response = await fetch(`${API_URL}/finance/runs/pull-budget/`, {
+    method: "POST", cache: "no-store",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ year, ledger_run_id: ledgerRunId }),
+  });
+  return uploadResult(response);
+}
+async function uploadResult(response: Response): Promise<FinanceUploadResult> {
   if (response.status === 201 || response.status === 200) return { status: response.status, run: await response.json() as FinanceRun };
   const error = await errorBody(response);
   if (response.status === 409 || response.status === 400) return { status: response.status, error };
@@ -64,12 +75,12 @@ export async function uploadFinanceRun(token: string, file: File, year: number, 
 export function financePageCursor(url: string | null): string | undefined {
   return url ? new URL(url, "https://pagination.invalid").searchParams.get("cursor") ?? undefined : undefined;
 }
-export async function getBudgetLedgerDependencies(token: string, year: number) {
+export async function getBudgetLedgerDependencies(getToken: () => Promise<string>, year: number) {
   const results: import("@/lib/types/finance-runs").FinanceRunMetadata[] = [];
   const seen = new Set<string>();
   let cursor: string | undefined;
   do {
-    const page = await getFinanceRuns(token, {kind:"funders", year, status:"approved", cursor});
+    const page = await getFinanceRuns(await getToken(), {kind:"funders", year, status:"approved", cursor});
     results.push(...page.results.filter(run => run.kind === "funders" && run.status === "approved" && run.accounting_year === year && run.schema_version === "2.0.0" && Boolean(run.facts_sha256)));
     cursor = financePageCursor(page.next);
     if (page.next && (!cursor || seen.has(cursor))) throw new Error("Invalid ledger pagination. Retry loading dependencies.");

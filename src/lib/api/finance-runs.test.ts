@@ -94,7 +94,7 @@ test("budget list, paginated eligible dependencies and contributor exports prese
   try {
     await getFinanceRuns("token",{kind:"budgets",year:2026});
     assert.equal(calls[0].searchParams.get("kind"),"budgets");
-    assert.deepEqual((await api.getBudgetLedgerDependencies("token",2026)).map(r=>r.id),["first","second"]);
+    assert.deepEqual((await api.getBudgetLedgerDependencies(async()=>"token",2026)).map(r=>r.id),["first","second"]);
     assert.equal(calls[2].searchParams.get("cursor"),"a+b=");
     assert.equal(calls[2].host,"backend.test");
     await api.getFinanceRunRows("token","budget",{year:2026,bc:" 01 A&+ ",cursor:"c+="});

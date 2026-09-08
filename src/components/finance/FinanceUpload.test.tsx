@@ -100,7 +100,7 @@ const json = (data, status=200) => Promise.resolve(new Response(JSON.stringify(d
 window.fetch = async (input, init) => {
   const url = String(input), method = init?.method ?? 'GET';
   const authorization = init?.headers?.Authorization;
-  requests.push({url, method, authorization, account:window.account});
+  requests.push({url, method, authorization, account:window.account, committedActor:window.committedActor});
   if (switchAccount && changed && window.account === 'account-B') { if(url.includes('/snapshot/')) readerRequests++; return new Promise(() => {}); }
   if (method === 'POST') { changed = true; return json({...selected,status:action === 'approve' ? 'approved' : 'superseded'}); }
   if (url.includes('/snapshot/')) { readerRequests++; return switchAccount && !changed ? json({figures:'SUPERSEDED FIGURES'}) : new Promise(() => {}); }
@@ -124,9 +124,10 @@ function RunReader() {
 }
 const config = {provider:()=>cache,revalidateOnFocus:false,shouldRetryOnError:false,dedupingInterval:0};
 const root = createRoot(document.getElementById('root'));
+function CommitMarker({userId}) { React.useLayoutEffect(()=>{window.committedActor=userId;},[userId]); return null; }
 const render = reader => {
   const userId = window.account;
-  root.render(<SWRConfig value={config}>{reader ? <><Reader/><Reader year={2026}/>{switchAccount ? <RunReader/> : null}</> : <FinanceUploadSession key={userId} userId={userId} getToken={async()=> 'token-'+userId}/>}</SWRConfig>);
+  root.render(<SWRConfig value={config}><CommitMarker userId={userId}/>{reader ? <><Reader/><Reader year={2026}/>{switchAccount ? <RunReader/> : null}</> : <FinanceUploadSession key={userId} userId={userId} getToken={async()=> 'token-'+userId}/>}</SWRConfig>);
 };
 window.result = (async()=>{
  try {
@@ -175,12 +176,13 @@ window.result = (async()=>{
   render(true);
   await until(()=>document.querySelector('[data-reader]'),'reader remount');
   check(!document.body.textContent.includes('SUPERSEDED FIGURES'),'Superseded figures must be absent while replacement GET is pending');
-  check([...document.querySelectorAll('[data-reader]')].every(e=>e.textContent==='Reader loading'),'Reader must show loading');
+  check(!document.body.textContent.includes('OLD RUN STATE'),'B must immediately hide old run data');
+  await until(()=>[...document.querySelectorAll('[data-reader]')].every(e=>e.textContent==='Reader loading'),'Reader loading render');
   await until(()=>readerRequests>beforeReaders,'replacement snapshot GET');
   if (switchAccount) {
-    check(document.querySelector('[data-run-reader]').textContent==='Runs loading','B mutable run caches must be cleared without publisher data');
-    await until(()=>requests.slice(beforeReturn).length>=5,'B authenticated snapshot and run reads');
-    check(requests.slice(beforeReturn).every(r=>r.method==='GET' && r.authorization==='Bearer token-account-B'),'Returning B must fetch only with B credentials');
+    await until(()=>document.querySelector('[data-run-reader]').textContent==='Runs loading','B run loading render');
+    await until(()=>requests.slice(beforeReturn).filter(r=>r.committedActor==='account-B').length>=5,'B authenticated snapshot and run reads');
+    check(requests.slice(beforeReturn).filter(r=>r.committedActor==='account-B').every(r=>r.method==='GET' && r.authorization==='Bearer token-account-B'),'Returning B must fetch only with B credentials');
     check(!document.body.textContent.includes('SUPERSEDED FIGURES'),'Superseded figures must remain absent during delayed B GETs');
     for (const resource of ['current:2025','list:2025::','detail:old-run']) check(!cache.get(financeRunsCacheKey('account-B',resource))?.data,'B run cache must not contain publisher response');
   }
@@ -292,3 +294,21 @@ window.result=(async()=>{try{
 root.render(<SWRConfig value={options}><FinanceUpload/></SWRConfig>);await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>document.querySelector('select[aria-label=Run]')?.textContent.includes('budget-candidate'),'candidate');change(document.querySelector('select[aria-label=Run]'),'budget-candidate');await until(()=>button('Approve')&&!button('Approve').disabled,'approve');button('Approve').click();await until(()=>button('Confirm approval'),'dialog');button('Confirm approval').click();await until(()=>resolveApproval,'pending approval');window.actor='actor-B';root.render(<SWRConfig value={options}><Reader/></SWRConfig>);await until(()=>document.body.textContent.includes('old-current'),'reader seeded');await until(()=>calls.some(c=>c.init?.headers.Authorization==='Bearer token-actor-B'),'pending B read');resolveApproval();await until(()=>document.body.textContent.includes('new-current'),'new actor refreshed');check(calls.filter(c=>c.init?.method==='POST').length===1,'one mutation');const reads=calls.filter(c=>c.init?.headers.Authorization==='Bearer token-actor-B');check(reads.length>=2,'new actor own reads');
 }finally{root.unmount();}})();
 `));
+
+test('pending old-context tokens cannot dispatch requests after the replacement view commits', async () => {
+  const { budgetDomTest, domPrelude } = await import('./budgetDomTest');
+  await budgetDomTest(domPrelude + `
+import {FinanceUploadSession} from './src/components/finance/FinanceUpload';
+const held=[];const requests=[];let committedActor='A';
+const getToken=()=>new Promise(resolve=>held.push(resolve));
+window.fetch=async(url,init)=>{requests.push({url,auth:init.headers.Authorization,committedActor});return json({runs:{},results:[],next:null,previous:null,compatible:true});};
+function Replacement(){React.useLayoutEffect(()=>{committedActor='B';for(const resolve of held)resolve('token-A');},[]);return <p>B committed</p>;}
+window.result=(async()=>{try{
+  root.render(<SWRConfig value={config}><FinanceUploadSession userId='A' getToken={getToken}/></SWRConfig>);
+  await until(()=>held.length>=2,'A tokens pending');
+  root.render(<SWRConfig value={config}><Replacement/></SWRConfig>);
+  await until(()=>document.body.textContent.includes('B committed'),'B commit');
+  await pause();await pause();
+  check(requests.filter(request=>request.committedActor==='B').length===0,'Old-context requests must be fenced at replacement commit');
+}finally{root.unmount();}})();`);
+});

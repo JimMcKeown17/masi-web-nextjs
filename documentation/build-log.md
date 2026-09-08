@@ -673,3 +673,41 @@ The freshness response includes `status`, `is_stale`, cadence and stale threshol
 - The incremental backend slice initially captures newly created Airtable records. Airtable edits and source deletions still rely on, or require extensions to, full reconciliation; do not imply otherwise in UI copy.
 - The Youth Sessions “today” boundary still needs a separate audit for UTC-versus-SAST query semantics.
 - Resolve Next.js workspace-root inference (duplicate frontend lockfiles) and migrate the deprecated `middleware` convention to `proxy` in separate maintenance work.
+
+## 2026-09-08 — WP4B Google budget refresh and account-switch request fences
+
+Status: isolated implementation on `feat/wp4b-budget-pull`, based on reviewed
+WP4A `04265fe`; not merged or deployed. Approved WP4 section 5.3 scope.
+
+- Budget mode offers `Refresh from Google Sheets`, using the same approved ledger
+  selector and candidate/failed/replay review states as file upload. The POST sends
+  only year and ledger UUID directly to Django with bearer authentication. No
+  automatic approval or client-side credentials/source URL. Fixed safe error
+  messages explain retry/access/source-change cases and the file-upload fallback;
+  the selected ledger remains available for fallback.
+- Independent review reproduced a pending-token GET after account replacement.
+  Cleanup now fences old contexts synchronously at layout commit. A separate
+  delayed-pagination reproduction showed the next dependency page reusing an old
+  token; the loop now obtains the existing fenced token before every page. Tests
+  demonstrate both REDs and GREENs. No stale POST, cross-account data disclosure,
+  or backend authorization bypass was established by those probes.
+- The historical demotion assertion used fixture account assignment before React
+  committed the switch. Tests now record committed actor identity and wait for the
+  actual loading render, while immediately requiring stale figures/run data absent.
+- Full frontend unit suite: 106/106 pass. Pull behavior tests exercise candidate
+  creation without approval, access-error-to-upload fallback with retained ledger,
+  and delayed dependency pagination across replacement. Type/lint/build and
+  revised independent review are being completed separately. No new frontend
+  dependencies or financial calculations.
+
+Final local gate update:
+- Revised independent review: APPROVED, zero findings; independent full unit suite
+  106/106 PASS. TypeScript and changed-file ESLint pass.
+- Production `pnpm build` PASS with the public backend API URL configured and
+  network access for existing Google Fonts. The first isolated build failed on an
+  external node_modules symlink; a local dependency copy resolved it. An unset
+  API URL then stalled existing impact-page static generation; supplying the
+  documented environment setting resolved it without unrelated source changes.
+- GitHub confirms both website repositories are public. The originating finance
+  repository forbids public pushes, so these reviewed source changes remain local
+  pending Jim's explicit destination decision. No merge or deployment occurred.
