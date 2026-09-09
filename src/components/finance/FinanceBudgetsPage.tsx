@@ -134,6 +134,7 @@ function BudgetReaderSession({
       manifest={run.manifest}
       runId={id}
       compatibility={current.data}
+      insights={run.budget_insights}
     />
   ) : (
     <FinanceBudgetsView
