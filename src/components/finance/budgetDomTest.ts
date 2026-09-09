@@ -8,6 +8,8 @@ export async function budgetDomTest(contents: string) {
     plugin.onLoad({filter:/.*/,namespace:"auth"},()=>({contents:`export const useAuth=()=>({userId:window.actor ?? 'actor-A',getToken:async()=> 'token-'+(window.actor ?? 'actor-A')});export const useUser=()=>({capabilities:window.capabilities ?? ['finance.read','finance.publish']});`}));
   }}]});
   const dom = new JSDOM('<div id="root"></div>',{runScripts:"outside-only",pretendToBeVisual:true,url:"https://test.invalid"});
+  // Next client components read build-time environment flags in the browser bundle.
+  dom.window.process={env:{}};
   dom.window.Response=Response;
   dom.window.Blob=Blob;
   dom.window.TextEncoder=TextEncoder;

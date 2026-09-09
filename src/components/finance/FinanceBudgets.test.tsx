@@ -136,3 +136,19 @@ button('Close').click();await until(()=>!document.querySelector('[role="dialog"]
 await until(()=>document.activeElement===trigger,'focus returned to exact expense trigger');
 }finally{root.unmount();}})();
 `));
+
+test('unpublished budget explains approval and offers upload only to publishers', () => budgetDomTest(domPrelude + `
+import {FinanceBudgets} from './src/components/finance/FinanceBudgetsPage';
+const requests=[];
+window.fetch=(url)=>{requests.push(url);return json({runs:{},compatible:true});};
+window.result=(async()=>{try{
+ root.render(<SWRConfig value={config}><FinanceBudgets/></SWRConfig>);
+ await until(()=>document.body.textContent.includes('No approved budget'),'empty reader');
+ check(document.body.textContent.includes('A publisher must approve it'),'Next step explained');
+ check(document.querySelector('a[href="/operations/finance/upload"]'),'Publisher gets approval route');
+ window.capabilities=['finance.read'];
+ root.render(<SWRConfig value={config}><FinanceBudgets key="reader"/></SWRConfig>);
+ await until(()=>document.body.textContent.includes('Ask a finance publisher'),'reader guidance');
+ check(!document.querySelector('a[href="/operations/finance/upload"]'),'Reader does not get publisher route');
+ check(requests.every(url=>url.includes('/current/')),'No candidate data requested');
+}finally{root.unmount();}})();`));

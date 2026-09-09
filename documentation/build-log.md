@@ -797,3 +797,28 @@ No new package dependencies, API requests, funder changes or authentication chan
 First WP5 PR #6 is production merge 8ac7710; this follow-on slice is authorized for
 live deployment. Exact release evidence belongs in the private supervision log;
 local/browser fixture checks do not claim authenticated production acceptance.
+
+## 2026-09-09 — clarify finance import, source selection and approval
+
+Jim's production budget import succeeded but remained a candidate until he approved
+it. The approval action was below the budget preview and hundreds of findings.
+Move the existing action above that content and explain the awaiting-approval state
+both after import and at the top of the summary. Empty budget readers explain the
+publication step and offer publishers an Upload link; read-only users get guidance
+without candidate reads or publish controls.
+
+Rename the upload kind label from Funders to Management Accounts (API kind remains
+funders). Rename Ledger dependency to Management Accounts source, default to the
+first eligible approved run in the API's newest-first order, retain an explicit
+operator choice, and reset naturally with the existing account/year/kind context.
+Remove schema/hash implementation details from the source chooser; full provenance
+remains in the run summary. Approval remains an explicit server-checked action.
+
+Validation: full unit suite 129/129 PASS, TypeScript, changed-file ESLint and production
+build PASS. Regressions cover eligible default, manual source retention, no automatic
+approval, action placement and publisher-only empty-state navigation. The isolated
+DOM harness now supplies Next's browser build environment for Link; initial failures
+were missing process in that harness. Chromium actual-component checks reproduce
+283 synthetic findings at desktop/mobile widths in light/dark: import-to-review,
+default source, early Approve action and explicit confirmation PASS. Auth/API are
+local fixtures; no production financial mutations or permission changes were made.
