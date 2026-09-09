@@ -101,3 +101,210 @@ render(2025);await pause();check(!document.body.textContent.includes('Department
 }finally{root.unmount();}})();
 `,
   ));
+
+import { BudgetOrganisationOutlook } from "./BudgetOrganisationOutlook";
+import { BudgetSpendingComposition } from "./BudgetSpendingComposition";
+import { budgetInsightsFixture } from "./budgetInsightsTestFixture";
+
+test("organisation outlook consumes exact server totals and pre-rounding variance without deriving a replacement", () => {
+  const html = renderToStaticMarkup(
+    <BudgetOrganisationOutlook insights={budgetInsightsFixture()} />,
+  );
+  for (const label of [
+    "Projected year-end expenditure",
+    "R 14,63",
+    "R 14,65",
+    "R 9,75",
+    "-R 0,03",
+    "Projected below budget",
+  ])
+    assert.ok(html.includes(label), label);
+  assert.doesNotMatch(html, /-R 0,02/);
+  const insights = budgetInsightsFixture();
+  insights.organisation.projected = {
+    ...insights.organisation.projected,
+    total: null,
+    complete: false,
+    known_subtotal: "7.00",
+  };
+  insights.organisation.actual.total = "0.00";
+  const incomplete = renderToStaticMarkup(
+    <BudgetOrganisationOutlook insights={insights} />,
+  );
+  assert.match(incomplete, /Unavailable/);
+  assert.match(incomplete, /Known subtotal: R 7,00/);
+  assert.match(incomplete, /R 0,00/);
+  assert.doesNotMatch(incomplete, /R 14,63/);
+});
+
+test("spending composition retains annual ledger denominator and unbudgeted bucket with accessible exact values", () => {
+  const insights = budgetInsightsFixture();
+  const html = renderToStaticMarkup(
+    <BudgetSpendingComposition
+      composition={insights.composition}
+      departments={payload.hierarchy}
+      onSelect={() => {}}
+    />,
+  );
+  for (const label of [
+    "spending-composition-chart",
+    "R 9,77",
+    "R 9,75",
+    "R 0,02",
+    "99.8%",
+    "0.2%",
+    "Unbudgeted / unmapped expenditure",
+    "<caption",
+    "not a measure of flexible funding",
+  ])
+    assert.ok(html.includes(label), label);
+  assert.match(html, /<button[^>]*>Department A<\/button>/);
+  assert.doesNotMatch(html, /<button[^>]*>Unbudgeted/);
+});
+
+test("spending composition with incomplete, negative or zero data displays amounts but never a misleading donut", () => {
+  for (const [reason, total, amount] of [
+    ["incomplete_actuals", "10.00", null],
+    ["negative_amounts", "10.00", "-2.00"],
+    ["zero_total", "0.00", "0.00"],
+  ] as const) {
+    const composition = {
+      ...budgetInsightsFixture().composition,
+      total,
+      available: false,
+      reasons: [reason],
+      buckets: [
+        { id: "2026-4", label: "Department A", amount, percentage: null },
+      ],
+    };
+    const html = renderToStaticMarkup(
+      <BudgetSpendingComposition
+        composition={composition}
+        departments={payload.hierarchy}
+        onSelect={() => {}}
+      />,
+    );
+    assert.doesNotMatch(html, /<svg|spending-composition-chart/);
+    assert.match(html, /Spending chart unavailable/);
+    assert.match(html, /Department A/);
+    assert.ok(
+      html.includes(
+        amount === null
+          ? "Unavailable"
+          : amount === "-2.00"
+            ? "-R 2,00"
+            : "R 0,00",
+      ),
+    );
+  }
+});
+
+test("rounded percentages and monetary residual are displayed as server evidence without correcting shares", () => {
+  const composition = {
+    ...budgetInsightsFixture().composition,
+    total: "1.00",
+    residual: "0.01",
+    buckets: [0, 1, 2].map((index) => ({
+      id: String(index),
+      label: `Bucket ${index}`,
+      amount: "0.33",
+      percentage: "33.3",
+    })),
+  };
+  const html = renderToStaticMarkup(
+    <BudgetSpendingComposition
+      composition={composition}
+      departments={[]}
+      onSelect={() => {}}
+    />,
+  );
+  assert.match(html, /spending-composition-chart/);
+  assert.equal((html.match(/33.3%/g) ?? []).length, 3);
+  assert.match(html, /rounding difference of R 0,01/);
+  assert.doesNotMatch(html, /33.4%/);
+});
+
+test("missing or differently bound insight enrichment leaves department overview available without cross-run totals", () => {
+  const valid = budgetInsightsFixture();
+  for (const insights of [
+    undefined,
+    { ...valid, run_id: "other-run" },
+    { ...valid, ledger_run_id: "other-ledger" },
+    { ...valid, accounting_year: 2025 },
+    { ...valid, sheet_as_of: "2026-01-01" },
+  ]) {
+    const html = renderToStaticMarkup(
+      <FinanceBudgetOverview
+        payload={payload}
+        manifest={golden.manifest}
+        runId="approved-budget"
+        insights={insights}
+      />,
+    );
+    assert.match(html, /Organisation totals are unavailable/);
+    assert.match(html, /Department A/);
+    assert.doesNotMatch(html, /R 14,63|spending-composition-chart/);
+  }
+});
+
+test("approved reader wires optional insight response and composition links to the same department expenses", () =>
+  budgetDomTest(
+    domPrelude +
+      `
+import {FinanceBudgets} from './src/components/finance/FinanceBudgetsPage';
+import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+import {runFixture} from './src/components/finance/financeRunTestFixture';
+import {budgetInsightsFixture} from './src/components/finance/budgetInsightsTestFixture';
+const wire=runFixture({kind:'budgets',id:'approved-budget',status:'approved',accounting_year:2026,manifest:golden.manifest,payload:golden.derived,budget_insights:budgetInsightsFixture()});
+window.fetch=async(url)=>String(url).includes('/current/')?json({accounting_year:2026,runs:{budgets:{id:wire.id}},compatible:true}):json(wire);
+window.result=(async()=>{try{
+root.render(<SWRConfig value={config}><FinanceBudgets presentation="overview" year={2026}/></SWRConfig>);
+await until(()=>document.body.textContent.includes('R 14,63'),'server organisation total');check(document.body.textContent.includes('-R 0,03'),'exact server variance');
+const composition=document.querySelector('section[aria-labelledby="spending-composition-title"]');const link=composition.querySelector('button');link.focus();link.click();
+await until(()=>button('View expenses for Line 6'),'composition department drilldown');check(document.activeElement.textContent==='Department A: budget lines','department detail focus');link.focus();link.click();await until(()=>document.activeElement.textContent==='Department A: budget lines','same department link restores detail focus');
+window.actor='actor-B';window.fetch=()=>new Promise(()=>{});root.render(<SWRConfig value={config}><FinanceBudgets presentation="overview" year={2026}/></SWRConfig>);
+await until(()=>document.body.textContent.includes('Loading approved budgets'),'replacement account');check(!document.body.textContent.includes('R 14,63'),'old totals removed');check(!document.querySelector('[data-testid="spending-composition-chart"]'),'old composition removed');
+}finally{root.unmount();}})();
+`,
+  ));
+
+test("half-cent composition uses exact-source percentages for two equal arcs despite rounded money residual", () => {
+  const composition = {
+    ...budgetInsightsFixture().composition,
+    total: "0.01",
+    residual: "-0.01",
+    buckets: [0, 1].map((index) => ({
+      id: String(index),
+      label: `Half ${index}`,
+      amount: "0.01",
+      percentage: "50.000000",
+    })),
+  };
+  const html = renderToStaticMarkup(
+    <BudgetSpendingComposition
+      composition={composition}
+      departments={[]}
+      onSelect={() => {}}
+    />,
+  );
+  assert.equal((html.match(/stroke-dasharray="50 50"/g) ?? []).length, 2);
+  assert.equal((html.match(/50.0%/g) ?? []).length, 2);
+  assert.match(html, /rounding difference of -R 0,01/);
+});
+
+test("budget-line outlook distinguishes annual ledger spending and shows unmapped scope even for a net zero bucket", () => {
+  const insights = budgetInsightsFixture();
+  insights.composition.buckets[1].amount = "0.00";
+  const html = renderToStaticMarkup(
+    <FinanceBudgetOverview
+      payload={{ ...payload, summary: { ...payload.summary, orphan_count: 2 } }}
+      manifest={golden.manifest}
+      runId="approved-budget"
+      insights={insights}
+    />,
+  );
+  assert.match(html, /Actual against budget lines/);
+  assert.match(html, /not part of this projection/);
+  assert.match(html, /R 9,75/);
+  assert.match(html, /R 9,77/);
+});

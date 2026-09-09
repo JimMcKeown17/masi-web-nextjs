@@ -4,6 +4,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { ArrowUpRight, ChevronDown, ChevronRight } from "lucide-react";
 import type {
   BudgetHierarchy,
+  BudgetInsights,
   BudgetLine,
   BudgetNode,
   BudgetPayload,
@@ -15,6 +16,8 @@ import type {
 import { formatRand } from "@/lib/finance/money";
 import { financeCurrentMessage } from "@/lib/finance/currentMessage";
 import { BudgetContributors } from "./BudgetContributors";
+import { BudgetOrganisationOutlook } from "./BudgetOrganisationOutlook";
+import { BudgetSpendingComposition } from "./BudgetSpendingComposition";
 import { BudgetVarianceComparison } from "./BudgetVarianceComparison";
 import {
   Sheet,
@@ -78,11 +81,13 @@ export function FinanceBudgetOverview({
   manifest,
   runId,
   compatibility,
+  insights,
 }: {
   payload: BudgetPayload;
   manifest: FinanceRunManifest;
   runId: string;
   compatibility?: FinanceCurrent;
+  insights?: BudgetInsights | null;
 }) {
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedLine, setSelectedLine] = useState<BudgetLine>();
@@ -92,7 +97,26 @@ export function FinanceBudgetOverview({
   useLayoutEffect(() => {
     if (expanded) departmentHeading.current?.focus();
   }, [expanded]);
+  const boundInsights =
+    insights?.version === "1.0.0" &&
+    insights.run_id === runId &&
+    insights.accounting_year === manifest.accounting_year &&
+    insights.sheet_as_of === payload.projection.sheet_as_of &&
+    manifest.dependencies.some(
+      (dependency) => dependency.run_id === insights.ledger_run_id,
+    )
+      ? insights
+      : undefined;
   const departments = payload.hierarchy.filter((row) => row.parent_id === null);
+  function exploreDepartment(department: BudgetHierarchy) {
+    departmentTrigger.current =
+      document.activeElement instanceof HTMLElement
+        ? document.activeElement
+        : null;
+    setSelectedLine(undefined);
+    if (expanded === department.id) departmentHeading.current?.focus();
+    else setExpanded(department.id);
+  }
 
   return (
     <Sheet
@@ -121,6 +145,10 @@ export function FinanceBudgetOverview({
             Sheet as of {payload.projection.sheet_as_of}
           </p>
         </div>
+        <BudgetOrganisationOutlook
+          insights={boundInsights}
+          unbudgetedCount={payload.summary.orphan_count}
+        />
         {compatibility && !compatibility.compatible ? (
           <p
             role="status"
@@ -139,14 +167,7 @@ export function FinanceBudgetOverview({
           <BudgetVarianceComparison
             departments={departments}
             metric="variance_all"
-            onSelect={(department) => {
-              departmentTrigger.current =
-                document.activeElement instanceof HTMLElement
-                  ? document.activeElement
-                  : null;
-              setExpanded(department.id);
-              setSelectedLine(undefined);
-            }}
+            onSelect={exploreDepartment}
           />
         </div>
         {expanded ? (
@@ -308,6 +329,13 @@ export function FinanceBudgetOverview({
             </div>
           ) : null}
         </SheetContent>
+        {boundInsights ? (
+          <BudgetSpendingComposition
+            composition={boundInsights.composition}
+            departments={departments}
+            onSelect={exploreDepartment}
+          />
+        ) : null}
         <details className="rounded-lg border px-4 py-3 text-sm">
           <summary className="cursor-pointer font-medium">
             Projection basis and source details

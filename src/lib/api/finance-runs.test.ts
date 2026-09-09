@@ -114,3 +114,21 @@ test("budget rows and exports expose 400 and 409 errors; cache identities isolat
  assert.equal(new Set(resources.map(resource=>financeRunsCacheKey('actor',resource))).size,resources.length);
  }finally{global.fetch=original;}
 });
+
+test("run detail preserves optional server budget insights without modifying the original payload", async () => {
+  const previous = global.fetch;
+  const { budgetInsightsFixture } = await import("@/components/finance/budgetInsightsTestFixture");
+  const insights = budgetInsightsFixture();
+  const wire = {id:"approved-budget",kind:"budgets",payload:{hierarchy:[],lines:[],findings:[]},budget_insights:insights};
+  global.fetch = async (_url, init) => {
+    assert.equal((init?.headers as Record<string,string>).Authorization,"Bearer read-token");
+    assert.equal(init?.cache,"no-store");
+    return new Response(JSON.stringify(wire));
+  };
+  try {
+    const detail=await getFinanceRun("read-token","approved-budget");
+    assert.equal(detail.kind,"budgets");
+    if(detail.kind==="budgets")assert.deepEqual(detail.budget_insights,insights);
+    assert.deepEqual(detail.payload,wire.payload);
+  } finally {global.fetch=previous;}
+});
