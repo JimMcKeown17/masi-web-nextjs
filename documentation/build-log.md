@@ -711,3 +711,54 @@ Final local gate update:
 - GitHub confirms both website repositories are public. The originating finance
   repository forbids public pushes, so these reviewed source changes remain local
   pending Jim's explicit destination decision. No merge or deployment occurred.
+
+
+## 2026-09-09 — WP5 compact finance workspace and investigation views
+
+Status: implemented and verified locally on `feat/wp5-finance-workspace`, based
+on production main `5fb69ce`. Not merged or deployed at this entry.
+
+- Finance-scoped Masi ink/crimson/blue navigation and compact overview put the
+  approved department comparison before source metadata. Overview and Budgets
+  share one published-variance chart. Department selection opens budget lines;
+  expenses open a Radix Sheet with pinned BC/year/run queries, full original
+  amounts, explicit applied share, pagination, source rows and server exports.
+- Funder cards retain lifetime and accounting-year amounts separately. Attention
+  identifies exact-cent line overspend (typed values labelled), missing budgets,
+  and positive derived budgets with zero recorded allocation rows. Net-zero rows
+  are not assumed absent. No deadlines are inferred from period labels.
+- Null totals, known subtotals, incompatible sources, findings, source details and
+  capability/account/year/run boundaries remain visible and tested. Financial
+  figures use original producer strings; numeric chart geometry does not supply
+  money calculations. No dependencies, backend changes, migrations or env changes.
+- No client-derived organisation totals, spending pies, flexible-funding split,
+  contract-line expense endpoint, contract-end forecast or history implementation
+  is claimed. Those require defined backend reporting contracts. Allocation gaps
+  are explicitly not flexible funding. Historical expenditure will start in 2023.
+- Independent cross-agent review found the initial Overview expense panel could
+  appear offscreen; replaced it with a Sheet and focus return. Final review of
+  budget/funder semantics found no remaining source-level findings.
+- Browser visual inspection caught implicit mobile grid min-content clipping that
+  document scrollWidth alone missed. Explicit minmax(0,1fr) and a min-width-zero
+  navigation container fixed it; final checks also assert content bounds. Sheet
+  motion respects reduced-motion preferences. Screenshots wait for transitions.
+
+Verification:
+- `npm_config_manage_package_manager_versions=false node_modules/.bin/pnpm test:unit`:
+  118/118 PASS. Initial integrated run exposed a test race with Radix deferred
+  autofocus; the test now waits for the unchanged exact focus condition.
+- Final expense-column ordering: `pnpm exec node --import tsx --test
+  src/components/finance/FinanceBudgets.test.tsx
+  src/components/finance/FinanceBudgetOverview.test.tsx`: 17/17 PASS.
+- Changed-file `pnpm exec eslint`: PASS. `pnpm exec tsc --noEmit`: PASS.
+- `NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api pnpm build`: PASS
+  after final mobile corrections. Existing public font/static-page reads only.
+- Chromium 149: actual React pages with local synthetic API/auth fixtures, 30
+  page/width/theme combinations (Overview/Budgets/Funders, 1440/1024/720/390/320,
+  light/dark), plus expense drawer/pagination/focus and exact funder attention
+  focus. No page errors; final content bounds checked. This is local component
+  browser evidence, not hosted authentication, real-database or financial proof.
+  Harness and screenshots live under `/private/tmp/wp5-browser-app`; no fixture
+  route or authentication bypass is included in the application.
+- Review/release remaining: deploy this frontend against existing WP4 APIs and
+  verify approved-data browser behavior under existing finance capability roles.

@@ -5,6 +5,7 @@ import {
   FIELD_APP_UNAUTHENTICATED,
   FIELD_APP_FORBIDDEN,
 } from "@/lib/masi/auth-guard";
+import { FinanceWorkspace } from "@/components/finance/FinanceWorkspace";
 import { FinanceNav } from "@/components/finance/FinanceNav";
 
 export const metadata: Metadata = {
@@ -44,11 +45,6 @@ export default async function FinanceLayout({
   }
 
   return (
-    <div className="min-h-screen px-4 pb-16 pt-20 md:px-8">
-      <div className="mx-auto max-w-[1400px]">
-        <FinanceNav />
-        {children}
-      </div>
-    </div>
+    <FinanceWorkspace navigation={<FinanceNav />}>{children}</FinanceWorkspace>
   );
 }

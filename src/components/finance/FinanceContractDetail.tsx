@@ -39,6 +39,9 @@ export function FinanceContractDetail({
           {contract.period_label ? `, ${contract.period_label}` : ""}
         </p>
       </header>
+      <p className="mb-5 text-sm text-muted-foreground">
+        Budget and remaining cover the full contract lifetime. In-year allocations are shown separately.
+      </p>
       <FunderContractsTable
         contracts={[contract]}
         accountingYear={accountingYear}

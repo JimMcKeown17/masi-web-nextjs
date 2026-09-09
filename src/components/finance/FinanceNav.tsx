@@ -9,8 +9,8 @@ import { cn } from "@/lib/utils";
 
 const TABS = [
   { href: "/operations/finance/overview", label: "Overview" },
-  { href: "/operations/finance/funders", label: "Funders" },
   { href: "/operations/finance/budgets", label: "Budgets" },
+  { href: "/operations/finance/funders", label: "Funders" },
   { href: "/operations/finance/coverage", label: "Coverage" },
   { href: "/operations/finance/fix", label: "Fix" },
 ];
@@ -29,7 +29,7 @@ export function FinanceNavView({
   if (!canAccessFinance(capabilities)) return null;
 
   return (
-    <nav aria-label="Finance views" className="mb-6 flex gap-6 overflow-x-auto border-b">
+    <nav aria-label="Finance views" className="flex gap-1 overflow-x-auto p-2 lg:flex-col lg:overflow-visible">
       {[...TABS, ...(canPublishFinance(capabilities) ? [{ href: "/operations/finance/upload", label: "Upload" }] : [])].map((tab) => {
         const active = isActive(pathname, tab.href);
         return (
@@ -38,10 +38,10 @@ export function FinanceNavView({
             href={tab.href}
             aria-current={active ? "page" : undefined}
             className={cn(
-              "-mb-px shrink-0 border-b-2 px-1 py-2 text-sm font-medium transition-colors",
+              "shrink-0 rounded-md border-l-2 px-4 py-3 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white",
               active
-                ? "border-foreground text-foreground"
-                : "border-transparent text-muted-foreground hover:text-foreground",
+                ? "border-[#E72D4D] bg-white/10 text-white"
+                : "border-transparent text-gray-300 hover:bg-white/5 hover:text-white",
             )}
           >
             {tab.label}

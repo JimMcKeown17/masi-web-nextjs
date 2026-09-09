@@ -3,8 +3,11 @@ import type { FinanceSnapshotResponse } from "@/lib/types/finance";
 export function ProvenanceStrip({ response }: { response: FinanceSnapshotResponse }) {
   const year = response.accounting_year;
   return (
-    <div className="mb-6 rounded-md border bg-muted/40 px-4 py-3 text-sm text-muted-foreground">
-      <dl className="grid gap-x-6 gap-y-1 sm:grid-cols-2 lg:grid-cols-4">
+    <details className="mb-4 rounded-lg border bg-card px-4 py-3 text-sm text-muted-foreground">
+      <summary className="cursor-pointer text-foreground focus-visible:outline-2 focus-visible:outline-offset-4">
+        Source details <span className="ml-2 text-xs text-muted-foreground">Workbook dated {response.workbook_date} · Accounting year {year}</span>
+      </summary>
+      <dl className="mt-4 grid gap-x-6 gap-y-3 break-words sm:grid-cols-2 lg:grid-cols-4">
         <div>
           <dt className="font-medium text-foreground">Workbook</dt>
           <dd>
@@ -30,6 +33,6 @@ export function ProvenanceStrip({ response }: { response: FinanceSnapshotRespons
           </dd>
         </div>
       </dl>
-    </div>
+    </details>
   );
 }
