@@ -4,7 +4,8 @@ import { useState } from "react";
 import { useAuth } from "@clerk/nextjs";
 import useSWR from "swr";
 import { useUser } from "@/components/providers/UserProvider";
-import { canAccessFinance } from "@/lib/finance/access";
+import Link from "next/link";
+import { canAccessFinance, canPublishFinance } from "@/lib/finance/access";
 import {
   financeRunsCacheKey,
   getFinanceCurrent,
@@ -71,6 +72,7 @@ function BudgetReaderSession({
   findingsOnly: boolean;
   presentation: "hierarchy" | "overview";
 }) {
+  const user = useUser();
   async function token() {
     const value = await getToken();
     if (!value) throw new Error("Not authenticated");
@@ -103,7 +105,11 @@ function BudgetReaderSession({
     );
   if (current.isLoading || detail.isLoading)
     return <p role="status">Loading approved budgets…</p>;
-  if (!id) return <p>No approved budget run for {year}.</p>;
+  if (!id) return <div className="space-y-3 rounded-xl border bg-card p-5">
+    <p className="font-medium">No approved budget run for {year}.</p>
+    <p className="text-sm text-muted-foreground">Uploading a workbook or refreshing Google Sheets creates a budget for review. A publisher must approve it before figures appear here.</p>
+    {canPublishFinance(user?.capabilities) ? <Link href="/operations/finance/upload" className="inline-block text-sm font-medium text-[#1D4ED8] underline underline-offset-4 dark:text-blue-300">Review and approve a budget in Upload</Link> : <p className="text-sm text-muted-foreground">Ask a finance publisher to review and approve the budget.</p>}
+  </div>;
   const run = detail.data;
   if (!run) return <p role="status">Loading approved budgets…</p>;
   if (

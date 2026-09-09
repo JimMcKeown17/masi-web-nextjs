@@ -19,16 +19,16 @@ window.result=(async()=>{try{
   await until(()=>select('Run kind'),'kind');
   check(!button('Refresh from Google Sheets'),'Funders must not offer budget refresh');
   change(select('Run kind'),'budgets');
-  await until(()=>select('Ledger dependency')?.options.length===2,'ledger choices');
-  check(button('Refresh from Google Sheets')?.disabled,'Refresh needs a selected ledger');
-  change(select('Ledger dependency'),'ledger-one');
+  await until(()=>select('Management Accounts source')?.options.length===2,'ledger choices');
+  check(select('Management Accounts source').value==='ledger-one','Newest eligible ledger defaults automatically');
+  change(select('Management Accounts source'),'ledger-one');
   await until(()=>button('Refresh from Google Sheets')&&!button('Refresh from Google Sheets').disabled,'refresh enabled');
   button('Refresh from Google Sheets').click();
   await until(()=>document.body.textContent.includes('Candidate created'),'candidate');
   check(posts.length===1&&posts[0].url==='/finance/runs/pull-budget/','Only the pull request is sent');
   check(posts[0].init.headers.Authorization==='Bearer token-actor-A','Bearer auth');
   check(JSON.stringify(JSON.parse(posts[0].init.body))===JSON.stringify({year:2026,ledger_run_id:'ledger-one'}),'Only year and ledger are submitted');
-  check(select('Ledger dependency').value==='ledger-one','Selected ledger retained');
+  check(select('Management Accounts source').value==='ledger-one','Selected ledger retained');
   check(button('Approve'),'Candidate remains reviewable');
 }finally{root.unmount();}})();`));
 
@@ -48,12 +48,12 @@ window.fetch=(url,init)=>{
 window.result=(async()=>{try{
  root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
  await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');
- await until(()=>select('Ledger dependency')?.options.length===2,'ledgers');change(select('Ledger dependency'),'ledger-one');
+ await until(()=>select('Management Accounts source')?.options.length===2,'ledgers');change(select('Management Accounts source'),'ledger-one');
  await until(()=>!button('Refresh from Google Sheets').disabled,'ready');button('Refresh from Google Sheets').click();
  await until(()=>document.querySelector('[role=alert]'),'safe failure');
  check(document.querySelector('[role=alert]').textContent.includes('Google Sheets access was denied'),'Specific access guidance');
  check(document.querySelector('[role=alert]').textContent.includes('upload an exported workbook'),'Actionable fallback');
- check(select('Ledger dependency').value==='ledger-one','Ledger remains selected');
+ check(select('Management Accounts source').value==='ledger-one','Ledger remains selected');
  const input=document.querySelector('input[type=file]');Object.defineProperty(input,'files',{value:[new File(['synthetic'], '20260907 - Synthetic.xlsx')]});input.dispatchEvent(new Event('change',{bubbles:true}));
  await until(()=>!button('Upload workbook for 2026').disabled,'fallback ready');button('Upload workbook for 2026').click();
  await until(()=>document.body.textContent.includes('Candidate created'),'fallback candidate');
@@ -80,4 +80,36 @@ window.result=(async()=>{try{
  resolvePage(new Response(JSON.stringify({results:[],next:'/finance/runs/?cursor=second',previous:null})));
  await pause();await pause();
  check(!requests.some(request=>request.replaced&&request.url.includes('cursor=second')),'No next-page request from the old context');
+}finally{root.unmount();}})();`));
+
+test('default skips ineligible sources and preserves an explicit older approved selection', () => budgetDomTest(domPrelude + `
+import {FinanceUpload} from './src/components/finance/FinanceUpload';
+import {runFixture} from './src/components/finance/financeRunTestFixture';
+import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+const newest=runFixture({id:'newest',status:'approved',facts_sha256:'facts'});
+const older=runFixture({id:'older',status:'approved',facts_sha256:'facts'});
+const legacy=runFixture({id:'legacy',status:'approved',schema_version:'1.0.0',facts_sha256:null});
+const candidate=runFixture({id:'budget-choice',kind:'budgets',manifest:golden.manifest,payload:golden.derived});
+const posts=[];
+window.fetch=(url,init)=>{
+ if(init?.method==='POST'){posts.push({url,body:JSON.parse(init.body)});return json(candidate,201);}
+ if(url.includes('/current/'))return json({runs:{},compatible:true});
+ if(url.includes('/runs/budget-choice/'))return json(candidate);
+ return json({results:url.includes('status=approved')?[legacy,newest,older]:[],next:null,previous:null});
+};
+window.result=(async()=>{try{
+ root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
+ await until(()=>select('Run kind'),'kind');
+ check(select('Run kind').selectedOptions[0].textContent==='Management Accounts','Workbook name matches operator terminology');
+ change(select('Run kind'),'budgets');
+ await until(()=>select('Management Accounts source')?.value==='newest','eligible default');
+ check(![...select('Management Accounts source').options].some(option=>option.value==='legacy'),'Legacy is not eligible');
+ change(select('Management Accounts source'),'older');
+ await pause();button('Refresh from Google Sheets').click();
+ await until(()=>document.body.textContent.includes('Awaiting approval'),'approval guidance');
+ check(posts.length===1&&posts[0].body.ledger_run_id==='older','Manual source is retained and no approval is sent');
+ check(select('Management Accounts source').value==='older','Source survives refresh');
+ const summary=document.querySelector('[aria-label="Selected run summary"]');
+ check(summary.textContent.indexOf('Awaiting approval')<summary.textContent.indexOf('Findings'),'Next step precedes long findings');
+ check(summary.querySelector('button').textContent==='Approve','Approval action precedes budget preview and findings');
 }finally{root.unmount();}})();`));

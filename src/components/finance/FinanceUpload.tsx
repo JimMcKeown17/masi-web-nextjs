@@ -86,7 +86,7 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
   const { mutate } = useSWRConfig();
   const active = useRef(true);
   useLayoutEffect(()=>{active.current=true;return ()=>{active.current=false;};},[]);
-  const [ledgerRunId,setLedgerRunId] = useState("");
+  const [ledgerSelection,setLedgerRunId] = useState<string | null>(null);
   const [status, setStatus] = useState<FinanceRunStatus | "">("");
   const [cursor, setCursor] = useState<string>();
   const [selectedId, setSelectedId] = useState("");
@@ -118,6 +118,8 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
   const currentId = current.error ? undefined : current.data?.runs[kind]?.id;
   const currentDetail = useSWR(currentId ? financeRunsCacheKey(userId, `detail:${currentId}`) : null, async () => getFinanceRun(await token(), currentId!));
   const dependencies = useSWR(kind === "budgets" ? financeRunsCacheKey(userId, `dependencies:funders:${year}`) : null, async()=>getBudgetLedgerDependencies(token,year));
+  // The API returns eligible approved runs newest first. An explicit choice is preserved.
+  const ledgerRunId = ledgerSelection ?? (!dependencies.error ? dependencies.data?.[0]?.id : undefined) ?? "";
   const eligibleLedger = !dependencies.error && dependencies.data?.find(run=>run.id===ledgerRunId);
   const selectedRun = detail.error ? undefined : detail.data ?? (returnedRun?.id === selectedId ? returnedRun : undefined);
 
@@ -191,7 +193,7 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
       const run = result.run;
       setReturnedRun(run); setSelectedId(run.id); setStatus(""); setCursor(undefined);
       setUploadState(run.status === "failed" ? "error" : "success");
-      setMessage(`${result.status === 200 ? "Idempotent replay: existing run returned" : run.status === "failed" ? "Failed run created" : "Candidate created"}. Status: ${run.status}. ${run.failure?.message ?? "Review the run summary."}`);
+      setMessage(run.status === "candidate" ? `Candidate created. Awaiting approval. Review the summary below and choose Approve to publish ${kind === "budgets" ? "this budget on Overview and Budgets" : "these Management Accounts"}.` : `${result.status === 200 ? "Idempotent replay: existing run returned" : run.status === "failed" ? "Failed run created" : "Candidate created"}. Status: ${run.status}. ${run.failure?.message ?? "Review the run summary."}`);
       await refresh();
       summary.current?.focus();
     } catch (error) {
@@ -236,7 +238,7 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
   const readError = list.error || current.error || detail.error || currentDetail.error;
   return <div className="space-y-6">
     <header><h1 className="font-serif text-3xl">Publish finance workbook</h1><p className="mt-2 text-muted-foreground">Upload, inspect and explicitly approve a finance run for reader pages.</p></header>
-    <label className="block">Run kind<select className="ml-3 rounded border bg-background p-2" value={kind} onChange={event=>setKind(event.target.value as FinanceRunKind)}><option value="funders">Funders</option><option value="budgets">Budgets</option></select></label>
+    <label className="block">Run kind<select className="ml-3 rounded border bg-background p-2" value={kind} onChange={event=>setKind(event.target.value as FinanceRunKind)}><option value="funders">Management Accounts</option><option value="budgets">Budgets</option></select></label>
     <FinanceRunSelector year={year} status={status} selectedId={selectedId} selectedRun={selectedRun} runs={list.error ? [] : list.data?.results ?? []} currentId={currentId} disabled={busy || refreshPending || action !== null}
       onYearChange={(value) => { setYear(value); setCursor(undefined); setSelectedId(""); setReturnedRun(undefined); }}
       onStatusChange={(value) => { setStatus(value); setCursor(undefined); }} onRunChange={(value) => { setSelectedId(value); setReturnedRun(undefined); }} />
@@ -246,7 +248,7 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
     {!list.isLoading && !list.error && list.data?.results.length === 0 ? <p>No runs match these filters.</p> : null}
     {current.data && !current.error && !current.data.compatible ? <p role="status">{financeCurrentMessage(current.data)}</p> : null}
     <form onSubmit={(event) => { event.preventDefault(); void upload(); }} className="space-y-4 rounded-lg border bg-card p-5" aria-busy={uploadState === "uploading"}>
-      {kind === "budgets" ? <div className="space-y-2"><label>Ledger dependency<select className="ml-3 max-w-full rounded border bg-background p-2" value={ledgerRunId} disabled={busy || refreshPending || dependencies.isLoading} onChange={event=>setLedgerRunId(event.target.value)}><option value="">Select approved ledger</option>{!dependencies.error ? dependencies.data?.map(run=><option key={run.id} value={run.id}>{run.source_name} ({run.id})</option>) : null}</select></label>{dependencies.isLoading ? <p role="status">Loading all approved ledgers…</p> : null}{dependencies.error ? <p role="alert">Could not load ledger dependencies. <Button type="button" onClick={()=>void dependencies.mutate()}>Retry dependencies</Button></p> : null}{eligibleLedger ? <p className="break-all">Ledger source: {eligibleLedger.source_name}. SHA-256: {eligibleLedger.source_sha256}</p> : <p>An approved schema 2.0.0 funders run with retained facts for {year} is required.</p>}</div> : null}
+      {kind === "budgets" ? <div className="space-y-2"><label>Management Accounts source<select className="ml-3 max-w-full rounded border bg-background p-2" value={ledgerRunId} disabled={busy || refreshPending || dependencies.isLoading} onChange={event=>setLedgerRunId(event.target.value)}><option value="">Select approved Management Accounts</option>{!dependencies.error ? dependencies.data?.map(run=><option key={run.id} value={run.id}>{run.source_name} ({run.id})</option>) : null}</select></label>{dependencies.isLoading ? <p role="status">Loading approved Management Accounts…</p> : null}{dependencies.error ? <p role="alert">Could not load approved Management Accounts. <Button type="button" onClick={()=>void dependencies.mutate()}>Retry sources</Button></p> : null}{eligibleLedger ? <p className="text-sm text-muted-foreground">Budget actuals use this approved Management Accounts workbook. The most recent eligible upload is selected by default.</p> : <p>Upload and approve Management Accounts for {year} before importing a budget.</p>}</div> : null}
       {kind === "budgets" ? <div className="space-y-2">
         <Button type="button" disabled={busy || refreshPending || !eligibleLedger} onClick={() => void upload("sheets")}>Refresh from Google Sheets</Button>
         <p className="text-sm text-muted-foreground">Fetch the configured budget sheet as a candidate for review. You can also upload an exported workbook below. Approval is a separate step.</p>

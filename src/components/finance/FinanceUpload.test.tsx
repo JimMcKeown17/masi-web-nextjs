@@ -227,8 +227,8 @@ window.fetch=async(url,init)=>{
 window.result=(async()=>{try{
 root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
 await until(()=>select('Run kind'),'kind selector');change(select('Run kind'),'budgets');
-await until(()=>select('Ledger dependency')?.textContent.includes('ledger-two'),'all ledger pages');
-change(select('Ledger dependency'),'ledger-two');
+await until(()=>select('Management Accounts source')?.textContent.includes('ledger-two'),'all ledger pages');
+change(select('Management Accounts source'),'ledger-two');
 const input=document.querySelector('input[type=file]');Object.defineProperty(input,'files',{value:[new File(['synthetic'],'budget.xlsx')]});input.dispatchEvent(new Event('change',{bubbles:true}));
 await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload enabled');button('Upload workbook for '+new Date().getFullYear()).click();
 await until(()=>posted,'posted');check(posted.u.searchParams.get('kind')==='budgets','budget kind');check(posted.u.searchParams.get('ledger_run_id')==='ledger-two','selected exact dependency');check(posted.init.body.name==='budget.xlsx','raw body');
@@ -253,7 +253,7 @@ window.fetch=async(url,init)=>{const u=new URL(url,'https://test.invalid');
  return json(run);
 };
 window.result=(async()=>{try{
-root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>select('Ledger dependency')?.textContent.includes('ledger-one'),'ledger');change(select('Ledger dependency'),'ledger-one');
+root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>select('Management Accounts source')?.textContent.includes('ledger-one'),'ledger');change(select('Management Accounts source'),'ledger-one');
 const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload');button('Upload workbook for '+new Date().getFullYear()).click();
 await until(()=>document.body.textContent.includes('Idempotent replay'),'replay');await until(()=>button('Re-approve')&&!button('Re-approve').disabled,'reapprove');
 check(document.body.textContent.includes('2026 Budget!F9'),'budget finding source cells');
@@ -279,7 +279,7 @@ const dimension=${JSON.stringify(dimension)};const ledger=runFixture({id:'ledger
 window.fetch=async(url,init)=>{calls.push({url,init});if(init?.method==='POST')return new Promise(resolve=>{resolveUpload=()=>resolve(new Response(JSON.stringify(runFixture({id:'late-budget',kind:'budgets',payload:null})),{status:201}));});if(String(url).includes('/current/'))return json({runs:{},compatible:true});return json({results:[ledger],next:null,previous:null});};
 const render=()=>root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
 window.result=(async()=>{try{
-render();await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>select('Ledger dependency')?.textContent.includes('ledger-one'),'ledger');change(select('Ledger dependency'),'ledger-one');const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload');button('Upload workbook for '+new Date().getFullYear()).click();await until(()=>resolveUpload,'pending upload');
+render();await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>select('Management Accounts source')?.textContent.includes('ledger-one'),'ledger');change(select('Management Accounts source'),'ledger-one');const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload');button('Upload workbook for '+new Date().getFullYear()).click();await until(()=>resolveUpload,'pending upload');
 if(dimension==='kind')change(select('Run kind'),'funders');else if(dimension==='actor'){window.actor='actor-B';render();}else{const year=document.querySelector('input[type=number]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(year,'2025');year.dispatchEvent(new Event('input',{bubbles:true}));}
 await until(()=>!document.querySelector('progress'),'new context');resolveUpload();await pause();await pause();check(!document.body.textContent.includes('late-budget'),'late candidate cannot return');check(document.querySelector('select[aria-label=Run]').value==='','candidate cleared');check(button('Upload workbook for '+(dimension==='year'?'2025':new Date().getFullYear())).disabled,'file and dependency reset');check(calls.filter(c=>c.init?.method==='POST').length===1,'one authorized upload');
 }finally{root.unmount();}})();

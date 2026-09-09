@@ -22,6 +22,14 @@ export function FinanceRunSummary({ run, currentId, currentRun, disabled, onActi
         <CardTitle className="flex flex-wrap items-center gap-3 font-serif text-2xl">Run summary <Badge variant="outline">{run.id === currentId ? "Current approved" : run.status}</Badge></CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {run.status === "candidate" ? <div role="status" className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4">
+          <h3 className="font-semibold">Awaiting approval</h3>
+          <p className="mt-1 text-sm">Import succeeded. Review the figures and findings below, then choose Approve to make this workbook visible on the finance pages. Approval preserves all findings.</p>
+        </div> : null}
+        <div className="flex flex-wrap gap-3">
+          {run.allowed_actions.includes("approve") && (run.status === "candidate" || run.status === "superseded") ? <Button disabled={disabled} onClick={() => onAction("approve")}>{run.status === "superseded" ? "Re-approve" : "Approve"}</Button> : null}
+          {run.allowed_actions.includes("demote") && run.id === currentId && run.status === "approved" && run.previous_approved ? <Button variant="outline" disabled={disabled} onClick={() => onAction("demote")}>Demote</Button> : null}
+        </div>
         <p className="break-all text-sm">Run: {run.id}</p>
         <div className="grid gap-6 md:grid-cols-2">
           <SourceFacts title={`${run.status === "candidate" ? "Candidate" : "Selected run"} source`} run={run} />
@@ -50,10 +58,7 @@ export function FinanceRunSummary({ run, currentId, currentRun, disabled, onActi
             </li>)}</ul>
           </div>)}
         </section>
-        <div className="flex flex-wrap gap-3">
-          {run.allowed_actions.includes("approve") && (run.status === "candidate" || run.status === "superseded") ? <Button disabled={disabled} onClick={() => onAction("approve")}>{run.status === "superseded" ? "Re-approve" : "Approve"}</Button> : null}
-          {run.allowed_actions.includes("demote") && run.id === currentId && run.status === "approved" && run.previous_approved ? <Button variant="outline" disabled={disabled} onClick={() => onAction("demote")}>Demote</Button> : null}
-        </div>
+
       </CardContent>
     </Card>
   );
