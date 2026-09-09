@@ -12,9 +12,9 @@ export default function FundersPage() {
   return (
     <div>
       <header className="mb-6">
-        <h1 className="text-2xl font-semibold">Funder contracts</h1>
+        <h1 className="font-serif text-3xl font-semibold">Funder contracts</h1>
         <p className="text-sm text-muted-foreground">
-          Budget, allocated and remaining per funder contract, recomputed from the management workbook.
+          Review lifetime allocations, spot lines that need attention, and open each contract’s budget.
         </p>
       </header>
 

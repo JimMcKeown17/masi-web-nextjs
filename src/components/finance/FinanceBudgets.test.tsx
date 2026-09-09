@@ -99,3 +99,40 @@ test("hierarchy shows chevrons and readable completeness labels without dropping
  for(const label of ['Budget incomplete','Actual incomplete','Projected amount incomplete','All Funds variance incomplete','Masi variance incomplete','Budget unavailable','Actual unavailable'])assert.ok(html.includes(label),label);
  assert.doesNotMatch(html,/budget_incomplete|projected_incomplete|variance_all_incomplete/);
 });
+
+test("department comparison keeps missing totals unavailable and labels Masi scope",()=>budgetDomTest(domPrelude+`
+import {FinanceBudgetsView} from './src/components/finance/FinanceBudgets';
+import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+window.result=(async()=>{try{
+root.render(<FinanceBudgetsView payload={golden.derived} manifest={golden.manifest} runId="budget-one"/>);
+await until(()=>document.querySelector('[aria-label="Department projected variance comparison"]'),'comparison');
+const chart=document.querySelector('[aria-label="Department projected variance comparison"]');
+const department=golden.derived.hierarchy.find(row=>row.parent_id===null);
+check(department.variance_all===null,'incomplete fixture total');
+check(chart.textContent.includes('Unavailable')&&chart.textContent.includes('Known subtotal'),'missing total not plotted as zero');
+change(document.querySelector('[aria-label="Variance basis"]'),'variance_masi');
+await until(()=>document.body.textContent.includes('It is not a measure of flexible funding'),'Masi distinction');
+chart.querySelector('button').click();await until(()=>button('All departments'),'department selected');
+check(document.activeElement.id==='budget-detail-title','focus lands on department detail');
+check(document.getElementById('budget-detail-title').textContent===department.label,'selected department title');
+button('All departments').click();await until(()=>document.getElementById('budget-detail-title').textContent==='Budget detail','department reset');
+}finally{root.unmount();}})();
+`));
+
+test("expense sheet preserves full amounts and restores focus when dismissed",()=>budgetDomTest(domPrelude+`
+import {FinanceBudgetsView} from './src/components/finance/FinanceBudgets';
+import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+const payload=JSON.parse(JSON.stringify(golden.derived));const line=payload.lines.find(row=>row.label==='Line 6');line.actual_share='0.5';line.actual='50.00';
+window.fetch=async()=>json({results:[{row_key:'expense-unique',sheet_row:27,description:'Original ledger expense',date:'2026-01-01',amount:'100.00',bc:'101'}],next:null,previous:null,run_id:'budget-one',ledger_run_id:'pinned-one',management_accounts_sha256:'abc',contributor_basis:'full_ledger_amount_before_budget_share'});
+window.result=(async()=>{try{
+root.render(<SWRConfig value={config}><FinanceBudgetsView payload={payload} manifest={golden.manifest} runId="budget-one"/></SWRConfig>);
+await until(()=>button('View contributors for Line 6'),'expense trigger');const trigger=button('View contributors for Line 6');trigger.focus();trigger.click();
+await until(()=>document.body.textContent.includes('Original ledger expense'),'sheet expense');
+const dialog=document.querySelector('[role="dialog"]');check(dialog,'accessible dialog');
+check(dialog.textContent.includes('R 50,00')&&dialog.textContent.includes('R 100,00'),'applied line actual and full row amount distinct');
+check(dialog.textContent.includes('Applied share: 0.5'),'explicit share');check(dialog.textContent.includes('Source row')&&dialog.textContent.includes('27'),'source row retained');
+button('Close').click();await until(()=>!document.querySelector('[role="dialog"]'),'sheet closed');
+// Radix dispatches its unmount autofocus event in a timer after removing the dialog.
+await until(()=>document.activeElement===trigger,'focus returned to exact expense trigger');
+}finally{root.unmount();}})();
+`));
