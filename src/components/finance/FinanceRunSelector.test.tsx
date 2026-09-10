@@ -10,10 +10,10 @@ test("selector labels candidates and failures, marks current, and preserves sele
     runFixture(), runFixture({ id: "failed", status: "failed" }), runFixture({ id: "current", status: "approved" }),
   ]} currentId="current" onYearChange={() => {}} onStatusChange={() => {}} onRunChange={() => {}} />);
   assert.match(html, /Accounting year/);
-  assert.match(html, /Run status/);
+  assert.match(html, /Import status/);
   assert.match(html, /candidate: /);
   assert.match(html, /failed: /);
   assert.match(html, /Current approved/);
   assert.match(html, /value="older" selected=""/);
-  assert.match(html, /Reader figures use only the current approved run/);
+  assert.match(html, /The dashboard uses the approved import/);
 });

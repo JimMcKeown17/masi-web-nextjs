@@ -16,20 +16,20 @@ window.fetch=(url,init)=>{
 };
 window.result=(async()=>{try{
   root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
-  await until(()=>select('Run kind'),'kind');
-  check(!button('Refresh from Google Sheets'),'Funders must not offer budget refresh');
-  change(select('Run kind'),'budgets');
+  await until(()=>button('Budget'),'kind');
+  check(!button('Refresh budget from Google Sheets'),'Funders must not offer budget refresh');
+  button('Budget').click();await until(()=>button('Budget')?.getAttribute('aria-selected')==='true','budget tab');
   await until(()=>select('Management Accounts source')?.options.length===2,'ledger choices');
   check(select('Management Accounts source').value==='ledger-one','Newest eligible ledger defaults automatically');
   change(select('Management Accounts source'),'ledger-one');
-  await until(()=>button('Refresh from Google Sheets')&&!button('Refresh from Google Sheets').disabled,'refresh enabled');
-  button('Refresh from Google Sheets').click();
-  await until(()=>document.body.textContent.includes('Candidate created'),'candidate');
+  await until(()=>button('Refresh budget from Google Sheets')&&!button('Refresh budget from Google Sheets').disabled,'refresh enabled');
+  button('Refresh budget from Google Sheets').click();
+  await until(()=>document.body.textContent.includes('Import complete'),'candidate');
   check(posts.length===1&&posts[0].url==='/finance/runs/pull-budget/','Only the pull request is sent');
   check(posts[0].init.headers.Authorization==='Bearer token-actor-A','Bearer auth');
   check(JSON.stringify(JSON.parse(posts[0].init.body))===JSON.stringify({year:2026,ledger_run_id:'ledger-one'}),'Only year and ledger are submitted');
   check(select('Management Accounts source').value==='ledger-one','Selected ledger retained');
-  check(button('Approve'),'Candidate remains reviewable');
+  check(button('Review and approve'),'Candidate remains reviewable');
 }finally{root.unmount();}})();`));
 
 test('Sheets access failure explains upload fallback and preserves the selected ledger', () => budgetDomTest(domPrelude + `
@@ -47,16 +47,16 @@ window.fetch=(url,init)=>{
 };
 window.result=(async()=>{try{
  root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
- await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');
+ await until(()=>button('Budget'),'kind');button('Budget').click();await until(()=>button('Budget')?.getAttribute('aria-selected')==='true','budget tab');
  await until(()=>select('Management Accounts source')?.options.length===2,'ledgers');change(select('Management Accounts source'),'ledger-one');
- await until(()=>!button('Refresh from Google Sheets').disabled,'ready');button('Refresh from Google Sheets').click();
+ await until(()=>!button('Refresh budget from Google Sheets').disabled,'ready');button('Refresh budget from Google Sheets').click();
  await until(()=>document.querySelector('[role=alert]'),'safe failure');
  check(document.querySelector('[role=alert]').textContent.includes('Google Sheets access was denied'),'Specific access guidance');
  check(document.querySelector('[role=alert]').textContent.includes('upload an exported workbook'),'Actionable fallback');
  check(select('Management Accounts source').value==='ledger-one','Ledger remains selected');
  const input=document.querySelector('input[type=file]');Object.defineProperty(input,'files',{value:[new File(['synthetic'], '20260907 - Synthetic.xlsx')]});input.dispatchEvent(new Event('change',{bubbles:true}));
- await until(()=>!button('Upload workbook for 2026').disabled,'fallback ready');button('Upload workbook for 2026').click();
- await until(()=>document.body.textContent.includes('Candidate created'),'fallback candidate');
+ await until(()=>!button('Upload budget workbook').disabled,'fallback ready');button('Upload budget workbook').click();
+ await until(()=>document.body.textContent.includes('Import complete'),'fallback candidate');
  check(posts.length===2,'One pull and one upload only');
  check(new URL(posts[1].url,'https://test.invalid').searchParams.get('ledger_run_id')==='ledger-one','Fallback uses same ledger');
 }finally{root.unmount();}})();`));
@@ -73,7 +73,7 @@ window.fetch=(url,init)=>{
 function Replacement(){React.useLayoutEffect(()=>{replaced=true;},[]);return <p>B committed</p>;}
 window.result=(async()=>{try{
  root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
- await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');
+ await until(()=>button('Budget'),'kind');button('Budget').click();await until(()=>button('Budget')?.getAttribute('aria-selected')==='true','budget tab');
  await until(()=>resolvePage,'first dependency page');
  root.render(<SWRConfig value={config}><Replacement/></SWRConfig>);
  await until(()=>replaced,'B committed');await pause();
@@ -99,17 +99,17 @@ window.fetch=(url,init)=>{
 };
 window.result=(async()=>{try{
  root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
- await until(()=>select('Run kind'),'kind');
- check(select('Run kind').selectedOptions[0].textContent==='Management Accounts','Workbook name matches operator terminology');
- change(select('Run kind'),'budgets');
+ await until(()=>button('Budget'),'kind');
+ check(button('Management Accounts').getAttribute('aria-selected')==='true','Workbook name matches operator terminology');
+ button('Budget').click();await until(()=>button('Budget')?.getAttribute('aria-selected')==='true','budget tab');
  await until(()=>select('Management Accounts source')?.value==='newest','eligible default');
  check(![...select('Management Accounts source').options].some(option=>option.value==='legacy'),'Legacy is not eligible');
  change(select('Management Accounts source'),'older');
- await pause();button('Refresh from Google Sheets').click();
+ await pause();button('Refresh budget from Google Sheets').click();
  await until(()=>document.body.textContent.includes('Awaiting approval'),'approval guidance');
  check(posts.length===1&&posts[0].body.ledger_run_id==='older','Manual source is retained and no approval is sent');
  check(select('Management Accounts source').value==='older','Source survives refresh');
  const summary=document.querySelector('[aria-label="Selected run summary"]');
  check(summary.textContent.indexOf('Awaiting approval')<summary.textContent.indexOf('Findings'),'Next step precedes long findings');
- check(summary.querySelector('button').textContent==='Approve','Approval action precedes budget preview and findings');
+ check(summary.querySelector('button').textContent==='Review and approve','Approval action precedes budget preview and findings');
 }finally{root.unmount();}})();`));

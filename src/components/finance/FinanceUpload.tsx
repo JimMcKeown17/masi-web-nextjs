@@ -193,7 +193,7 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
       const run = result.run;
       setReturnedRun(run); setSelectedId(run.id); setStatus(""); setCursor(undefined);
       setUploadState(run.status === "failed" ? "error" : "success");
-      setMessage(run.status === "candidate" ? `Candidate created. Awaiting approval. Review the summary below and choose Approve to publish ${kind === "budgets" ? "this budget on Overview and Budgets" : "these Management Accounts"}.` : run.status === "failed" ? "Import stopped. See the explanation and next steps in the summary below. No new figures have been published." : `${result.status === 200 ? "Existing run returned" : "Import completed"}. Review the summary below.`);
+      setMessage(run.status === "candidate" ? `Import complete. Awaiting approval. Review the summary below and choose Review and approve to publish ${kind === "budgets" ? "this budget on Overview and Budgets" : "these Management Accounts"}.` : run.status === "failed" ? "Import stopped. See the explanation and next steps in the summary below. No new figures have been published." : `${result.status === 200 ? "Existing run returned" : "Import completed"}. Review the summary below.`);
       await refresh();
       summary.current?.focus();
     } catch (error) {
@@ -235,32 +235,68 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
     // Read only the cursor from server pagination links; never forward credentials to a supplied URL.
     setCursor(url ? new URL(url, "https://pagination.invalid").searchParams.get("cursor") ?? undefined : undefined);
   }
+  function fileUpload() {
+    return <div className="space-y-4">
+      <div onDragOver={event => event.preventDefault()} onDrop={event => { event.preventDefault(); if (busy || refreshPending) return; if (event.dataTransfer.files.length !== 1) { setFile(undefined); setUploadState('error'); setMessage('Select one .xlsx workbook at a time.'); } else chooseFile(event.dataTransfer.files[0]); }} className="rounded-lg border-2 border-dashed bg-muted/20 p-6 sm:p-8">
+        <label className="block text-sm font-medium">Drop your workbook here, or choose a file
+          <input type="file" accept=".xlsx" disabled={busy || refreshPending} className="mt-4 block w-full min-w-0 text-sm text-muted-foreground file:mr-3 file:rounded-md file:border file:border-border file:bg-background file:px-3 file:py-2 file:font-medium file:text-foreground" onChange={event => chooseFile(event.target.files?.[0])} />
+        </label><p className="mt-3 text-xs text-muted-foreground">Excel workbook (.xlsx), up to 32 MiB.</p>
+        {file ? <p className="mt-3 break-words text-sm font-medium">Ready to upload: {file.name}</p> : null}
+      </div>
+      <Button type="submit" size="lg" className="h-auto min-h-12 w-full whitespace-normal bg-[#1D4ED8] px-5 py-3 text-white hover:bg-[#1740B0] sm:w-auto" disabled={busy || refreshPending || !file || (kind === 'budgets' && !eligibleLedger)}>{kind === 'budgets' ? 'Upload budget workbook' : 'Upload Management Accounts'}</Button>
+    </div>;
+  }
   const readError = list.error || current.error || detail.error || currentDetail.error;
   return <div className="space-y-6">
-    <header><h1 className="font-serif text-3xl">Publish finance workbook</h1><p className="mt-2 text-muted-foreground">Upload, inspect and explicitly approve a finance run for reader pages.</p></header>
-    <label className="block">Run kind<select className="ml-3 rounded border bg-background p-2" value={kind} onChange={event=>setKind(event.target.value as FinanceRunKind)}><option value="funders">Management Accounts</option><option value="budgets">Budgets</option></select></label>
-    <FinanceRunSelector year={year} status={status} selectedId={selectedId} selectedRun={selectedRun} runs={list.error ? [] : list.data?.results ?? []} currentId={currentId} disabled={busy || refreshPending || action !== null}
-      onYearChange={(value) => { setYear(value); setCursor(undefined); setSelectedId(""); setReturnedRun(undefined); }}
-      onStatusChange={(value) => { setStatus(value); setCursor(undefined); }} onRunChange={(value) => { setSelectedId(value); setReturnedRun(undefined); }} />
-    <div className="flex gap-3"><Button variant="outline" disabled={busy || refreshPending || !list.data?.previous || Boolean(list.error)} onClick={() => pageCursor(list.data?.previous ?? null)}>Newer runs</Button><Button variant="outline" disabled={busy || refreshPending || !list.data?.next || Boolean(list.error)} onClick={() => pageCursor(list.data?.next ?? null)}>Older runs</Button></div>
-    {list.isLoading || current.isLoading || detail.isLoading ? <p role="status">Loading finance runs…</p> : null}
-    {readError && !refreshPending ? <div role="alert">Could not refresh finance runs: {readError instanceof Error ? readError.message : "Request failed"}. <Button variant="outline" onClick={() => void refresh()}>Retry</Button></div> : null}
-    {!list.isLoading && !list.error && list.data?.results.length === 0 ? <p>No runs match these filters.</p> : null}
-    {current.data && !current.error && !current.data.compatible ? <p role="status">{financeCurrentMessage(current.data)}</p> : null}
-    <form onSubmit={(event) => { event.preventDefault(); void upload(); }} className="space-y-4 rounded-lg border bg-card p-5" aria-busy={uploadState === "uploading"}>
-      {kind === "budgets" ? <div className="space-y-2"><label>Management Accounts source<select className="ml-3 max-w-full rounded border bg-background p-2" value={ledgerRunId} disabled={busy || refreshPending || dependencies.isLoading} onChange={event=>setLedgerRunId(event.target.value)}><option value="">Select approved Management Accounts</option>{!dependencies.error ? dependencies.data?.map(run=><option key={run.id} value={run.id}>{run.source_name} ({run.id})</option>) : null}</select></label>{dependencies.isLoading ? <p role="status">Loading approved Management Accounts…</p> : null}{dependencies.error ? <p role="alert">Could not load approved Management Accounts. <Button type="button" onClick={()=>void dependencies.mutate()}>Retry sources</Button></p> : null}{eligibleLedger ? <p className="text-sm text-muted-foreground">Budget actuals use this approved Management Accounts workbook. The most recent eligible upload is selected by default.</p> : <p>Upload and approve Management Accounts for {year} before importing a budget.</p>}</div> : null}
-      {kind === "budgets" ? <div className="space-y-2">
-        <Button type="button" disabled={busy || refreshPending || !eligibleLedger} onClick={() => void upload("sheets")}>Refresh from Google Sheets</Button>
-        <p className="text-sm text-muted-foreground">Fetch the configured budget sheet as a candidate for review. You can also upload an exported workbook below. Approval is a separate step.</p>
-      </div> : null}
-      <div onDragOver={(event) => event.preventDefault()} onDrop={(event) => { event.preventDefault(); if (busy || refreshPending) return; if (event.dataTransfer.files.length !== 1) { setFile(undefined); setUploadState("error"); setMessage("Select one .xlsx workbook at a time."); } else chooseFile(event.dataTransfer.files[0]); }} className="rounded-md border border-dashed p-5">
-        <label className="block">Drop or select an .xlsx workbook (maximum 32 MiB)
-          <input type="file" accept=".xlsx" disabled={busy || refreshPending} className="mt-3 block w-full text-sm" onChange={(event) => chooseFile(event.target.files?.[0])} />
-        </label>
+    <header><h1 className="font-serif text-3xl">Update finance workbooks</h1><p className="mt-2 text-muted-foreground">Import the latest accounts or budget, then review and approve them for the dashboard.</p></header>
+    <div role="tablist" aria-label="Workbook type" className="inline-flex max-w-full gap-1 rounded-lg border bg-card p-1">
+      {([['funders', 'Management Accounts'], ['budgets', 'Budget']] as const).map(([value, label]) => <button key={value} id={`import-tab-${value}`} type="button" role="tab" aria-selected={kind === value} aria-controls="finance-import-panel" tabIndex={kind === value ? 0 : -1}
+        onClick={() => setKind(value)} onKeyDown={event => { if (['ArrowLeft', 'ArrowRight', 'Home', 'End'].includes(event.key)) { event.preventDefault(); const next = event.key === 'Home' ? 'funders' : event.key === 'End' ? 'budgets' : kind === 'funders' ? 'budgets' : 'funders'; setKind(next); requestAnimationFrame(() => document.getElementById(`import-tab-${next}`)?.focus()); } }}
+        className={`rounded-md px-4 py-2.5 text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 ${kind === value ? 'bg-[#1D4ED8] text-white' : 'text-muted-foreground hover:bg-muted hover:text-foreground'}`}>{label}</button>)}
+    </div>
+    <div className="grid items-start gap-6 xl:grid-cols-[minmax(0,1fr)_19rem]">
+      <div id="finance-import-panel" role="tabpanel" aria-labelledby={`import-tab-${kind}`} className="min-w-0 space-y-4">
+        <form onSubmit={(event) => { event.preventDefault(); void upload(); }} className="space-y-6 rounded-xl border bg-card p-5 sm:p-7" aria-busy={uploadState === "uploading"}>
+          <div><p className="text-xs font-medium uppercase tracking-widest text-muted-foreground">{year} · {kind === 'budgets' ? 'Organisation budget' : 'Management Accounts'}</p>
+            <h2 className="mt-2 font-serif text-2xl">{kind === 'budgets' ? 'Bring your budget up to date' : 'Upload your latest accounts'}</h2>
+            <p className="mt-2 text-sm text-muted-foreground">{kind === 'budgets' ? 'Pull the latest figures from your connected Google Sheet.' : 'Choose the updated Management Accounts workbook to prepare it for review.'}</p>
+          </div>
+          {kind === "budgets" ? <>
+            <Button type="button" size="lg" className="h-auto min-h-12 w-full whitespace-normal bg-[#1D4ED8] px-5 py-3 text-white hover:bg-[#1740B0] sm:w-auto" disabled={busy || refreshPending || !eligibleLedger} onClick={() => void upload("sheets")}>Refresh budget from Google Sheets</Button>
+            <div className="space-y-2 text-sm">
+              {eligibleLedger ? <p className="break-words text-muted-foreground">Using Management Accounts: <span className="font-medium text-foreground">{eligibleLedger.source_name}</span></p> : null}
+              {dependencies.isLoading ? <p role="status">Loading approved Management Accounts…</p> : null}
+              {dependencies.error ? <p role="alert">Could not load approved Management Accounts. <Button type="button" variant="link" onClick={()=>void dependencies.mutate()}>Retry sources</Button></p> : null}
+              {!dependencies.isLoading && !dependencies.error && !eligibleLedger ? <p role="status">Upload and approve Management Accounts for {year} before importing a budget.</p> : null}
+              <details><summary className="w-fit cursor-pointer font-medium text-blue-700 dark:text-blue-400">Change source</summary>
+                <label className="mt-3 block">Management Accounts source<select aria-label="Management Accounts source" className="mt-1 w-full rounded border bg-background p-2" value={ledgerRunId} disabled={busy || refreshPending || dependencies.isLoading} onChange={event=>setLedgerRunId(event.target.value)}><option value="">Select approved Management Accounts</option>{!dependencies.error ? dependencies.data?.map(run=><option key={run.id} value={run.id}>{run.source_name} ({run.id})</option>) : null}</select></label>
+                <p className="mt-2 text-muted-foreground">The most recent eligible upload is selected by default. Choose another source only if this budget needs it.</p>
+              </details>
+              <p className="text-muted-foreground">Imports the latest budget for review. Approval updates the dashboard.</p>
+            </div>
+          </> : null}
+          {kind === 'budgets' ? <details className="border-t pt-4"><summary className="cursor-pointer text-sm font-medium">Upload a budget workbook instead</summary><div className="mt-4 space-y-4">{fileUpload()}</div></details> : fileUpload()}
+          <UploadStatus state={uploadState} message={message} />
+        </form>
+        {readError && !refreshPending ? <div role="alert">Could not refresh finance imports. <Button variant="outline" onClick={() => void refresh()}>Retry</Button></div> : null}
+        {current.data && !current.error && !current.data.compatible ? <p role="status" className="rounded-lg border border-amber-500/30 bg-amber-500/5 p-4 text-sm">{financeCurrentMessage(current.data)}</p> : null}
       </div>
-      <Button type="submit" disabled={busy || refreshPending || !file || (kind === "budgets" && !eligibleLedger)}>Upload workbook for {year}</Button>
-      <UploadStatus state={uploadState} message={message} />
-    </form>
+      <aside aria-label="Import context and history" className="min-w-0 space-y-5 rounded-xl border bg-card p-5 text-sm">
+        <details><summary className="cursor-pointer">Accounting year: <strong>{year}</strong> <span className="ml-2 text-blue-700 dark:text-blue-400">Change</span></summary>
+          <label className="mt-3 block">Accounting year<input type="number" min={1} max={32767} value={year} className="mt-1 w-full rounded-md border bg-background p-2" onChange={event => { const next = Number(event.target.value); if (Number.isInteger(next) && next >= 1 && next <= 32767) setYear(next); }} /></label>
+        </details>
+        <section className="space-y-2 border-t pt-4"><h2 className="font-medium">Currently on the dashboard</h2>
+          {current.isLoading || currentDetail.isLoading ? <p className="text-muted-foreground">Loading approved source…</p> : current.error || currentDetail.error ? <p className="text-muted-foreground">Approved source could not be checked.</p> : currentDetail.data ? <><p className="break-words text-muted-foreground">{currentDetail.data.source_name}</p><button type="button" className="text-blue-700 hover:underline dark:text-blue-400" disabled={busy || refreshPending} onClick={() => { setSelectedId(currentDetail.data!.id); setReturnedRun(undefined); }}>View approved import</button></> : <p className="text-muted-foreground">No approved {kind === 'budgets' ? 'budget' : 'Management Accounts'} for {year} yet.</p>}
+        </section>
+        <details className="border-t pt-4"><summary className="cursor-pointer font-medium">Import history</summary><div className="mt-4 space-y-4">
+          <FinanceRunSelector year={year} showYear={false} status={status} selectedId={selectedId} selectedRun={selectedRun} runs={list.error ? [] : list.data?.results ?? []} currentId={currentId} disabled={busy || refreshPending || action !== null}
+            onYearChange={setYear} onStatusChange={(value) => { setStatus(value); setCursor(undefined); }} onRunChange={(value) => { setSelectedId(value); setReturnedRun(undefined); }} />
+          <div className="flex flex-wrap gap-2"><Button type="button" size="sm" variant="outline" disabled={busy || refreshPending || !list.data?.previous || Boolean(list.error)} onClick={() => pageCursor(list.data?.previous ?? null)}>Newer imports</Button><Button type="button" size="sm" variant="outline" disabled={busy || refreshPending || !list.data?.next || Boolean(list.error)} onClick={() => pageCursor(list.data?.next ?? null)}>Older imports</Button></div>
+          {list.isLoading ? <p role="status">Loading imports…</p> : null}
+          {!list.isLoading && !list.error && list.data?.results.length === 0 ? <p>No imports match these filters.</p> : null}
+        </div></details>
+      </aside>
+    </div>
     <div ref={summary} tabIndex={-1} aria-label="Selected run summary" className="outline-offset-4">
       {selectedRun ? <FinanceRunSummary run={selectedRun} currentId={currentId} currentRun={currentDetail.error ? undefined : currentDetail.data} disabled={busy || refreshPending || Boolean(readError)} onAction={openAction} /> : null}
     </div>
@@ -273,7 +309,7 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
         {action ? <form className="space-y-4" onSubmit={(event) => { event.preventDefault(); void confirm(); }}>
           <fieldset disabled={mutating}><ApprovalFields action={action} requirements={requirements} options={options} onChange={setOptions} /></fieldset>
           <p role={mutationError ? "alert" : "status"} aria-live={mutationError ? "assertive" : "polite"}>{mutationMessage}</p>
-          <div className="flex gap-3"><Button type="button" variant="outline" disabled={mutating} onClick={() => setAction(null)}>Cancel</Button><Button type="submit" disabled={mutating || !approvalReady(action, requirements, options)}>{mutating ? "Applying…" : action === "demote" ? "Confirm demotion" : "Confirm approval"}</Button></div>
+          <div className="flex gap-3"><Button type="button" variant="outline" disabled={mutating} onClick={() => setAction(null)}>Cancel</Button><Button type="submit" className="bg-[#1D4ED8] text-white hover:bg-[#1740B0]" disabled={mutating || !approvalReady(action, requirements, options)}>{mutating ? "Applying…" : action === "demote" ? "Confirm demotion" : "Confirm approval"}</Button></div>
         </form> : null}
       </DialogContent>
     </Dialog>

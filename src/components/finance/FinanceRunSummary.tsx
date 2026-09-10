@@ -1,21 +1,15 @@
 "use client";
+import { FinanceImportFindings } from "./FinanceImportFindings";
 import { FinanceBudgetsView } from "./FinanceBudgets";
 import { runFindings } from "@/lib/types/finance-runs";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import type { FinanceRun, FinanceRunAction, FinanceRunFinding } from "@/lib/types/finance-runs";
+import type { FinanceRun, FinanceRunAction } from "@/lib/types/finance-runs";
 
 export function FinanceRunSummary({ run, currentId, currentRun, disabled, onAction }: {
   run: FinanceRun; currentId?: string; currentRun?: FinanceRun; disabled?: boolean; onAction: (action: FinanceRunAction) => void;
 }) {
-  const groups = new Map<string, FinanceRunFinding[]>();
-  for (const severity of ["error", "warn", "info"]) {
-    for (const inScope of [true, false]) {
-      const findings = runFindings(run).filter((finding) => finding.severity === severity && finding.in_scope_year === inScope);
-      if (findings.length) groups.set(`${severity} · ${inScope ? "In" : "Outside"} ${run.accounting_year}`, findings);
-    }
-  }
   return (
     <Card>
       <CardHeader>
@@ -25,10 +19,10 @@ export function FinanceRunSummary({ run, currentId, currentRun, disabled, onActi
         {run.status === "failed" ? <ImportFailure run={run} currentRun={currentRun} /> : null}
         {run.status === "candidate" ? <div role="status" className="rounded-lg border border-blue-500/30 bg-blue-500/5 p-4">
           <h3 className="font-semibold">Awaiting approval</h3>
-          <p className="mt-1 text-sm">Import succeeded. Review the figures and findings below, then choose Approve to make this workbook visible on the finance pages. Approval preserves all findings.</p>
+          <p className="mt-1 text-sm">Import succeeded. Review the figures and findings below, then choose Review and approve to make this workbook visible on the finance pages. Approval preserves all findings.</p>
         </div> : null}
         <div className="flex flex-wrap gap-3">
-          {run.allowed_actions.includes("approve") && (run.status === "candidate" || run.status === "superseded") ? <Button disabled={disabled} onClick={() => onAction("approve")}>{run.status === "superseded" ? "Re-approve" : "Approve"}</Button> : null}
+          {run.allowed_actions.includes("approve") && (run.status === "candidate" || run.status === "superseded") ? <Button className="bg-[#1D4ED8] text-white hover:bg-[#1740B0]" disabled={disabled} onClick={() => onAction("approve")}>{run.status === "superseded" ? "Re-approve" : "Review and approve"}</Button> : null}
           {run.allowed_actions.includes("demote") && run.id === currentId && run.status === "approved" && run.previous_approved ? <Button variant="outline" disabled={disabled} onClick={() => onAction("demote")}>Demote</Button> : null}
         </div>
         <p className="break-all text-sm">Run: {run.id}</p>
@@ -47,19 +41,7 @@ export function FinanceRunSummary({ run, currentId, currentRun, disabled, onActi
         {run.kind === "funders" && run.schema_version === "1.0.0" ? <p>Imported snapshot: ledger facts and original producer version are unavailable.</p> : null}
 
         {run.kind === "budgets" && run.payload ? <FinanceBudgetsView key={run.id} payload={run.payload} manifest={run.manifest} runId={run.id}/> : null}
-        <section aria-label="Findings" className="space-y-4">
-          <h3 className="font-semibold">Findings</h3>
-          {groups.size === 0 ? <p>{run.status === "failed" ? "Financial checks have not completed. Resolve the import problem above, then import again to review findings." : "No findings."}</p> : null}
-          {[...groups].map(([label, findings]) => <div key={label} className="rounded-md border p-4">
-            <h4 className="font-medium">{label} ({findings.length})</h4>
-            <ul className="mt-2 space-y-3">{findings.map((finding, index) => <li key={index} className="break-words text-sm">
-              <Badge variant="outline">{finding.code}</Badge> {finding.message}
-              {finding.source_cells?.length ? <div>Source cells: {finding.source_cells.join(", ")}</div> : null}
-              {finding.sheet_row != null ? <span> (row {finding.sheet_row})</span> : null}
-              {finding.source != null ? <div className="text-muted-foreground">Source: {typeof finding.source === "string" ? finding.source : JSON.stringify(finding.source)}</div> : null}
-            </li>)}</ul>
-          </div>)}
-        </section>
+        <FinanceImportFindings key={run.id} run={run} findings={runFindings(run)} />
 
       </CardContent>
     </Card>

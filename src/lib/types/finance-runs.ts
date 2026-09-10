@@ -71,6 +71,8 @@ export interface FinanceRunFinding {
   contract_id?: string | null;
   source?: unknown;
   source_cells?: string[];
+  category?: string | null;
+  amount?: string | null;
 }
 interface RunDetail {
   manifest: FinanceRunManifest;
