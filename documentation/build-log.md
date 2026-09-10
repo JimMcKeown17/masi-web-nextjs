@@ -927,3 +927,8 @@ production browser proof. Production build and release evidence follow.
 Separately requested one-action Google Sheets publishing is pending explicit
 approval for automatic findings acknowledgement and same-day replacement.
 Automatic approval review rejected that patch; it is not included here.
+
+Production build passed with
+`NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api pnpm build`.
+The restricted attempt was stopped; an unset-API-URL attempt timed out on the
+unrelated Impact pages. No build configuration or Impact code was changed.
