@@ -80,7 +80,7 @@ export function FinanceBudgetsView({
   const [department, setDepartment] = useState<BudgetHierarchy>();
   const [varianceMetric, setVarianceMetric] = useState<
     "variance_all" | "variance_masi"
-  >("variance_all");
+  >("variance_masi");
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const detailRef = useRef<HTMLHeadingElement>(null);
   const [filter, setFilter] = useState("");
@@ -195,8 +195,8 @@ export function FinanceBudgetsView({
                 }
                 className="ml-2 rounded-md border bg-background px-3 py-2 text-foreground"
               >
-                <option value="variance_all">All Funds variance</option>
-                <option value="variance_masi">Masi variance</option>
+                <option value="variance_masi">Masi variance · Column N</option>
+                <option value="variance_all">All Funds variance · Column M</option>
               </select>
             </label>
           </div>

@@ -22,6 +22,7 @@ export function BudgetOrganisationOutlook({ insights, unbudgetedCount = 0 }: {
 }) {
   if (!insights) return <p role="status" className="rounded-lg border bg-card p-4 text-sm text-muted-foreground">Organisation totals could not be loaded for this import. Reload the page to try again. Department comparisons remain below.</p>;
   const outlook = insights.outlook;
+  const variance = insights.organisation.variance_masi.total;
   return <div aria-label="Organisation year-end outlook" className="overflow-hidden rounded-xl border bg-card">
     <div className="grid divide-y sm:grid-cols-2 sm:divide-y-0 xl:grid-cols-4 [&>div]:border-border sm:[&>div:nth-child(even)]:border-l xl:[&>div+div]:border-l">
       <Headline label="Annual Budget" value={insights?.organisation.budget.total} description="Planned expenditure for the year" />
@@ -29,6 +30,15 @@ export function BudgetOrganisationOutlook({ insights, unbudgetedCount = 0 }: {
       <Headline label="Budgeted Surplus/Shortfall" value={outlook?.budgeted_balance} missingLabel={outlook?.expected_income != null ? "Needs budget input" : undefined} balance description="Expected income less annual budget" />
       <Headline label="Projected Surplus/Shortfall" value={outlook?.projected_masi_balance} missingLabel={outlook?.expected_income != null ? "Needs budget or expense input" : undefined} balance description="Budgeted balance adjusted for Masi overspend or underspend" />
     </div>
+    {outlook?.budgeted_balance != null && outlook.projected_masi_balance != null && variance != null ? <details className="border-t px-4 py-3 text-sm sm:px-5">
+      <summary className="cursor-pointer font-medium">How the projected surplus or shortfall is calculated</summary>
+      <dl className="mt-3 grid max-w-2xl grid-cols-[minmax(0,1fr)_auto] gap-x-6 gap-y-2 tabular-nums">
+        <dt>Budgeted surplus / shortfall</dt><dd className="text-right">{formatRand(outlook.budgeted_balance)}</dd>
+        <dt>Less projected Masi overspend / underspend</dt><dd className="text-right">{formatRand(variance)}</dd>
+        <dt className="border-t pt-2 font-semibold">Projected surplus / shortfall</dt><dd className="border-t pt-2 text-right font-semibold">{formatRand(outlook.projected_masi_balance)}</dd>
+      </dl>
+      <p className="mt-3 max-w-3xl text-xs leading-relaxed text-muted-foreground">Column N adds up the projected over or underspend against budget. The final balance also includes the surplus or shortfall already in the annual budget. Positive variance means overspending; negative variance means underspending. Totals use full precision before rounding, so displayed amounts can differ by a cent.</p>
+    </details> : null}
     {!outlook || outlook.income_reason ? <p role="status" className="border-t bg-muted/25 px-4 py-3 text-sm sm:px-5">
       {!outlook || outlook.income_reason === "not_imported" ? "This approved import does not contain Expected Income. Refresh the budget and approve the new import to populate the income and surplus cards." : "The income forecast needs attention in the budget workbook. Check the Expected Income total and its Expected Value entries, then refresh and approve the budget."}
     </p> : null}
