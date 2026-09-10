@@ -106,7 +106,15 @@ export interface BudgetComposition {
   /** Money rounding residual, not a percentage adjustment. */
   residual: string | null;
 }
+export interface BudgetOutlook {
+  expected_income: string | null;
+  budgeted_balance: string | null;
+  projected_masi_balance: string | null;
+  income_reason: string | null;
+  income_source: string | null;
+}
 export interface BudgetInsights {
+  outlook?: BudgetOutlook;
   version: "1.0.0";
   run_id: string;
   ledger_run_id: string;

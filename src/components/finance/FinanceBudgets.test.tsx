@@ -109,7 +109,7 @@ await until(()=>document.querySelector('[aria-label="Department projected varian
 const chart=document.querySelector('[aria-label="Department projected variance comparison"]');
 const department=golden.derived.hierarchy.find(row=>row.parent_id===null);
 check(department.variance_all===null,'incomplete fixture total');
-check(chart.textContent.includes('Unavailable')&&chart.textContent.includes('Known subtotal'),'missing total not plotted as zero');
+check(chart.textContent.includes('Needs input')&&chart.textContent.includes('Partial variance'),'missing total not plotted as zero');
 change(document.querySelector('[aria-label="Variance basis"]'),'variance_masi');
 await until(()=>document.body.textContent.includes('It is not a measure of flexible funding'),'Masi distinction');
 chart.querySelector('button').click();await until(()=>button('All departments'),'department selected');

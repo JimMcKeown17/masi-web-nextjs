@@ -51,7 +51,7 @@ export function FinanceImportFindings({ run, findings }: { run: FinanceRun; find
       return <li key={index} className="space-y-2 py-4 first:pt-0 last:pb-0">
         <h4 className="text-sm font-semibold">{copy.title}</h4>
         <p className="break-words text-sm text-muted-foreground">{copy.description}</p>
-        {finding.source_cells?.length ? <p className="break-words text-xs">Source cells: {finding.source_cells.join(', ')}</p> : finding.sheet_row != null && run.kind === 'funders' ? <p className="text-xs">Funder Budgets · Row {finding.sheet_row}</p> : finding.sheet_row != null ? <p className="text-xs">Row {finding.sheet_row}</p> : project ? <p className="text-xs">Funder Budgets · Project section starts at row {project.sheet_row}</p> : null}
+        {finding.source_cells?.length ? <p className="break-words text-xs">Source cells: {finding.source_cells.join(', ')}</p> : finding.sheet_row != null && run.kind === 'funders' ? <p className="text-xs">{finding.code === "OVER_ALLOCATED_ROW" ? "Expenditure" : "Funder Budgets"} · Row {finding.sheet_row}</p> : finding.sheet_row != null ? <p className="text-xs">Row {finding.sheet_row}</p> : project ? <p className="text-xs">Funder Budgets · Project section starts at row {project.sheet_row}</p> : null}
         <details className="text-xs text-muted-foreground"><summary className="w-fit cursor-pointer">Technical reference</summary><p className="mt-2 break-words">{finding.code}</p>
           {copy.description !== finding.message ? <p className="mt-1 break-words">{finding.message}</p> : null}
           {finding.source != null ? <p className="mt-1 break-words">Source: {typeof finding.source === 'string' ? finding.source : JSON.stringify(finding.source)}</p> : null}

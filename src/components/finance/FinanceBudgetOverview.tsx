@@ -35,8 +35,9 @@ function varianceLabel(value: string | null) {
     : "Projected over budget";
 }
 
-function Variance({ row }: { row: BudgetNode }) {
-  const value = row.variance_all;
+function Variance({ row, metric }: { row: BudgetNode; metric: "variance_all" | "variance_masi" }) {
+  const value = row[metric];
+  if (metric === "variance_masi" && "wf" in row && (row as BudgetLine).wf?.toUpperCase() === "X") return <p className="text-right text-xs text-muted-foreground">Excluded from Masi comparison</p>;
   const tone =
     value === null || /^-?0\.0+$/.test(value)
       ? "text-muted-foreground"
@@ -89,6 +90,9 @@ export function FinanceBudgetOverview({
   compatibility?: FinanceCurrent;
   insights?: BudgetInsights | null;
 }) {
+  const [metric, setMetric] = useState<"variance_all" | "variance_masi">("variance_masi");
+  const missingActuals = payload.lines.filter(line => line.actual === null);
+  const formulaFindings = payload.findings.filter(finding => finding.code === "BUDGET_ROLLUP_FORMULA_MISMATCH");
   const [expanded, setExpanded] = useState<string | null>(null);
   const [selectedLine, setSelectedLine] = useState<BudgetLine>();
   const departmentTrigger = useRef<HTMLElement | null>(null);
@@ -129,26 +133,11 @@ export function FinanceBudgetOverview({
         aria-label="Projected expenditure overview"
         className="space-y-4"
       >
-        <div className="flex flex-wrap items-end justify-between gap-3 border-b pb-4">
-          <div>
-            <p className="mb-1 text-xs font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-              Year-end outlook · All funds
-            </p>
-            <h2 className="font-serif text-2xl sm:text-3xl">
-              Where spending is heading
-            </h2>
-            <p className="mt-1 text-sm text-muted-foreground">
-              Compare department projections, then open the lines behind them.
-            </p>
-          </div>
-          <p className="text-sm text-muted-foreground">
-            Sheet as of {payload.projection.sheet_as_of}
-          </p>
-        </div>
         <BudgetOrganisationOutlook
           insights={boundInsights}
           unbudgetedCount={payload.summary.orphan_count}
         />
+        <p className="text-xs text-muted-foreground">Approved budget: {manifest.source.date} · Management Accounts: {manifest.dependencies[0]?.source_date ?? "See source details"}</p>
         {compatibility && !compatibility.compatible ? (
           <p
             role="status"
@@ -157,19 +146,26 @@ export function FinanceBudgetOverview({
             {financeCurrentMessage(compatibility)}
           </p>
         ) : null}
-        {!payload.summary.complete ? (
-          <p role="status" className="text-sm text-muted-foreground">
-            Some budget figures are incomplete. Unavailable totals stay
-            unavailable; known subtotals are labelled separately.
-          </p>
-        ) : null}
-        <div className="rounded-xl border bg-card p-3 sm:p-4">
-          <BudgetVarianceComparison
-            departments={departments}
-            metric="variance_all"
-            onSelect={exploreDepartment}
-          />
+        {missingActuals.length > 0 ? <details className="rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3 text-sm">
+          <summary className="cursor-pointer font-medium">{missingActuals.length} budget {missingActuals.length === 1 ? "line needs" : "lines need"} expense codes to complete the all-funds forecast</summary>
+          <p className="mt-3 text-muted-foreground">These lines cannot be matched to Management Accounts. Add the correct BC code in column E, then refresh and approve the budget. A missing link is different from a linked line with no spending.</p>
+          <ul className="mt-3 space-y-2">{missingActuals.map(line => <li key={line.id}><strong>{line.label}</strong> · {manifest.accounting_year} Budget!E{line.sheet_row}{line.wf?.toUpperCase() === "X" ? <span className="block text-xs text-muted-foreground">Excluded from the Masi comparison, so it does not block the Masi variance.</span> : null}</li>)}</ul>
+        </details> : null}
+        <div className="rounded-xl border bg-card p-3 sm:p-5">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div><h2 className="font-serif text-2xl">Projected over / underspend</h2>
+              <p className="mt-1 text-xs text-muted-foreground">{metric === "variance_masi" ? "Masi comparison · Column N · Excludes WF-marked projects" : "All funds · Column M · Includes every budget line"}</p>
+            </div>
+            <label className="text-xs text-muted-foreground">Compare <select aria-label="Variance basis" className="ml-2 rounded-md border bg-background p-2 text-foreground" value={metric} onChange={event => setMetric(event.target.value as typeof metric)}><option value="variance_masi">Masi</option><option value="variance_all">All funds</option></select></label>
+          </div>
+          <BudgetVarianceComparison departments={departments} metric={metric} onSelect={exploreDepartment} />
+          <p className="mt-3 border-t pt-3 text-xs text-muted-foreground">Based on the workbook’s reporting date: {payload.projection.sheet_as_of} (cell L1).</p>
         </div>
+        {formulaFindings.length > 0 ? <details className="rounded-lg border px-4 py-3 text-sm">
+          <summary className="cursor-pointer font-medium">{formulaFindings.length} workbook variance formulas differ from the budget rules</summary>
+          <p className="mt-3 text-muted-foreground">The website adds the budget lines using the workbook’s hierarchy and WF markers. These cells select different lines or contain typed overrides, so their spreadsheet totals may differ. A typed zero may be intentional; review its meaning before replacing it. They do not cause the missing expense links above.</p>
+          <ul className="mt-3 space-y-2">{formulaFindings.map((finding,index) => <li key={index}>{finding.source_cells.join(", ")}</li>)}</ul>
+        </details> : null}
         {expanded ? (
           <div className="overflow-hidden rounded-xl border bg-card">
             <div
@@ -227,7 +223,7 @@ export function FinanceBudgetOverview({
                         </span>
                         <Amount row={department} metric="budget" />
                       </div>
-                      <Variance row={department} />
+                      <Variance row={department} metric={metric} />
                     </button>
                     {isExpanded ? (
                       <div
@@ -287,7 +283,7 @@ export function FinanceBudgetOverview({
                               </span>
                               <Amount row={line} metric="budget" />
                             </div>
-                            <Variance row={line} />
+                            <Variance row={line} metric={metric} />
                           </div>
                         ))}
                       </div>
@@ -338,7 +334,7 @@ export function FinanceBudgetOverview({
         ) : null}
         <details className="rounded-lg border px-4 py-3 text-sm">
           <summary className="cursor-pointer font-medium">
-            Projection basis and source details
+            Calculation and source details
           </summary>
           <div className="mt-3 space-y-2 break-words text-muted-foreground">
             <p>
@@ -348,10 +344,11 @@ export function FinanceBudgetOverview({
               sheet’s as-of date.
             </p>
             <p>
-              Positive variance is projected overspend. All amounts are the
+              Positive variance is projected overspend. Masi uses column N and excludes WF X lines; All funds uses column M. All amounts are the
               approved calculation, including its rounding. Incomplete figures
               are never treated as zero.
             </p>
+            <p>Expected income is the workbook’s Expected Value forecast, including its typed overrides and saved formula results. It is imported with this budget. {boundInsights?.outlook?.income_source ? `Income total: ${boundInsights.outlook.income_source}.` : ""}</p>
             <p>
               Budget source: {manifest.source.name} · {manifest.source.date}
             </p>

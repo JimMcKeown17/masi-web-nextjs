@@ -17,12 +17,12 @@ test("overview shows authoritative department values and incomplete subtotals wi
     />,
   );
   for (const label of [
-    "Where spending is heading",
+    "Projected over / underspend",
     "Department A",
-    "Unavailable",
-    "Known subtotal: ",
-    "-R 1,98",
-    "Some budget figures are incomplete",
+    "Needs input",
+    "Partial variance: ",
+    "-R 1,03",
+    "2026 Budget!E17",
   ])
     assert.ok(html.includes(label), label);
   assert.doesNotMatch(html, /Total projected|Annual budget total|R25k|555k/);
@@ -38,7 +38,7 @@ test("overview preserves producer variance rather than subtracting independently
     complete: true,
     projected: "0.02",
     budget: "1.00",
-    variance_all: sign === -1 ? "-0.99" : sign === 0 ? "0.00" : "0.99",
+    variance_masi: sign === -1 ? "-0.99" : sign === 0 ? "0.00" : "0.99",
   }));
   const html = renderToStaticMarkup(
     <FinanceBudgetOverview
@@ -106,35 +106,17 @@ import { BudgetOrganisationOutlook } from "./BudgetOrganisationOutlook";
 import { BudgetSpendingComposition } from "./BudgetSpendingComposition";
 import { budgetInsightsFixture } from "./budgetInsightsTestFixture";
 
-test("organisation outlook consumes exact server totals and pre-rounding variance without deriving a replacement", () => {
-  const html = renderToStaticMarkup(
-    <BudgetOrganisationOutlook insights={budgetInsightsFixture()} />,
-  );
-  for (const label of [
-    "Projected year-end expenditure",
-    "R 14,63",
-    "R 14,65",
-    "R 9,75",
-    "-R 0,03",
-    "Projected below budget",
-  ])
+test("four headlines consume server balances and explain missing income without inventing values", () => {
+  const insights = budgetInsightsFixture();
+  const html = renderToStaticMarkup(<BudgetOrganisationOutlook insights={insights} />);
+  for (const label of ["Annual Budget", "Expected Income", "Budgeted Surplus/Shortfall", "Projected Surplus/Shortfall", "R 14,65", "R 14,60", "-R 0,05", "-R 0,03", "Shortfall"])
     assert.ok(html.includes(label), label);
   assert.doesNotMatch(html, /-R 0,02/);
-  const insights = budgetInsightsFixture();
-  insights.organisation.projected = {
-    ...insights.organisation.projected,
-    total: null,
-    complete: false,
-    known_subtotal: "7.00",
-  };
-  insights.organisation.actual.total = "0.00";
-  const incomplete = renderToStaticMarkup(
-    <BudgetOrganisationOutlook insights={insights} />,
-  );
-  assert.match(incomplete, /Unavailable/);
-  assert.match(incomplete, /Known subtotal: R 7,00/);
-  assert.match(incomplete, /R 0,00/);
-  assert.doesNotMatch(incomplete, /R 14,63/);
+  delete insights.outlook;
+  const incomplete = renderToStaticMarkup(<BudgetOrganisationOutlook insights={insights} />);
+  assert.match(incomplete, /Refresh the budget and approve/);
+  assert.match(incomplete, /Awaiting income forecast/);
+  assert.doesNotMatch(incomplete, /Unavailable|Known subtotal|-R 0,03/);
 });
 
 test("spending composition retains annual ledger denominator and unbudgeted bucket with accessible exact values", () => {
@@ -241,9 +223,9 @@ test("missing or differently bound insight enrichment leaves department overview
         insights={insights}
       />,
     );
-    assert.match(html, /Organisation totals are unavailable/);
+    assert.match(html, /Organisation totals could not be loaded/);
     assert.match(html, /Department A/);
-    assert.doesNotMatch(html, /R 14,63|spending-composition-chart/);
+    assert.doesNotMatch(html, /R 14,60|spending-composition-chart/);
   }
 });
 
@@ -259,11 +241,11 @@ const wire=runFixture({kind:'budgets',id:'approved-budget',status:'approved',acc
 window.fetch=async(url)=>String(url).includes('/current/')?json({accounting_year:2026,runs:{budgets:{id:wire.id}},compatible:true}):json(wire);
 window.result=(async()=>{try{
 root.render(<SWRConfig value={config}><FinanceBudgets presentation="overview" year={2026}/></SWRConfig>);
-await until(()=>document.body.textContent.includes('R 14,63'),'server organisation total');check(document.body.textContent.includes('-R 0,03'),'exact server variance');
+await until(()=>document.body.textContent.includes('R 14,60'),'server organisation total');check(document.body.textContent.includes('-R 0,03'),'exact server variance');
 const composition=document.querySelector('section[aria-labelledby="spending-composition-title"]');const link=composition.querySelector('button');link.focus();link.click();
 await until(()=>button('View expenses for Line 6'),'composition department drilldown');check(document.activeElement.textContent==='Department A: budget lines','department detail focus');link.focus();link.click();await until(()=>document.activeElement.textContent==='Department A: budget lines','same department link restores detail focus');
 window.actor='actor-B';window.fetch=()=>new Promise(()=>{});root.render(<SWRConfig value={config}><FinanceBudgets presentation="overview" year={2026}/></SWRConfig>);
-await until(()=>document.body.textContent.includes('Loading approved budgets'),'replacement account');check(!document.body.textContent.includes('R 14,63'),'old totals removed');check(!document.querySelector('[data-testid="spending-composition-chart"]'),'old composition removed');
+await until(()=>document.body.textContent.includes('Loading approved budgets'),'replacement account');check(!document.body.textContent.includes('R 14,60'),'old totals removed');check(!document.querySelector('[data-testid="spending-composition-chart"]'),'old composition removed');
 }finally{root.unmount();}})();
 `,
   ));
@@ -303,8 +285,24 @@ test("budget-line outlook distinguishes annual ledger spending and shows unmappe
       insights={insights}
     />,
   );
-  assert.match(html, /Actual against budget lines/);
-  assert.match(html, /not part of this projection/);
+  assert.match(html, /outside this forecast/);
+  assert.match(html, /not a cash balance/);
   assert.match(html, /R 9,75/);
   assert.match(html, /R 9,77/);
 });
+
+
+test("overview defaults to Masi and switching to all funds preserves missing-input evidence", () => budgetDomTest(domPrelude + `
+import {FinanceBudgetOverview} from './src/components/finance/FinanceBudgetOverview';
+import golden from './src/lib/finance/fixtures/budget-run-1.0.0.json';
+const data=JSON.parse(JSON.stringify(golden.derived));data.hierarchy[0].variance_masi='0.00';data.hierarchy[0].variance_all=null;
+window.result=(async()=>{try{
+root.render(<SWRConfig value={config}><FinanceBudgetOverview payload={data} manifest={golden.manifest} runId="approved-budget"/></SWRConfig>);
+await until(()=>document.querySelector('select[aria-label="Variance basis"]'),'basis');
+const select=document.querySelector('select[aria-label="Variance basis"]');check(select.value==='variance_masi','Masi default');
+check(document.querySelector('button[aria-label^="Explore Department A"]').textContent.includes('On budget'),'zero Masi variance shown');
+select.value='variance_all';select.dispatchEvent(new Event('change',{bubbles:true}));
+await until(()=>document.querySelector('button[aria-label^="Explore Department A"]').textContent.includes('Needs input'),'all funds incomplete');
+check(document.body.textContent.includes('2026 Budget!E17'),'exact missing code cell');
+}finally{root.unmount();}})();
+`));
