@@ -255,7 +255,7 @@ window.fetch=async(url,init)=>{const u=new URL(url,'https://test.invalid');
 window.result=(async()=>{try{
 root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>select('Management Accounts source')?.textContent.includes('ledger-one'),'ledger');change(select('Management Accounts source'),'ledger-one');
 const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload');button('Upload workbook for '+new Date().getFullYear()).click();
-await until(()=>document.body.textContent.includes('Idempotent replay'),'replay');await until(()=>button('Re-approve')&&!button('Re-approve').disabled,'reapprove');
+await until(()=>document.body.textContent.includes('Existing run returned'),'replay');await until(()=>button('Re-approve')&&!button('Re-approve').disabled,'reapprove');
 check(document.body.textContent.includes('2026 Budget!F9'),'budget finding source cells');
 button('Re-approve').click();await until(()=>button('Confirm approval'),'confirmation');button('Confirm approval').click();await until(()=>document.querySelector('input[type=checkbox]'),'acknowledgement');document.querySelector('input[type=checkbox]').click();
 const note=document.querySelector('textarea');Object.getOwnPropertyDescriptor(HTMLTextAreaElement.prototype,'value').set.call(note,'Reviewed exact pinned source');note.dispatchEvent(new Event('input',{bubbles:true}));await until(()=>!button('Confirm approval').disabled,'note accepted');button('Confirm approval').click();await until(()=>document.querySelectorAll('input[type=checkbox]').length===2,'rollback');document.querySelectorAll('input[type=checkbox]')[1].click();await until(()=>!button('Confirm approval').disabled,'rollback checked');button('Confirm approval').click();
@@ -311,4 +311,28 @@ window.result=(async()=>{try{
   await pause();await pause();
   check(requests.filter(request=>request.committedActor==='B').length===0,'Old-context requests must be fenced at replacement commit');
 }finally{root.unmount();}})();`);
+});
+
+test("failed subtotal import leads with repair cells, preserves approved source, and never calls unchecked findings zero", () => {
+  const run = runFixture({ status: "failed", payload: null, allowed_actions: [], failure: {
+    code: "BUDGET_HIERARCHY_INVALID", phase: "producer", message: "private raw diagnostic",
+    diagnostics: [{ sheet: "2026 Budget", cell: "F5", expected_cells: ["F6", "F7"] }],
+  } });
+  const html = renderToStaticMarkup(<FinanceRunSummary run={run} currentRun={runFixture({ source_name: "20260901 - Approved.xlsx" })} onAction={() => {}} />);
+  assert.match(html, /Some budget totals do not match/);
+  assert.match(html, /2026 Budget!F5/);
+  assert.match(html, /F6, F7/);
+  assert.match(html, /still use the approved source: 20260901 - Approved.xlsx/);
+  assert.match(html, /Not checked/);
+  assert.doesNotMatch(html, /private raw diagnostic|>Approve<|In-scope errors<\/dt><dd>0/);
+  assert.ok(html.indexOf('Some budget totals') < html.indexOf('Selected run source'));
+});
+
+test("old failed imports without diagnostics explain compatibility without inventing a cell or blaming account entries", () => {
+  const run = runFixture({ status: "failed", payload: null, allowed_actions: [], failure: { code: "WORKBOOK_NOT_CANONICAL", phase: "producer", message: "WORKBOOK_NOT_CANONICAL" } });
+  const html = renderToStaticMarkup(<FinanceRunSummary run={run} onAction={() => {}} />);
+  assert.match(html, /compatibility problem with the importer/);
+  assert.match(html, /does not mean your financial entries are wrong/);
+  assert.match(html, /has not published any new figures/);
+  assert.doesNotMatch(html, /Subtotal cells to check/);
 });

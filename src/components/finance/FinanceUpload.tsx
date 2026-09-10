@@ -193,7 +193,7 @@ function FinanceUploadContext({userId,getToken,year,setYear,kind,setKind}: {user
       const run = result.run;
       setReturnedRun(run); setSelectedId(run.id); setStatus(""); setCursor(undefined);
       setUploadState(run.status === "failed" ? "error" : "success");
-      setMessage(run.status === "candidate" ? `Candidate created. Awaiting approval. Review the summary below and choose Approve to publish ${kind === "budgets" ? "this budget on Overview and Budgets" : "these Management Accounts"}.` : `${result.status === 200 ? "Idempotent replay: existing run returned" : run.status === "failed" ? "Failed run created" : "Candidate created"}. Status: ${run.status}. ${run.failure?.message ?? "Review the run summary."}`);
+      setMessage(run.status === "candidate" ? `Candidate created. Awaiting approval. Review the summary below and choose Approve to publish ${kind === "budgets" ? "this budget on Overview and Budgets" : "these Management Accounts"}.` : run.status === "failed" ? "Import stopped. See the explanation and next steps in the summary below. No new figures have been published." : `${result.status === 200 ? "Existing run returned" : "Import completed"}. Review the summary below.`);
       await refresh();
       summary.current?.focus();
     } catch (error) {
