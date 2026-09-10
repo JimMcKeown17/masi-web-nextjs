@@ -14,7 +14,7 @@ export default function FinanceOverviewPage() {
       <header className="mb-4">
         <h1 className="font-serif text-3xl font-semibold">Finance overview</h1>
         <p className="text-sm text-muted-foreground">
-          Projected spending first. Follow each variance to its source expenses.
+          Income, budget and the year-end outlook.
         </p>
       </header>
 

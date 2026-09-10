@@ -18,6 +18,7 @@ export function budgetInsightsFixture(): BudgetInsights {
     ledger_run_id: "00000000-0000-4000-8000-000000000001",
     accounting_year: 2026,
     sheet_as_of: "2026-07-15",
+    outlook: {expected_income: "14.60", budgeted_balance: "-0.05", projected_masi_balance: "-0.03", income_reason: null, income_source: "2026 Expected Income!J53"},
     organisation: {
       budget: metric("14.65"),
       actual: metric("9.75"),

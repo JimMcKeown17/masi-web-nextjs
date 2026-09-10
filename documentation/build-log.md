@@ -875,3 +875,27 @@ Final production build and deployment identity are recorded below.
 Final `NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api pnpm build`
 passes on the browser-verified tree. Local verification complete; production
 release follows via the authorized PR merge and Vercel deployment.
+
+
+## 2026-09-10 — Four-metric finance overview
+
+Overview leads with Annual Budget, Expected Income, Budgeted Surplus/Shortfall
+and Projected Surplus/Shortfall. Values come from the budget detail API's exact
+outlook; the Masi projection assumes WF-excluded projects finish at budget.
+Historical imports explain that a fresh reviewed budget import is needed for
+income. No source values or calculated fallback balances are invented.
+
+The year control is a quiet right-aligned disclosure. Department bars default
+to column-N Masi variance with an All funds switch, and the drilldown uses the
+same selected basis. Missing expense links name their exact budget-code cells;
+variance formula/typed-override differences remain in a separate disclosure.
+The source strip distinguishes budget and Management Accounts file dates from
+the worksheet reporting date. Over-allocated expense row references correctly
+name Expenditure in the Upload findings.
+
+Validation: 133 frontend tests, TypeScript and lint pass (existing image-debug
+warning only). Production build and six synthetic Chrome layouts passed; local
+browser tests exercise basis switching, repair disclosure and expense drilldown.
+Backend 0.4.0 release supplies income on newly approved budget imports. The UI
+also supports existing imports. No frontend environment/configuration changes.
+Production release identity follows.

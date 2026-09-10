@@ -44,7 +44,7 @@ export function BudgetVarianceComparison({
         const numeric = Number(value ?? 0);
         const direction =
           value === null
-            ? "Unavailable"
+            ? "Needs input"
             : numeric > 0
               ? "Above budget"
               : numeric < 0
@@ -87,14 +87,14 @@ export function BudgetVarianceComparison({
                     : "font-medium"
                 }
               >
-                {formatRand(value, "Unavailable")}
+                {formatRand(value, "Needs input")}
               </span>
               <span className="block text-xs text-muted-foreground">
-                {direction}
+                {value === null ? "" : direction}
               </span>
               {value === null ? (
                 <span className="block text-xs text-muted-foreground">
-                  Known subtotal: {formatRand(row.known_subtotals[metric])}
+                  Partial variance: {formatRand(row.known_subtotals[metric])}
                 </span>
               ) : null}
             </span>

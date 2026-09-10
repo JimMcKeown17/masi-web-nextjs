@@ -14,7 +14,7 @@ interface RunMetadata {
   source_date: string;
   source_sha256: string;
   source_size_bytes: number;
-  schema_version: "1.0.0" | "2.0.0";
+  schema_version: "1.0.0" | "1.1.0" | "2.0.0";
   producer_version: string | null;
   payload_sha256: string | null;
   facts_sha256: string | null;

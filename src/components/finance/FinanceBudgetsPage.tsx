@@ -33,7 +33,9 @@ export function FinanceBudgets({
   return (
     <div className="space-y-4">
       {requestedYear === undefined ? (
-        <label>
+        <details className="ml-auto w-fit text-xs text-muted-foreground">
+          <summary className="cursor-pointer text-right">Year {year}</summary>
+        <label className="mt-2 block">
           Accounting year
           <input
             className="ml-2 rounded border bg-background p-2"
@@ -47,6 +49,7 @@ export function FinanceBudgets({
             }}
           />
         </label>
+        </details>
       ) : null}
       <BudgetReaderSession
         key={`${userId}:${selectedYear}`}
