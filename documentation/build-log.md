@@ -842,3 +842,36 @@ notice visible, no failed-run approval action. Browser evidence uses synthetic
 API/auth and is not authenticated production proof. No new environment variables,
 migrations or permissions. Detailed cell diagnostics require backend publisher
 0.3.1; existing failed records are not rewritten. Deployment pending this entry.
+
+## 2026-09-10 — Focused finance upload workflow
+
+Implements Jim's approved upload UX: keyboard-accessible Management Accounts and
+Budget tabs, prominent Masi-blue primary buttons, primary accounts file drop area,
+and primary Google Sheets budget refresh. Budget source is supporting text with
+Change source disclosure; Excel budget upload is a secondary disclosure. Desktop
+context/history sidebar moves below the main panel on mobile. Year remains visible
+with a compact Change disclosure; import history contains rare status/run controls.
+Approval becomes a blue Review and approve action with the same existing dialog.
+
+Findings now keep current-year errors open and warnings/information collapsed.
+All outside-year findings sit inside one closed Previous years and other periods
+disclosure, including unmatched/undated references. Counts and technical references
+remain available. Three requested labels use domain-checked plain English; asserted
+lines distinguish a typed value (including zero) from a missing value using existing
+API fields. A budget-key reference without a matching project is not mislabeled as
+a missing description. No backend calculations, data contracts, approval rules,
+permissions, new dependencies or configuration changed.
+
+Validation: final `pnpm test:unit` 132/132; `pnpm exec tsc --noEmit` passes;
+`pnpm lint` passes with only the existing image-debug warning. Interaction tests
+retain source/year/actor isolation and approval refresh coverage after replacing
+select-based kind changes with real tab interactions. Chrome actual-component
+harness passes eight desktop/mobile light/dark layouts, no page overflow or console
+errors; source disclosure and Excel fallback usable, 695 historical findings hidden,
+manual zero/blank copy correct, explicit approval dialog preserved. This browser
+proof uses synthetic API/auth and does not claim authenticated hosted writes.
+Final production build and deployment identity are recorded below.
+
+Final `NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api pnpm build`
+passes on the browser-verified tree. Local verification complete; production
+release follows via the authorized PR merge and Vercel deployment.

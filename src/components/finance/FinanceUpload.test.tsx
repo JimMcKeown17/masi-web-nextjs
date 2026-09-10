@@ -48,7 +48,7 @@ test("confirmation separates API-required acknowledgement and rollback override 
 test("summary exposes re-approval, checked demotion and failed terminal state", () => {
   const render = (run: ReturnType<typeof runFixture>, currentId?: string) => renderToStaticMarkup(<FinanceRunSummary run={run} currentId={currentId} onAction={() => {}} />);
   assert.match(render(runFixture({ status: "superseded" })), /Re-approve/);
-  assert.doesNotMatch(render(runFixture({ status: "failed", payload: null, allowed_actions: [], failure: { code: "INVALID_XLSX", phase: "parse", message: "Invalid workbook" } })), />Approve</);
+  assert.doesNotMatch(render(runFixture({ status: "failed", payload: null, allowed_actions: [], failure: { code: "INVALID_XLSX", phase: "parse", message: "Invalid workbook" } })), />Review and approve</);
   assert.match(render(runFixture({ id: "current", status: "approved", previous_approved: "import", allowed_actions: ["demote"] }), "current"), /Demote/);
   assert.doesNotMatch(render(runFixture({ status: "approved", previous_approved: null, allowed_actions: ["demote"] })), />Demote</);
 });
@@ -143,10 +143,10 @@ window.result = (async()=>{
   }
   const beforePublisher = requests.length;
   render(false);
-  await until(()=>document.querySelector('select[aria-label=Run]')?.options.length > 1,'run list');
-  const select = document.querySelector('select[aria-label=Run]'); select.value=selected.id; select.dispatchEvent(new Event('change',{bubbles:true}));
-  await until(()=>button(action==='approve'?'Approve':'Demote'),'action');
-  button(action==='approve'?'Approve':'Demote').click();
+  await until(()=>document.querySelector('select[aria-label=Import]')?.options.length > 1,'run list');
+  const select = document.querySelector('select[aria-label=Import]'); select.value=selected.id; select.dispatchEvent(new Event('change',{bubbles:true}));
+  await until(()=>button(action==='approve'?'Review and approve':'Demote'),'action');
+  button(action==='approve'?'Review and approve':'Demote').click();
   await until(()=>document.querySelector('[role="dialog"]'),'dialog');
   if(action==='demote') {
     const note=document.querySelector('textarea');
@@ -226,11 +226,11 @@ window.fetch=async(url,init)=>{
 };
 window.result=(async()=>{try{
 root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
-await until(()=>select('Run kind'),'kind selector');change(select('Run kind'),'budgets');
+await until(()=>button('Budget'),'kind selector');button('Budget').click();await until(()=>button('Budget')?.getAttribute('aria-selected')==='true','budget tab');
 await until(()=>select('Management Accounts source')?.textContent.includes('ledger-two'),'all ledger pages');
 change(select('Management Accounts source'),'ledger-two');
 const input=document.querySelector('input[type=file]');Object.defineProperty(input,'files',{value:[new File(['synthetic'],'budget.xlsx')]});input.dispatchEvent(new Event('change',{bubbles:true}));
-await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload enabled');button('Upload workbook for '+new Date().getFullYear()).click();
+await until(()=>!button('Upload budget workbook').disabled,'upload enabled');button('Upload budget workbook').click();
 await until(()=>posted,'posted');check(posted.u.searchParams.get('kind')==='budgets','budget kind');check(posted.u.searchParams.get('ledger_run_id')==='ledger-two','selected exact dependency');check(posted.init.body.name==='budget.xlsx','raw body');
 }finally{root.unmount();}})();
 `));
@@ -253,8 +253,8 @@ window.fetch=async(url,init)=>{const u=new URL(url,'https://test.invalid');
  return json(run);
 };
 window.result=(async()=>{try{
-root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>select('Management Accounts source')?.textContent.includes('ledger-one'),'ledger');change(select('Management Accounts source'),'ledger-one');
-const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload');button('Upload workbook for '+new Date().getFullYear()).click();
+root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);await until(()=>button('Budget'),'kind');button('Budget').click();await until(()=>button('Budget')?.getAttribute('aria-selected')==='true','budget tab');await until(()=>select('Management Accounts source')?.textContent.includes('ledger-one'),'ledger');change(select('Management Accounts source'),'ledger-one');
+const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload budget workbook').disabled,'upload');button('Upload budget workbook').click();
 await until(()=>document.body.textContent.includes('Existing run returned'),'replay');await until(()=>button('Re-approve')&&!button('Re-approve').disabled,'reapprove');
 check(document.body.textContent.includes('2026 Budget!F9'),'budget finding source cells');
 button('Re-approve').click();await until(()=>button('Confirm approval'),'confirmation');button('Confirm approval').click();await until(()=>document.querySelector('input[type=checkbox]'),'acknowledgement');document.querySelector('input[type=checkbox]').click();
@@ -279,9 +279,9 @@ const dimension=${JSON.stringify(dimension)};const ledger=runFixture({id:'ledger
 window.fetch=async(url,init)=>{calls.push({url,init});if(init?.method==='POST')return new Promise(resolve=>{resolveUpload=()=>resolve(new Response(JSON.stringify(runFixture({id:'late-budget',kind:'budgets',payload:null})),{status:201}));});if(String(url).includes('/current/'))return json({runs:{},compatible:true});return json({results:[ledger],next:null,previous:null});};
 const render=()=>root.render(<SWRConfig value={config}><FinanceUpload/></SWRConfig>);
 window.result=(async()=>{try{
-render();await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>select('Management Accounts source')?.textContent.includes('ledger-one'),'ledger');change(select('Management Accounts source'),'ledger-one');const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload workbook for '+new Date().getFullYear()).disabled,'upload');button('Upload workbook for '+new Date().getFullYear()).click();await until(()=>resolveUpload,'pending upload');
-if(dimension==='kind')change(select('Run kind'),'funders');else if(dimension==='actor'){window.actor='actor-B';render();}else{const year=document.querySelector('input[type=number]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(year,'2025');year.dispatchEvent(new Event('input',{bubbles:true}));}
-await until(()=>!document.querySelector('progress'),'new context');resolveUpload();await pause();await pause();check(!document.body.textContent.includes('late-budget'),'late candidate cannot return');check(document.querySelector('select[aria-label=Run]').value==='','candidate cleared');check(button('Upload workbook for '+(dimension==='year'?'2025':new Date().getFullYear())).disabled,'file and dependency reset');check(calls.filter(c=>c.init?.method==='POST').length===1,'one authorized upload');
+render();await until(()=>button('Budget'),'kind');button('Budget').click();await until(()=>button('Budget')?.getAttribute('aria-selected')==='true','budget tab');await until(()=>select('Management Accounts source')?.textContent.includes('ledger-one'),'ledger');change(select('Management Accounts source'),'ledger-one');const file=document.querySelector('input[type=file]');Object.defineProperty(file,'files',{value:[new File(['synthetic'],'budget.xlsx')]});file.dispatchEvent(new Event('change',{bubbles:true}));await until(()=>!button('Upload budget workbook').disabled,'upload');button('Upload budget workbook').click();await until(()=>resolveUpload,'pending upload');
+if(dimension==='kind')button('Management Accounts').click();else if(dimension==='actor'){window.actor='actor-B';render();}else{const year=document.querySelector('input[type=number]');Object.getOwnPropertyDescriptor(HTMLInputElement.prototype,'value').set.call(year,'2025');year.dispatchEvent(new Event('input',{bubbles:true}));}
+await until(()=>!document.querySelector('progress'),'new context');resolveUpload();await pause();await pause();check(!document.body.textContent.includes('late-budget'),'late candidate cannot return');check(document.querySelector('select[aria-label=Import]').value==='','candidate cleared');check(button(dimension!=='year'?'Upload Management Accounts':'Upload budget workbook').disabled,'file and dependency reset');check(calls.filter(c=>c.init?.method==='POST').length===1,'one authorized upload');
 }finally{root.unmount();}})();
 `));
 test("approval completed after actor switch invalidates shared current without publishing old actor reads",()=>budgetDomTest(domPrelude+`
@@ -291,7 +291,7 @@ const candidate=runFixture({id:'budget-candidate',kind:'budgets',payload:null});
 window.fetch=async(url,init)=>{calls.push({url,init});if(init?.method==='POST')return new Promise(resolve=>{resolveApproval=()=>{changed=true;resolve(new Response(JSON.stringify({...candidate,status:'approved'})));};});if(window.actor==='actor-B')return changed ? json({runs:{budgets:{id:'new-current'}}}) : new Promise(()=>{});if(String(url).includes('/current/'))return json({runs:{},compatible:true});if(String(url).includes('/runs/?'))return json({results:[candidate],next:null,previous:null});return json(candidate);};
 function Reader(){const{userId,getToken}=useAuth();const{data}=useSWR(financeRunsCacheKey(userId,'current:'+year),async()=>getFinanceCurrent(await getToken(),year));return <p>{data?.runs.budgets.id??'Loading'}</p>;}
 window.result=(async()=>{try{
-root.render(<SWRConfig value={options}><FinanceUpload/></SWRConfig>);await until(()=>select('Run kind'),'kind');change(select('Run kind'),'budgets');await until(()=>document.querySelector('select[aria-label=Run]')?.textContent.includes('budget-candidate'),'candidate');change(document.querySelector('select[aria-label=Run]'),'budget-candidate');await until(()=>button('Approve')&&!button('Approve').disabled,'approve');button('Approve').click();await until(()=>button('Confirm approval'),'dialog');button('Confirm approval').click();await until(()=>resolveApproval,'pending approval');window.actor='actor-B';root.render(<SWRConfig value={options}><Reader/></SWRConfig>);await until(()=>document.body.textContent.includes('old-current'),'reader seeded');await until(()=>calls.some(c=>c.init?.headers.Authorization==='Bearer token-actor-B'),'pending B read');resolveApproval();await until(()=>document.body.textContent.includes('new-current'),'new actor refreshed');check(calls.filter(c=>c.init?.method==='POST').length===1,'one mutation');const reads=calls.filter(c=>c.init?.headers.Authorization==='Bearer token-actor-B');check(reads.length>=2,'new actor own reads');
+root.render(<SWRConfig value={options}><FinanceUpload/></SWRConfig>);await until(()=>button('Budget'),'kind');button('Budget').click();await until(()=>button('Budget')?.getAttribute('aria-selected')==='true','budget tab');await until(()=>document.querySelector('select[aria-label=Import]')?.textContent.includes('budget-candidate'),'candidate');change(document.querySelector('select[aria-label=Import]'),'budget-candidate');await until(()=>button('Review and approve')&&!button('Review and approve').disabled,'approve');button('Review and approve').click();await until(()=>button('Confirm approval'),'dialog');button('Confirm approval').click();await until(()=>resolveApproval,'pending approval');window.actor='actor-B';root.render(<SWRConfig value={options}><Reader/></SWRConfig>);await until(()=>document.body.textContent.includes('old-current'),'reader seeded');await until(()=>calls.some(c=>c.init?.headers.Authorization==='Bearer token-actor-B'),'pending B read');resolveApproval();await until(()=>document.body.textContent.includes('new-current'),'new actor refreshed');check(calls.filter(c=>c.init?.method==='POST').length===1,'one mutation');const reads=calls.filter(c=>c.init?.headers.Authorization==='Bearer token-actor-B');check(reads.length>=2,'new actor own reads');
 }finally{root.unmount();}})();
 `));
 
@@ -324,7 +324,7 @@ test("failed subtotal import leads with repair cells, preserves approved source,
   assert.match(html, /F6, F7/);
   assert.match(html, /still use the approved source: 20260901 - Approved.xlsx/);
   assert.match(html, /Not checked/);
-  assert.doesNotMatch(html, /private raw diagnostic|>Approve<|In-scope errors<\/dt><dd>0/);
+  assert.doesNotMatch(html, /private raw diagnostic|>Review and approve<|In-scope errors<\/dt><dd>0/);
   assert.ok(html.indexOf('Some budget totals') < html.indexOf('Selected run source'));
 });
 
@@ -335,4 +335,37 @@ test("old failed imports without diagnostics explain compatibility without inven
   assert.match(html, /does not mean your financial entries are wrong/);
   assert.match(html, /has not published any new figures/);
   assert.doesNotMatch(html, /Subtotal cells to check/);
+});
+
+test("findings show plain language, distinguish manual zero from blank, and collapse non-current detail", () => {
+  const findings = [
+    { code: 'BUDGET_BC_MISSING', severity: 'error' as const, in_scope_year: true, message: 'Current error', source_cells: ['2026 Budget!E6'] },
+    { code: 'CATEGORY_NOT_IN_BLOCK', severity: 'warn' as const, in_scope_year: true, message: 'Original allocation reference', category: 'Travel', amount: '125.00' },
+    { code: 'ASSERTED_LINE', severity: 'info' as const, in_scope_year: true, message: 'Typed zero', amount: '0.00', category: 'Books', sheet_row: 75 },
+    { code: 'ASSERTED_LINE', severity: 'info' as const, in_scope_year: true, message: 'Blank amount', amount: null, category: 'Equipment', sheet_row: 74 },
+    { code: 'ORPHAN_CONTRACT_CODE', severity: 'warn' as const, in_scope_year: false, message: 'Original orphan reference', sheet_row: 24 },
+    { code: 'ASSERTED_LINE', severity: 'info' as const, in_scope_year: false, message: 'Prior year', amount: '1.00' },
+  ];
+  const run = runFixture({ payload: { findings } });
+  const html = renderToStaticMarkup(<FinanceRunSummary run={run} onAction={() => {}} />);
+  const dom = new JSDOM(html);
+  try {
+    const details = [...dom.window.document.querySelectorAll('details')];
+    const group = (label: string) => details.find(element => element.querySelector(':scope > summary')?.textContent?.startsWith(label))!;
+    assert.equal(group('Needs review').open, true);
+    assert.equal(group('Warnings').open, false);
+    assert.equal(group('Information').open, false);
+    assert.equal(group('Previous years and other periods').open, false);
+    assert.match(html, /Category does not appear in project budget/);
+    assert.match(html, /Spending entered manually/);
+    assert.match(html, /Spending value missing/);
+    assert.match(html, /Budget reference has no matching project budget/);
+    assert.doesNotMatch(html, /Project budget amount missing description/);
+    assert.match(html, /will not update automatically from the Expenditure sheet/);
+    assert.match(html, /Funder Budgets · Row 75/);
+    const historical = group('Previous years and other periods');
+    assert.ok(historical.textContent?.includes('Original orphan reference'));
+    assert.ok(historical.textContent?.includes('Prior year'));
+    assert.equal(historical.querySelector('details')!.open, false);
+  } finally { dom.window.close(); }
 });
