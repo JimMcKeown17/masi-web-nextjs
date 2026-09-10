@@ -822,3 +822,23 @@ were missing process in that harness. Chromium actual-component checks reproduce
 283 synthetic findings at desktop/mobile widths in light/dark: import-to-review,
 default source, early Approve action and explicit confirmation PASS. Auth/API are
 local fixtures; no production financial mutations or permission changes were made.
+
+## 2026-09-10 — Actionable failed finance imports
+
+Failed imports now lead with a plain-language explanation, a next step, and a
+notice that the approved source has not been replaced. Budget subtotal failures
+show publisher-supplied sheet/cell references and expected child cells (up to 20
+checks). Old failures without diagnostics still receive useful general guidance.
+Formatting incompatibility is explicitly distinguished from incorrect financial
+entries. Raw exception messages are not rendered. Failed-run counts say Not
+checked/Not processed; timings and package details are collapsible.
+
+Validation: `pnpm test:unit` 131/131; `pnpm exec tsc --noEmit` passed;
+`pnpm lint` passed with the existing image-debug warning only;
+`NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api pnpm build` passed.
+Actual React components checked in Chrome at 1440/390px, light/dark: four layouts
+passed, no page overflow or console errors, repair table and approved-source
+notice visible, no failed-run approval action. Browser evidence uses synthetic
+API/auth and is not authenticated production proof. No new environment variables,
+migrations or permissions. Detailed cell diagnostics require backend publisher
+0.3.1; existing failed records are not rewritten. Deployment pending this entry.

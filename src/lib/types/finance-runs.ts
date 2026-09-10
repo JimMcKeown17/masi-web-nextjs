@@ -74,7 +74,7 @@ export interface FinanceRunFinding {
 }
 interface RunDetail {
   manifest: FinanceRunManifest;
-  failure: { code: string; phase: string; message: string } | null;
+  failure: { code: string; phase: string; message: string; diagnostics?: { sheet: string; cell: string; expected_cells: string[] }[] } | null;
   allowed_actions: FinanceRunAction[];
 }
 export type FinanceRun = RunMetadata &
