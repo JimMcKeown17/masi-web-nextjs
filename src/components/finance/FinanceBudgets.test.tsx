@@ -109,9 +109,13 @@ await until(()=>document.querySelector('[aria-label="Department projected varian
 const chart=document.querySelector('[aria-label="Department projected variance comparison"]');
 const department=golden.derived.hierarchy.find(row=>row.parent_id===null);
 check(department.variance_all===null,'incomplete fixture total');
-check(chart.textContent.includes('Needs input')&&chart.textContent.includes('Partial variance'),'missing total not plotted as zero');
-change(document.querySelector('[aria-label="Variance basis"]'),'variance_masi');
-await until(()=>document.body.textContent.includes('It is not a measure of flexible funding'),'Masi distinction');
+const basis=document.querySelector('[aria-label="Variance basis"]');
+check(basis.value==='variance_masi','upload review defaults to column N');
+check(document.body.textContent.includes('It is not a measure of flexible funding'),'Masi distinction');
+change(basis,'variance_all');
+await until(()=>chart.textContent.includes('Needs input')&&chart.textContent.includes('Partial variance'),'missing all-funds total not plotted as zero');
+change(basis,'variance_masi');
+await until(()=>document.body.textContent.includes('It is not a measure of flexible funding'),'Masi comparison restored');
 chart.querySelector('button').click();await until(()=>button('All departments'),'department selected');
 check(document.activeElement.id==='budget-detail-title','focus lands on department detail');
 check(document.getElementById('budget-detail-title').textContent===department.label,'selected department title');

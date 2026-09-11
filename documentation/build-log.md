@@ -899,3 +899,36 @@ browser tests exercise basis switching, repair disclosure and expense drilldown.
 Backend 0.4.0 release supplies income on newly approved budget imports. The UI
 also supports existing imports. No frontend environment/configuration changes.
 Production release identity follows.
+
+
+## 2026-09-10 — Explain the final balance and align upload-review variance
+
+The shared budget review chart used by Upload still defaulted to All Funds after
+the Overview moved to the Masi basis. Default it to Masi variance (column N),
+retain All Funds (column M), and name the corresponding columns in the selector.
+Overview now includes a collapsed calculation explanation: budgeted balance,
+less the API's Masi variance, equals projected balance. It consumes the existing
+server amounts without recalculating rounded figures in the browser. The
+explanation is absent when the required values are missing.
+No calculations, source data, approval behavior or backend configuration change.
+
+The existing interactive chart test reproduced the wrong default, then verifies
+Masi on initial render, All Funds switching and incomplete totals, switching
+back, and department drilldown focus. The existing outlook test also checks the
+calculation explanation and missing-input behavior.
+
+Validation: `pnpm test:unit` passes 133/133, `pnpm exec tsc --noEmit` passes,
+and targeted ESLint passes for the four changed component/test files. Actual
+React review and outlook components passed synthetic Chrome N/M/N switching
+and disclosure checks at 1440px/390px in light/dark mode, with no horizontal
+page overflow or JavaScript errors. These are local checks, not authenticated
+production browser proof. Production build and release evidence follow.
+
+Separately requested one-action Google Sheets publishing is pending explicit
+approval for automatic findings acknowledgement and same-day replacement.
+Automatic approval review rejected that patch; it is not included here.
+
+Production build passed with
+`NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api pnpm build`.
+The restricted attempt was stopped; an unset-API-URL attempt timed out on the
+unrelated Impact pages. No build configuration or Impact code was changed.

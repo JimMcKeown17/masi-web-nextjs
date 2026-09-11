@@ -111,12 +111,15 @@ test("four headlines consume server balances and explain missing income without 
   const html = renderToStaticMarkup(<BudgetOrganisationOutlook insights={insights} />);
   for (const label of ["Annual Budget", "Expected Income", "Budgeted Surplus/Shortfall", "Projected Surplus/Shortfall", "R 14,65", "R 14,60", "-R 0,05", "-R 0,03", "Shortfall"])
     assert.ok(html.includes(label), label);
-  assert.doesNotMatch(html, /-R 0,02/);
+  assert.match(html, /How the projected surplus or shortfall is calculated/);
+  assert.match(html, /Less projected Masi overspend/);
+  assert.match(html, /-R 0,02/);
   delete insights.outlook;
   const incomplete = renderToStaticMarkup(<BudgetOrganisationOutlook insights={insights} />);
   assert.match(incomplete, /Refresh the budget and approve/);
   assert.match(incomplete, /Awaiting income forecast/);
   assert.doesNotMatch(incomplete, /Unavailable|Known subtotal|-R 0,03/);
+  assert.doesNotMatch(incomplete, /How the projected surplus or shortfall is calculated/);
 });
 
 test("spending composition retains annual ledger denominator and unbudgeted bucket with accessible exact values", () => {
