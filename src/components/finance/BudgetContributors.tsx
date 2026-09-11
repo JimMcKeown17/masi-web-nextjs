@@ -60,6 +60,7 @@ function ContributorsSession({
   getToken: () => Promise<string | null>;
 }) {
   const [cursor, setCursor] = useState<string>();
+  const [ordering, setOrdering] = useState("date");
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
   const active = useRef(true);
@@ -79,9 +80,9 @@ function ContributorsSession({
   const result = useSWR(
     financeRunsCacheKey(
       userId,
-      `rows:budgets:${runId}:${year}:${JSON.stringify(bc)}:${cursor ?? ""}`,
+      `rows:budgets:${runId}:${year}:${JSON.stringify(bc)}:${ordering}:${cursor ?? ""}`,
     ),
-    async () => getFinanceRunRows(await token(), runId, { year, bc, cursor }),
+    async () => getFinanceRunRows(await token(), runId, { year, bc, cursor, ordering }),
   );
   async function download(format: "csv" | "xlsx") {
     setExporting(true);
@@ -90,7 +91,7 @@ function ContributorsSession({
       const blob = await exportFinanceRunRows(
         await token(),
         runId,
-        { year, bc },
+        { year, bc, ordering },
         format,
       );
       if (active.current)
@@ -162,9 +163,16 @@ function ContributorsSession({
                   "Category 3",
                   "BC",
                   "Source row",
-                ].map((h) => (
-                  <TableHead key={h}>{h}</TableHead>
-                ))}
+                ].map((h,index) => {
+                  const field = ["date","description","amount","paid_by","category_1","category_2","category_3","bc","sheet_row"][index];
+                  const selected = ordering.replace(/^-/, "") === field;
+                  return <TableHead key={h} aria-sort={selected ? ordering.startsWith("-") ? "descending" : "ascending" : "none"}>
+                    <button type="button" className="inline-flex items-center gap-1 rounded py-2 text-left hover:text-foreground focus-visible:outline-2" onClick={() => {
+                      setCursor(undefined);
+                      setOrdering(selected && !ordering.startsWith("-") ? `-${field}` : field);
+                    }}>{h}<span aria-hidden="true">{selected ? ordering.startsWith("-") ? "↓" : "↑" : "↕"}</span></button>
+                  </TableHead>;
+                })}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -217,6 +225,7 @@ function ContributorsSession({
           </div>
         </>
       ) : null}
+      <p className="text-xs text-muted-foreground">These exports include staff salary information where present.</p>
       <div className="flex flex-wrap gap-2">
         {(["csv", "xlsx"] as const).map((format) => (
           <Button
