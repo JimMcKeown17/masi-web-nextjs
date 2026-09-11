@@ -60,6 +60,7 @@ function ContributorsSession({
   getToken: () => Promise<string | null>;
 }) {
   const [cursor, setCursor] = useState<string>();
+  const [ordering, setOrdering] = useState("date");
   const [exporting, setExporting] = useState(false);
   const [exportError, setExportError] = useState("");
   const active = useRef(true);
@@ -79,9 +80,9 @@ function ContributorsSession({
   const result = useSWR(
     financeRunsCacheKey(
       userId,
-      `rows:budgets:${runId}:${year}:${JSON.stringify(bc)}:${cursor ?? ""}`,
+      `rows:budgets:${runId}:${year}:${JSON.stringify(bc)}:${ordering}:${cursor ?? ""}`,
     ),
-    async () => getFinanceRunRows(await token(), runId, { year, bc, cursor }),
+    async () => getFinanceRunRows(await token(), runId, { year, bc, cursor, ordering }),
   );
   async function download(format: "csv" | "xlsx") {
     setExporting(true);
@@ -90,21 +91,21 @@ function ContributorsSession({
       const blob = await exportFinanceRunRows(
         await token(),
         runId,
-        { year, bc },
+        { year, bc, ordering },
         format,
       );
       if (active.current)
-        downloadFinanceBlob(blob, `budget-contributors-${runId}.${format}`);
+        downloadFinanceBlob(blob, `budget-expenses-${runId}.${format}`);
     } catch {
       if (active.current)
-        setExportError("Contributor export failed. Retry the download.");
+        setExportError("Expense export failed. Retry the download.");
     } finally {
       if (active.current) setExporting(false);
     }
   }
   return (
-    <section className="min-w-0 space-y-5" aria-label="Budget contributors">
-      <h2 className="sr-only">Contributors for {line.label}</h2>
+    <section className="min-w-0 space-y-5" aria-label="Budget expenses">
+      <h2 className="sr-only">Expenses for {line.label}</h2>
       <div className="grid grid-cols-1 gap-3 rounded-lg bg-muted/50 p-4 min-[420px]:grid-cols-3">
         {(
           [
@@ -129,12 +130,12 @@ function ContributorsSession({
         . BC: {bc}. The line's actual expenditure above includes its applied
         share; expense rows below show the original full amounts.
       </p>
-      {result.isLoading ? <p role="status">Loading contributors…</p> : null}
+      {result.isLoading ? <p role="status">Loading expenses…</p> : null}
       {result.error ? (
         <p role="alert">
-          Could not load contributors.{" "}
+          Could not load expenses.{" "}
           <Button onClick={() => void result.mutate()}>
-            Retry contributors
+            Retry expenses
           </Button>
         </p>
       ) : null}
@@ -162,9 +163,16 @@ function ContributorsSession({
                   "Category 3",
                   "BC",
                   "Source row",
-                ].map((h) => (
-                  <TableHead key={h}>{h}</TableHead>
-                ))}
+                ].map((h,index) => {
+                  const field = ["date","description","amount","paid_by","category_1","category_2","category_3","bc","sheet_row"][index];
+                  const selected = ordering.replace(/^-/, "") === field;
+                  return <TableHead key={h} aria-sort={selected ? ordering.startsWith("-") ? "descending" : "ascending" : "none"}>
+                    <button type="button" className="inline-flex items-center gap-1 rounded py-2 text-left hover:text-foreground focus-visible:outline-2" onClick={() => {
+                      setCursor(undefined);
+                      setOrdering(selected && !ordering.startsWith("-") ? `-${field}` : field);
+                    }}>{h}<span aria-hidden="true">{selected ? ordering.startsWith("-") ? "↓" : "↑" : "↕"}</span></button>
+                  </TableHead>;
+                })}
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -197,7 +205,7 @@ function ContributorsSession({
             </TableBody>
           </Table>
           {result.data.results.length === 0 ? (
-            <p>No contributors for this BC and year.</p>
+            <p>No expenses for this budget code and year.</p>
           ) : null}
           <div className="flex flex-wrap gap-2">
             <Button
@@ -206,17 +214,18 @@ function ContributorsSession({
                 setCursor(financePageCursor(result.data!.previous))
               }
             >
-              Previous contributors
+              Previous expenses
             </Button>
             <Button
               disabled={!result.data.next}
               onClick={() => setCursor(financePageCursor(result.data!.next))}
             >
-              Next contributors
+              Next expenses
             </Button>
           </div>
         </>
       ) : null}
+      <p className="text-xs text-muted-foreground">These exports include staff salary information where present.</p>
       <div className="flex flex-wrap gap-2">
         {(["csv", "xlsx"] as const).map((format) => (
           <Button
@@ -225,7 +234,7 @@ function ContributorsSession({
             disabled={exporting || Boolean(result.error) || !result.data}
             onClick={() => void download(format)}
           >
-            Download contributors {format.toUpperCase()}
+            Download expenses {format.toUpperCase()}
           </Button>
         ))}
       </div>

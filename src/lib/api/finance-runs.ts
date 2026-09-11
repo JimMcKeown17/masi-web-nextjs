@@ -88,17 +88,18 @@ export async function getBudgetLedgerDependencies(getToken: () => Promise<string
   } while (cursor);
   return results;
 }
-export interface FinanceRowsFilters { year: number; bc: string; cursor?: string }
+export interface FinanceRowsFilters { year: number; bc: string; cursor?: string; ordering?: string }
 function rowsParams(filters: FinanceRowsFilters) {
   const params = new URLSearchParams({year:String(filters.year), bc:filters.bc});
   if (filters.cursor) params.set("cursor", filters.cursor);
+  if (filters.ordering) params.set("ordering", filters.ordering);
   return params;
 }
 export function getFinanceRunRows(token: string, id: string, filters: FinanceRowsFilters): Promise<import("@/lib/types/finance-budgets").FinanceRowsPage> {
   return request(token, `/finance/runs/${encodeURIComponent(id)}/rows/?${rowsParams(filters)}`);
 }
 export async function exportFinanceRunRows(token: string, id: string, filters: Omit<FinanceRowsFilters,"cursor">, format: "csv" | "xlsx"): Promise<Blob> {
-  const params = rowsParams({year:filters.year,bc:filters.bc}); params.set("format",format);
+  const params = rowsParams({year:filters.year,bc:filters.bc,ordering:filters.ordering}); params.set("format",format);
   const response = await fetch(`${API_URL}/finance/runs/${encodeURIComponent(id)}/rows/export/?${params}`, {cache:"no-store",headers:{Authorization:`Bearer ${token}`}});
   if (!response.ok) { const error = await errorBody(response); throw new FinanceRunApiError(response.status,error.code,error.detail); }
   return response.blob();

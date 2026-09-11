@@ -932,3 +932,31 @@ Production build passed with
 `NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api pnpm build`.
 The restricted attempt was stopped; an unset-API-URL attempt timed out on the
 unrelated Impact pages. No build configuration or Impact code was changed.
+
+
+## 11 September 2026 - Budget table hierarchy and expense sorting
+
+Budget tables now start with departments collapsed and reveal sub-departments,
+then lines. Search still reveals matching lines with their ancestors. Distinct
+level backgrounds, sticky row labels, compact View expenses actions, and expandable
+calculation notes replace the verbose basis column. Masi variance is highlighted
+red at >= R30,000 and green at <= -R30,000. The new percentage is a display ratio
+of Masi variance to the absolute annual budget shown on the row; excluded, zero,
+and missing inputs have explicit labels, never infinity. Financial source amounts
+and the existing WF policy are unchanged.
+
+Expense headers request server ordering across the entire matched BC/year result
+set, reset pagination, partition SWR by ordering, and retain ordering in exports.
+Backend deployment with optional rows/export `ordering` support is required before
+this frontend release. Existing downloads explicitly state that they can include
+staff salaries; a salary-excluding, two-tab report is not implemented by this change.
+
+Verification: `pnpm test:unit` 135 passed; `pnpm exec tsc --noEmit` and targeted
+`pnpm exec eslint src/components/finance/FinanceBudgets.tsx
+src/components/finance/BudgetContributors.tsx
+src/components/finance/FinanceBudgets.test.tsx src/lib/api/finance-runs.ts` exit 0.
+`NEXT_PUBLIC_API_URL=https://masi-website-main.onrender.com/api pnpm build` exit 0.
+Actual component Chrome fixture checks cover closed/stepwise hierarchy, search,
+expense sorting and drawer, 1680px/390px light/dark and no document overflow.
+Fixture auth and data are synthetic; no authenticated production proof is claimed.
+No migrations or environment changes. Local implementation; deployment pending.

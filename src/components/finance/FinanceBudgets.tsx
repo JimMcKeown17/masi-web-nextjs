@@ -5,7 +5,7 @@ import type {
 } from "@/lib/types/finance-runs";
 import { BudgetContributors } from "./BudgetContributors";
 import { FinanceExportButtons } from "./FinanceExportButtons";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ArrowUpRight, ChevronDown, ChevronRight, CircleHelp, TriangleAlert } from "lucide-react";
 import { financeCurrentMessage } from "@/lib/finance/currentMessage";
 import { useRef, useState } from "react";
 import {
@@ -25,7 +25,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { formatRand } from "@/lib/finance/money";
+import { formatPercent, formatRand } from "@/lib/finance/money";
 import type {
   BudgetHierarchy,
   BudgetLine,
@@ -65,6 +65,19 @@ function valueLabel(row: BudgetNode, metric: BudgetMetric) {
             : "unavailable";
   return formatRand(row[metric], fallback);
 }
+export function varianceTone(value: string | null) {
+  if (value === null) return "";
+  if (Number(value) >= 30000) return "bg-red-50 font-semibold text-[#C81E3C] dark:bg-red-950/40 dark:text-red-300";
+  if (Number(value) <= -30000) return "bg-emerald-50 font-semibold text-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300";
+  return "";
+}
+export function variancePercent(row: BudgetNode) {
+  if (row.variance_masi === null) return row.completeness_reasons.includes("wf_excluded") ? "Excluded" : "Unavailable";
+  if (row.budget === null) return "Budget not set";
+  if (Number(row.budget) === 0) return "No budget";
+  const result = formatPercent(row.variance_masi, String(Math.abs(Number(row.budget))));
+  return Number(row.variance_masi) > 0 ? `+${result}` : result ?? "Unavailable";
+}
 export function FinanceBudgetsView({
   payload,
   manifest,
@@ -84,7 +97,7 @@ export function FinanceBudgetsView({
   const triggerRef = useRef<HTMLButtonElement | null>(null);
   const detailRef = useRef<HTMLHeadingElement>(null);
   const [filter, setFilter] = useState("");
-  const [collapsed, setCollapsed] = useState<Set<string>>(new Set());
+  const [expanded, setExpanded] = useState<Set<string>>(new Set());
   const { hierarchy, lines, projection } = payload;
   const visible: (BudgetHierarchy | BudgetLine)[] = [];
   function visit(parent: string | null) {
@@ -112,7 +125,7 @@ export function FinanceBudgetsView({
             )))
       )
         visible.push(row);
-      if ("level" in row && (filter || !collapsed.has(row.id))) visit(row.id);
+      if ("level" in row && (filter || expanded.has(row.id))) visit(row.id);
     }
   }
   visit(null);
@@ -128,6 +141,10 @@ export function FinanceBudgetsView({
             .join(", "))
     );
   }
+  function needsReview(row: BudgetNode) {
+    return row.completeness_reasons.some(reason => reason !== "wf_excluded") || payload.findings.some(finding =>
+      (finding.line_id === row.id || finding.node_id === row.id) && finding.severity !== "info");
+  }
   function displayValue(row: BudgetHierarchy | BudgetLine, key: BudgetMetric) {
     return (
       valueLabel(row, key) +
@@ -140,18 +157,20 @@ export function FinanceBudgetsView({
     [
       "Department / Sub-department / Line",
       ...METRICS.map(([, label]) => label),
-      "Basis and completeness",
+      "Masi variance %",
+      "Calculation notes",
     ],
     ...visible.map((row) => [
       row.label,
       ...METRICS.map(([key]) => displayValue(row, key)),
+      variancePercent(row),
       basis(row),
     ]),
   ];
   function exploreDepartment(row: BudgetHierarchy) {
     setDepartment(row);
     setFilter("");
-    setCollapsed(new Set());
+    setExpanded(new Set([row.id]));
     detailRef.current?.focus();
   }
   return (
@@ -227,7 +246,7 @@ export function FinanceBudgetsView({
                 {department ? department.label : "Budget detail"}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
-                Explore departments, budget lines and their source expenses.
+                Open a department, then a category, to explore its budget lines and expenses.
               </p>
             </div>
             {department ? (
@@ -247,16 +266,18 @@ export function FinanceBudgetsView({
               value={filter}
               onChange={(event) => setFilter(event.target.value)}
             />
-            <FinanceExportButtons rows={exportRows} name={`budgets-${runId}`} />
+            <div className="space-y-1"><FinanceExportButtons rows={exportRows} name={`budgets-${runId}`} /><p className="text-xs text-muted-foreground">Shown rows only. Includes staff salary information.</p></div>
           </div>
+          <p className="mb-3 text-xs text-muted-foreground">Masi variance: red at R30,000 or more over; green at R30,000 or more under. Percentage compares Masi variance with the annual budget shown. Underspending may still need attention.</p>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Department / Sub-department / Line</TableHead>
+                <TableHead className="sticky left-0 z-10 min-w-48 max-w-64 bg-card whitespace-normal">Department / Sub-department / Line</TableHead>
                 {METRICS.map(([key, label]) => (
-                  <TableHead key={key}>{label}</TableHead>
+                  <TableHead key={key} className="text-right">{label}</TableHead>
                 ))}
-                <TableHead>Basis and completeness</TableHead>
+                <TableHead className="text-right" title="Masi variance divided by the annual budget shown on this row. Excluded lines have no percentage.">Masi variance %</TableHead>
+                <TableHead><span className="sr-only">Expenses and calculation notes</span></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -264,19 +285,23 @@ export function FinanceBudgetsView({
                 <TableRow
                   key={row.id}
                   className={
-                    "level" in row ? "bg-muted/40 font-medium" : undefined
+                    "level" in row
+                      ? row.level === 1
+                        ? "bg-blue-50 text-base font-semibold dark:bg-blue-950/50"
+                        : "bg-slate-100 text-sm font-medium dark:bg-slate-800/70"
+                      : "bg-white text-sm dark:bg-slate-950"
                   }
                 >
                   <TableCell
-                    className={`max-w-72 whitespace-normal ${"level" in row ? (row.level === 1 ? "pl-2" : "pl-6") : "pl-12"}`}
+                    className={`sticky left-0 z-10 min-w-48 max-w-64 bg-inherit whitespace-normal ${"level" in row ? (row.level === 1 ? "pl-2" : "pl-6") : "pl-12"}`}
                   >
                     {"level" in row ? (
                       <Button
                         variant="ghost"
                         className="h-auto max-w-full justify-start whitespace-normal text-left"
-                        aria-expanded={!collapsed.has(row.id)}
+                        aria-expanded={Boolean(filter) || expanded.has(row.id)}
                         onClick={() =>
-                          setCollapsed((previous) => {
+                          setExpanded((previous) => {
                             const next = new Set(previous);
                             if (next.has(row.id)) next.delete(row.id);
                             else next.add(row.id);
@@ -284,7 +309,7 @@ export function FinanceBudgetsView({
                           })
                         }
                       >
-                        {collapsed.has(row.id) ? (
+                        {!filter && !expanded.has(row.id) ? (
                           <ChevronRight
                             aria-hidden="true"
                             className="size-4 shrink-0"
@@ -303,26 +328,37 @@ export function FinanceBudgetsView({
                   </TableCell>
                   {METRICS.map(([key]) => (
                     <TableCell
-                      className="tabular-nums whitespace-normal min-w-28 max-w-44"
+                      className={`tabular-nums whitespace-nowrap text-right ${key === "variance_masi" ? varianceTone(row.variance_masi) : ""}`}
                       key={key}
                     >
                       {displayValue(row, key)}
                     </TableCell>
                   ))}
-                  <TableCell className="whitespace-normal min-w-52 max-w-64">
-                    {basis(row)}
+                  <TableCell className={`text-right tabular-nums whitespace-nowrap ${varianceTone(row.variance_masi)}`}>
+                    {variancePercent(row)}
+                  </TableCell>
+                  <TableCell className="min-w-36 whitespace-normal">
                     {"bc" in row && row.bc !== null ? (
-                      <Button
-                        variant="outline"
-                        className="mt-2 h-auto whitespace-normal text-left text-[#1D4ED8] dark:text-blue-300"
+                      <button
+                        type="button"
+                        aria-label={`View expenses for ${row.label}`}
+                        className="inline-flex items-center gap-1 rounded py-1 text-sm font-medium text-[#1D4ED8] hover:underline focus-visible:outline-2 dark:text-blue-300"
                         onClick={(event) => {
                           triggerRef.current = event.currentTarget;
                           setSelectedLine(row);
                         }}
                       >
-                        View contributors for {row.label}
-                      </Button>
+                        View expenses <ArrowUpRight aria-hidden="true" className="size-4" />
+                      </button>
                     ) : null}
+                    <details className="mt-1 text-xs font-normal text-muted-foreground">
+                      <summary aria-label={`Calculation notes for ${row.label}`} className="inline-flex min-h-8 min-w-8 cursor-pointer list-none items-center gap-1 rounded py-1 focus-visible:outline-2">
+                        {needsReview(row) ? <><TriangleAlert aria-hidden="true" className="size-4 text-amber-700 dark:text-amber-300" />Review</> : <><CircleHelp aria-hidden="true" className="size-3.5" /><span className="sr-only">Calculation notes</span></>}
+                      </summary>
+                      <div className="mt-2 max-w-64 space-y-2">{basis(row)}
+                        {payload.findings.filter(finding => finding.line_id === row.id || finding.node_id === row.id).map((finding,index) => <p key={index}>{finding.message}</p>)}
+                      </div>
+                    </details>
                   </TableCell>
                 </TableRow>
               ))}
