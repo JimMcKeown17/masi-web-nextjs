@@ -95,17 +95,17 @@ function ContributorsSession({
         format,
       );
       if (active.current)
-        downloadFinanceBlob(blob, `budget-contributors-${runId}.${format}`);
+        downloadFinanceBlob(blob, `budget-expenses-${runId}.${format}`);
     } catch {
       if (active.current)
-        setExportError("Contributor export failed. Retry the download.");
+        setExportError("Expense export failed. Retry the download.");
     } finally {
       if (active.current) setExporting(false);
     }
   }
   return (
-    <section className="min-w-0 space-y-5" aria-label="Budget contributors">
-      <h2 className="sr-only">Contributors for {line.label}</h2>
+    <section className="min-w-0 space-y-5" aria-label="Budget expenses">
+      <h2 className="sr-only">Expenses for {line.label}</h2>
       <div className="grid grid-cols-1 gap-3 rounded-lg bg-muted/50 p-4 min-[420px]:grid-cols-3">
         {(
           [
@@ -130,12 +130,12 @@ function ContributorsSession({
         . BC: {bc}. The line's actual expenditure above includes its applied
         share; expense rows below show the original full amounts.
       </p>
-      {result.isLoading ? <p role="status">Loading contributors…</p> : null}
+      {result.isLoading ? <p role="status">Loading expenses…</p> : null}
       {result.error ? (
         <p role="alert">
-          Could not load contributors.{" "}
+          Could not load expenses.{" "}
           <Button onClick={() => void result.mutate()}>
-            Retry contributors
+            Retry expenses
           </Button>
         </p>
       ) : null}
@@ -205,7 +205,7 @@ function ContributorsSession({
             </TableBody>
           </Table>
           {result.data.results.length === 0 ? (
-            <p>No contributors for this BC and year.</p>
+            <p>No expenses for this budget code and year.</p>
           ) : null}
           <div className="flex flex-wrap gap-2">
             <Button
@@ -214,13 +214,13 @@ function ContributorsSession({
                 setCursor(financePageCursor(result.data!.previous))
               }
             >
-              Previous contributors
+              Previous expenses
             </Button>
             <Button
               disabled={!result.data.next}
               onClick={() => setCursor(financePageCursor(result.data!.next))}
             >
-              Next contributors
+              Next expenses
             </Button>
           </div>
         </>
@@ -234,7 +234,7 @@ function ContributorsSession({
             disabled={exporting || Boolean(result.error) || !result.data}
             onClick={() => void download(format)}
           >
-            Download contributors {format.toUpperCase()}
+            Download expenses {format.toUpperCase()}
           </Button>
         ))}
       </div>
